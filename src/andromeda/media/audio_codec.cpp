@@ -2,36 +2,23 @@
 
 using namespace andromeda::media;
 
-AudioCodec::AudioCodec(AVCodecID id)
+audio_codec::audio_codec(AVCodecID id)
 {
 	construct(id);
 }
 
-AudioCodec::~AudioCodec()
+audio_codec::~audio_codec()
 {
 	deconstruct();
 }
 
-bool AudioCodec::construct(AVCodecID id)
+bool audio_codec::construct(AVCodecID id)
 {
-	codec=avcodec_find_encoder(id);
-	codec_context=avcodec_alloc_context3(codec);
+	codec = avcodec_find_encoder(id);
+	codec_context = avcodec_alloc_context3(codec);
 }
 
-void AudioCodec::deconstruct()
-{
-
-}
-
-void openOutputAudioFile(const char* name)
-{
-
-}
-void closeOutputAudioFile()
-{
-
-}
-void encodePCMStreamToAudioFile(const char* name,PCMAudio pcm)
+void audio_codec::deconstruct()
 {
 
 }

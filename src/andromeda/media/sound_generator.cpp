@@ -89,10 +89,10 @@ SingleSoundRawInfo SingleSoundRawInfo::generateSinSingleNoteRawInfo(double base_
 	return generateSinSingleNoteRawInfo(freqs,overtone_amps,level);
 }
 
-PCMAudio SoundGenerator::generatePCMAudio(SoundRawTimeline* left_timeline,SoundRawTimeline* right_timeline,double total_time)
+pcm_audio SoundGenerator::generatePCMAudio(SoundRawTimeline* left_timeline,SoundRawTimeline* right_timeline,double total_time)
 {
 	if(total_time<=0||!(left_timeline||right_timeline))
-		return PCMAudio();
+		return pcm_audio();
 	double delta_t_per_idx=1.0/sample_rate;
 	int arr_len=total_time*bit_rate/8;
 	signed short int* audio_data=(signed short int*)malloc(arr_len);
@@ -128,5 +128,5 @@ PCMAudio SoundGenerator::generatePCMAudio(SoundRawTimeline* left_timeline,SoundR
 		lr_flag=false;
 		goto loop;
 	}
-	return PCMAudio(bit_rate,sample_rate,sample_size,nb_channels,arr_len,(Sample*)audio_data);
+	return pcm_audio(bit_rate,sample_rate,sample_size,nb_channels,arr_len,(sample*)audio_data);
 }

@@ -11,11 +11,11 @@
 #include "traits.h"
 #include "util.h"
 
-namespace andromeda {
-	extern bool use_opengl;
-	extern bool use_openal;
+namespace andromeda
+{
+extern bool use_opengl;
+extern bool use_openal;
 
-	bool _load_opengl();
 }
 
 #endif // ANDROMEDA

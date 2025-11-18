@@ -2,13 +2,13 @@
 
 using namespace andromeda::util;
 
-void Timer::init()
+void timer::init()
 {
 	delta_t=0;
 	past_time=HRC_TIME_NOW;
 }
 
-void Timer::calc()
+void timer::calc()
 {
 	now_time=HRC_TIME_NOW;
 	delta_t+=HRC_TIME_DURATION_TO_NANOSEC(now_time-past_time);

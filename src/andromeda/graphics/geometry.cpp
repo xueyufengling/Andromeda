@@ -3,9 +3,9 @@
 using namespace andromeda::graphics;
 using namespace andromeda::math;
 
-void Polygon::generateVertexData()
+void polygon::generate_vertex_data()
 {
-	geo_strategy=GeoStrategy::TRIANGLE_FAN;
+	instance_geometry_strategy=geometry_strategy::TRIANGLE_FAN;
 	size_t point_num=vertices.length();
 	size_t extra_data_len=vertex_extra_data.length()/point_num;
 	for(size_t i=0;i<point_num;++i)
@@ -15,14 +15,14 @@ void Polygon::generateVertexData()
 	}
 }
 
-Polygon Polygon::ptQuad(float width,float height)
+polygon polygon::ptQuad(float width,float height)
 {
-	Polygon quad;
+	polygon quad;
 	float x=width/2;
 	float y=height/2;
-	quad.addVertex(Vector2f{-x,-y},0.0f,0.0f);
-	quad.addVertex(Vector2f{-x,y},0.0f,1.0f);
-	quad.addVertex(Vector2f{x,y},1.0f,1.0f);
-	quad.addVertex(Vector2f{x,-y},1.0f,0.0f);
+	quad.add_vertex(vector2f{-x,-y},0.0f,0.0f);
+	quad.add_vertex(vector2f{-x,y},0.0f,1.0f);
+	quad.add_vertex(vector2f{x,y},1.0f,1.0f);
+	quad.add_vertex(vector2f{x,-y},1.0f,0.0f);
 	return quad;
 }

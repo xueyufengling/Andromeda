@@ -1,10 +1,24 @@
 #ifndef ANDROMEDA_MEDIA_CODEC
 #define ANDROMEDA_MEDIA_CODEC
 
+#include <functional>
+#include <ffmpeg/libavcodec/avcodec.h>
+
+namespace andromeda
+{
+namespace media
+{
+
+typedef std::function<void(AVCodecContext*, AVFormatContext*, AVPacket*)> packet_proc;
+typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*)> frame_proc;
+
+}
+}
+
 #define set_property(obj,key,val) obj->properties->key=val
 
 //cc=codec_context*,frm=avframe*,st=avstream*,pkt=avpacket*,frmc=frame pts counter(int*)
-#define startEncode(cc,frm,st,pkt,frmc)\
+#define StartEncode(cc,frm,st,pkt,frmc)\
         {\
             ((AVFrame*)(frm))->pts=*((int*)(frmc));\
             if(avcodec_send_frame(((AVCodecContext*)(cc)),((AVFrame*)(frm)))<0)\
@@ -29,14 +43,14 @@
                 }\
                 {
 
-#define endEncode(cc,frm,st,pkt,frmc)\
+#define EndEncode(cc,frm,st,pkt,frmc)\
                 }\
                 av_packet_unref(((AVPacket*)(pkt)));\
             }\
             ++*((int*)(frmc));\
         }
 
-#define startEncodeFlush(cc,st,pkt)\
+#define StartEncodeFlush(cc,st,pkt)\
         {\
             avcodec_send_frame(((AVCodecContext*)(cc)),nullptr);\
             int ret_enc_flu=0;\
@@ -57,7 +71,7 @@
                 }\
                 {
 
-#define endEncodeFlush(cc,st,pkt)\
+#define EndEncodeFlush(cc,st,pkt)\
                 }\
                 av_packet_unref(((AVPacket*)(pkt)));\
             }\

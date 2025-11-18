@@ -98,9 +98,9 @@ namespace andromeda {
 		class SoundGenerator
 		{
 		public:
-			SoundGenerator(int bit_rate_=1024E3,int sample_size_=sizeof(Sample),int nb_channels_=2);
+			SoundGenerator(int bit_rate_=1024E3,int sample_size_=sizeof(sample),int nb_channels_=2);
 
-			PCMAudio generatePCMAudio(SoundRawTimeline* left_timeline,SoundRawTimeline* right_timeline,double total_time);
+			pcm_audio generatePCMAudio(SoundRawTimeline* left_timeline,SoundRawTimeline* right_timeline,double total_time);
 			//generatePCMAudioFreqAmp<int>(wave_func,int,int);
 
 			inline void setBitRate(int br)
@@ -121,7 +121,7 @@ namespace andromeda {
 			struct TemplateFuncs
 			{
 				template<typename T>
-				PCMAudio generatePCMAudioFreqAmp(wave_func wave_construct_func,T* freq_values,T*amp_values)
+				pcm_audio generatePCMAudioFreqAmp(wave_func wave_construct_func,T* freq_values,T*amp_values)
 				{
 
 				}

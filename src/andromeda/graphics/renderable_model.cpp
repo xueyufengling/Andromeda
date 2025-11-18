@@ -14,13 +14,13 @@ using namespace andromeda::io;
 
 namespace andromeda {
 	namespace graphics {
-		static ArrayList<Texture2D*>textures_loaded(16); //已经加载过的纹理将不会再次加载
+		static array_list<texture2d*>textures_loaded(16); //已经加载过的纹理将不会再次加载
 	}
 }
 
-static Renderable* loadTextures(const char* model_path,Renderable* renderable,aiMaterial* material,aiTextureType type)
+static renderable* loadTextures(const char* model_path,renderable* renderable,aiMaterial* material,aiTextureType type)
 {
-	ArrayList<Texture2D>& textures=renderable->textures;
+	array_list<texture2d>& textures=renderable->textures;
 	unsigned int texture_count=material->GetTextureCount(type);
 	if(!texture_count) //没有材质则直接返回
 		return renderable;
@@ -28,12 +28,12 @@ static Renderable* loadTextures(const char* model_path,Renderable* renderable,ai
 	{
 		aiString str; //获取材质名称
 		material->GetTexture(type,idx,&str);
-		const char* texture_path=str_join(getFileDir(model_path).c_str(),PATH_SEPARATOR,str.C_Str());
+		const char* texture_path=str_join(directory_of(model_path).c_str(),PATH_SEPARATOR,str.C_Str());
 		bool loaded=false; //是否已经加载过
 		for(size_t loaded_texture_idx=0;loaded_texture_idx<textures_loaded.length();++loaded_texture_idx)
 		{
-			Texture2D* loaded_texture=textures_loaded[loaded_texture_idx];
-			if(std::strcmp(loaded_texture->getTexturePath(),texture_path)==0)
+			texture2d* loaded_texture=textures_loaded[loaded_texture_idx];
+			if(std::strcmp(loaded_texture->get_texture_path(),texture_path)==0)
 			{
 				loaded=true;
 				textures.add(*loaded_texture);
@@ -42,18 +42,18 @@ static Renderable* loadTextures(const char* model_path,Renderable* renderable,ai
 		}
 		if(!loaded)
 		{
-			Texture2D& texture=textures.add_placement_new(texture_path,(TextureType)type);
+			texture2d& texture=textures.add_placement_new(texture_path,(texture_type)type);
 			textures_loaded.add(&texture);
 		}
 	}
 	return renderable;
 }
 
-static Renderable loadRenderable(const char* model_path,aiMesh* mesh,const aiScene* scene,GeoStrategy geo_strategy,const char* attrib_order,const char* texture_types)
+static renderable loadRenderable(const char* model_path,aiMesh* mesh,const aiScene* scene,geometry_strategy geo_strategy,const char* attrib_order,const char* texture_types)
 {
-	Renderable renderable;
-	ArrayList<float>& vertex_data=renderable.vertex_data;
-	SplitStrings attribs=split(attrib_order,",");
+	renderable renderable;
+	array_list<float>& vertex_data=renderable.vertex_data;
+	split_strings attribs=split(attrib_order,",");
 	size_t attrib_num=attribs.length();
 	for(unsigned int vertex_idx=0;vertex_idx<mesh->mNumVertices;++vertex_idx) //加载顶点数据
 	{
@@ -113,16 +113,16 @@ static Renderable loadRenderable(const char* model_path,aiMesh* mesh,const aiSce
 	}
 	if(mesh->mMaterialIndex>=0&&texture_types!=nullptr) //如果有材质则加载材质
 	{
-		SplitStrings textures_types_str=split(texture_types,",");
+		split_strings textures_types_str=split(texture_types,",");
 		aiMaterial* material=scene->mMaterials[mesh->mMaterialIndex];
 		for(size_t type_idx=0;type_idx<textures_types_str.length();++type_idx)
-			loadTextures(model_path,&renderable,material,(aiTextureType)parseTextureType(textures_types_str[type_idx]));
+			loadTextures(model_path,&renderable,material,(aiTextureType)parse_texture_type(textures_types_str[type_idx]));
 	}
-	renderable.geo_strategy=geo_strategy;
+	renderable.instance_geometry_strategy=geo_strategy;
 	return renderable;
 }
 
-static RenderableModel* laodNodeRenderable(const char* model_path,RenderableModel* model,aiNode* node,const aiScene* scene,GeoStrategy geo_strategy,const char* attrib_order,const char* texture_types)
+static renderable_model* laodNodeRenderable(const char* model_path,renderable_model* model,aiNode* node,const aiScene* scene,geometry_strategy geo_strategy,const char* attrib_order,const char* texture_types)
 {
 	for(unsigned int idx=0;idx<node->mNumMeshes;++idx) //加载当前节点的全部Mesh
 	{
@@ -136,7 +136,7 @@ static RenderableModel* laodNodeRenderable(const char* model_path,RenderableMode
 	return model;
 }
 
-RenderableModel* RenderableModel::load3DModel(const char* model_path,GeoStrategy geo_strategy,const char* attrib_order,const char* texture_types,int post_process)
+renderable_model* renderable_model::load_model(const char* model_path,geometry_strategy geo_strategy,const char* attrib_order,const char* texture_types,int post_process)
 {
 	static Assimp::Importer model_importer;
 	textures_loaded.clear();
@@ -146,7 +146,7 @@ RenderableModel* RenderableModel::load3DModel(const char* model_path,GeoStrategy
 		LOG_ERROR("Loading model failed: ",model_importer.GetErrorString());
 		return nullptr;
 	}
-	RenderableModel* model=new RenderableModel();
+	renderable_model* model=new renderable_model();
 	laodNodeRenderable(model_path,model,scene->mRootNode,scene,geo_strategy,attrib_order,texture_types);
 	model->model_path=model_path;
 	return model;

@@ -21,12 +21,12 @@
 namespace andromeda {
 	namespace app {
 		template<typename Derived>
-		class TransparentFullWindowApplication:public andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >
+		class TransparentFullWindowApplication:public andromeda::app::window_application<TransparentFullWindowApplication<Derived> >
 		{
 			DefineApplication(TransparentFullWindowApplication<Derived>)
 		public:
 			TransparentFullWindowApplication(const char* window_title=nullptr,bool isFullScreen=true) :
-					andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >(window_title,andromeda::app::RenderSys::screenWidth,andromeda::app::RenderSys::screenHeight,andromeda::graphics::ColorRGBA::TRANSPARENT_BLACK,isFullScreen)
+					andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >(window_title,andromeda::app::render_system::screen_width,andromeda::app::render_system::screen_height,andromeda::graphics::color_rgba::TRANSPARENT_BLACK,isFullScreen)
 			{
 
 			}
@@ -36,18 +36,18 @@ namespace andromeda {
 			void preinitialize()
 			{
 				((Derived*)this)->preinitialize();
-				setWindowDecorated(false);
-				setWindowFramebufferTransparent(true);
-				setWindowInitiallyFocused(true);
-				setWindowFramebufferResizable(false);
+				set_window_decorated(false);
+				set_window_framebuffer_transparent(true);
+				set_window_initially_focused(true);
+				set_window_framebuffer_resizable(false);
 			}
 
 			void initialize()
 			{
 				((Derived*)this)->initialize();
-				setBackColor(andromeda::graphics::ColorRGBA::TRANSPARENT_BLACK);
-				setWindowTransparentColor(andromeda::graphics::Pixel::TRANSPARENT_BLACK);
-				setIsAlwaysOnTop(true);
+				set_back_color(andromeda::graphics::color_rgba::TRANSPARENT_BLACK);
+				set_window_transparent_color(andromeda::graphics::pixel::TRANSPARENT_BLACK);
+				set_always_on_top(true);
 			}
 
 			void terminate()
@@ -65,50 +65,50 @@ namespace andromeda {
 				((Derived*)this)->render_update(render_tpf);
 			}
 
-			inline static andromeda::graphics::ShaderProgram* ptShader()
+			inline static andromeda::graphics::shader_program* ptShader()
 			{
-				return &andromeda::graphics::ptTransparentFixShaderProgram();
+				return &andromeda::graphics::pt_transparent_fix_shader_program();
 			}
 
-			using andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >::operator Window*;
-			using andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >::setSynchronizeFPS;
-			using andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >::getRenderFPS;
-			using andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >::getRenderFPSCount; //获取当前所在帧
-			using andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >::setRenderFPSLimit;
-			using andromeda::app::WindowApplication<TransparentFullWindowApplication<Derived> >::setUpdateRateLimit;
+			using andromeda::app::window_application<TransparentFullWindowApplication<Derived> >::operator window*;
+			using andromeda::app::window_application<TransparentFullWindowApplication<Derived> >::setSynchronizeFPS;
+			using andromeda::app::window_application<TransparentFullWindowApplication<Derived> >::getRenderFPS;
+			using andromeda::app::window_application<TransparentFullWindowApplication<Derived> >::getRenderFPSCount; //获取当前所在帧
+			using andromeda::app::window_application<TransparentFullWindowApplication<Derived> >::setRenderFPSLimit;
+			using andromeda::app::window_application<TransparentFullWindowApplication<Derived> >::setUpdateRateLimit;
 
-			using Application<TransparentFullWindowApplication<Derived> >::getUpdateRate;
-			using Application<TransparentFullWindowApplication<Derived> >::getUpdateRateCount; //获取当前所在帧
+			using application<TransparentFullWindowApplication<Derived> >::getUpdateRate;
+			using application<TransparentFullWindowApplication<Derived> >::getUpdateRateCount; //获取当前所在帧
 
-			using Window::setBackColor;
-			using Window::getBackColor;
-			using Window::getHeight;
-			using Window::getWidth;
+			using window::set_back_color;
+			using window::get_back_color;
+			using window::get_height;
+			using window::get_width;
 
-			using Window::isWindowFullScreen;
-			using Window::setFullScreen;
-			using Window::setVisible;
-			using Window::setWindowed;
-			using Window::setMonitor;
-			using Window::setWindowSize;
-			using Window::setIsAlwaysOnTop;
-			using Window::setWindowFramebufferTransparent;
-			using Window::isWindowFramebufferTransparent;
-			using Window::setWindowFramebufferResizable;
+			using window::is_window_full_screen;
+			using window::set_full_screen;
+			using window::set_visible;
+			using window::set_windowed;
+			using window::set_monitor;
+			using window::set_window_size;
+			using window::set_always_on_top;
+			using window::set_window_framebuffer_transparent;
+			using window::is_window_framebuffer_transparent;
+			using window::set_window_framebuffer_resizable;
 
-			using Window::isWindowFramebufferResizable;
-			using Window::setWindowInitiallyVisible;
-			using Window::isWindowInitiallyVisible;
-			using Window::setWindowInitiallyFocused;
-			using Window::isWindowInitiallyFocused;
-			using Window::setWindowDecorated;
-			using Window::isWindowDecorated;
-			using Window::setWindowOpacity;
+			using window::is_window_framebuffer_resizable;
+			using window::set_window_initially_visible;
+			using window::is_window_initially_visible;
+			using window::set_window_initially_focused;
+			using window::is_window_initially_focused;
+			using window::set_window_decorated;
+			using window::is_window_decorated;
+			using window::set_window_opacity;
 #ifdef GLFW_MOUSE_PASSTHROUGH
-			using Window::setWindowMouseEventPassthrough;
-			using Window::isWindowMouseEventPassthrough;
+			using window::set_window_mouse_event_passthrough;
+			using window::is_window_mouse_event_passthrough;
 #endif
-			using Window::setWindowTransparentColor;
+			using window::set_window_transparent_color;
 		};
 	}
 }

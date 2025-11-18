@@ -9,9 +9,6 @@
 //视频处理
 #include "media/video_codec.h"
 #include "media/audio_codec.h"
-#include "media/audio_factory.h"
-#include "media/image_factory.h"
 #include "media/muxer.h"
-#include "media/video_factory.h"
 
 #endif // ANDROMEDA_MEDIA

@@ -2,7 +2,7 @@
 
 using namespace andromeda::thread;
 
-void CoroutineLock::turn(CoroutineLock *turn) //传入另一个线程的CoroutineLock对象，阻塞调用该函数的线程，恢复执行传入的线程
+void coroutine_lock::turn(coroutine_lock *turn) //传入另一个线程的CoroutineLock对象，阻塞调用该函数的线程，恢复执行传入的线程
 {
 	std::unique_lock<std::mutex> lock(mutex);
 	{
