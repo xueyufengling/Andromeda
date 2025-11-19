@@ -8,7 +8,7 @@ using namespace andromeda::math;
 shader_program::shader_program(GLuint shader_program, GLuint vertex_shader, GLuint fragment_shader) :
 		gl_component(shader_program), vertex_shader(vertex_shader), fragment_shader(fragment_shader)
 {
-	if((!check_shader_program(false)) && check_vertex_shader(false) && check_fragment_shader(false)) //shader_program无效，但所有着色器都有效则链接着色器程序
+	if((!check_program(false)) && check_vertex_shader(false) && check_fragment_shader(false)) //shader_program无效，但所有着色器都有效则链接着色器程序
 		link();
 }
 
@@ -23,30 +23,32 @@ shader_program::shader_program(const char* vertex_shader_source, const char* fra
 	set_fragment_shader(fragment_shader_source);
 }
 
-bool shader_program::check_shader(const char* shader_name, GLuint shader, bool print_log)
+bool shader_program::check_shader(GLuint shader)
 {
 	if(!shader)
 		return false;
 	int success;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-	if(!success && print_log)
+	if(!success)
 	{
 		char info[512]{0};
 		glGetShaderInfoLog(shader, 512, NULL, info);
-		LogDebug(shader_name, "\ncompile failed:", info, "\nShader ID:", shader)
+		LogError("gl shader compile failed:", info, "\nshader id:", shader)
 	}
 	return (bool)success;
 }
 
-bool shader_program::check_shader_program(GLuint shader_program, bool print_log)
+bool shader_program::check_program(GLuint shader_program)
 {
+	if(!shader_program)
+		return false;
 	int success;
 	glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-	if(!success && print_log)
+	if(!success)
 	{
 		char info[512];
 		glGetProgramInfoLog(shader_program, 512, NULL, info);
-		LogDebug("Shader Program link failed:", info, "\nID:", shader_program)
+		LogError("shader program link failed:", info, "\nprogram id:", shader_program)
 	}
 	return (bool)success;
 }

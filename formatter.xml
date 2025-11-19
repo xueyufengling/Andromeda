@@ -40,7 +40,7 @@
         <setting id="org.eclipse.cdt.core.formatter.brace_position_for_switch" value="next_line"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_comma_in_expression_list" value="do not insert"/>
         <setting id="org.eclipse.cdt.core.formatter.keep_else_statement_on_same_line" value="false"/>
-        <setting id="org.eclipse.cdt.core.formatter.insert_space_before_colon_in_base_clause" value="insert"/>
+        <setting id="org.eclipse.cdt.core.formatter.insert_space_before_colon_in_base_clause" value="do not insert"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_comma_in_base_types" value="do not insert"/>
         <setting id="org.eclipse.cdt.core.formatter.use_tabs_only_for_leading_indentations" value="false"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_between_empty_parens_in_method_invocation" value="do not insert"/>

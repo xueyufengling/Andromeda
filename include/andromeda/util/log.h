@@ -1,72 +1,10 @@
 #ifndef ANDROMEDA_UTIL_LOG
 #define ANDROMEDA_UTIL_LOG
-//定义调试相关的宏，例如输出报错信息的方式
 
 #include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <string>
+#include "string_utils.h"
 
 #define LOGGER_TYPE terminal_logger
-
-template<typename T>
-std::string to_string(T& value);
-
-#define StdToString(type)\
-template<>\
-std::string to_string(type& value)\
-{\
-	return std::to_string(value);\
-}
-
-StdToString(double)
-StdToString(float)
-StdToString(int)
-StdToString(long double)
-StdToString(long int)
-StdToString(long long int)
-StdToString(unsigned int)
-StdToString(unsigned long int)
-StdToString(unsigned long long int)
-
-StdToString(short)
-StdToString(unsigned short)
-
-#undef StdToString
-
-template<>
-std::string to_string(char& value)
-{
-	return std::string(value);
-}
-
-template<>
-std::string to_string(unsigned char& value)
-{
-	std::stringstream ss;
-	ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(unsigned char)) << (int)value;
-	return ss.str();
-}
-
-template<>
-std::string to_string(void*& value)
-{
-	std::stringstream ss;
-	ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(void*)) << (unsigned long long int)value;
-	return ss.str();
-}
-
-template<>
-std::string to_string(std::string& value)
-{
-	return value;
-}
-
-template<>
-std::string to_string(const char*& value)
-{
-	return std::string(value);
-}
 
 namespace andromeda
 {
@@ -76,28 +14,8 @@ class LOGGER_TYPE;
 
 enum log_level
 {
-	LOG_DEBUG = 0, LOG_INFO, LOG_ERROR
+	LOG_DEBUG = 0, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL
 };
-
-template<typename Arg, typename ...Args>
-__attribute__((always_inline)) inline void _string_cat(std::stringstream& ss, Arg arg, Args ...args)
-{
-	ss << to_string<Arg>(arg);
-	_string_cat(ss, args...);
-}
-
-template<>
-__attribute__((always_inline)) inline void _string_cat(std::stringstream& ss)
-{
-}
-
-template<typename ...Args>
-std::string string_cat(Args ...vals)
-{
-	std::stringstream ss;
-	_info_to_string(ss, vals...);
-	return ss.str();
-}
 
 template<typename Derived>
 class logger
@@ -115,7 +33,7 @@ public:
 	__attribute__((always_inline)) inline void log(log_level msg_level, Args ...info)
 	{
 		if(current_log_level <= msg_level)
-			(Derived*)this->log_out(string_cat(info...));
+			((Derived*)this)->log_out(string_cat(info...));
 	}
 
 	template<typename ...Args>
@@ -129,10 +47,10 @@ public:
  */
 extern LOGGER_TYPE* process_logger;
 
-class terminal_logger : public logger<terminal_logger>
+class terminal_logger: public logger<terminal_logger>
 {
 public:
-	__attribute__((always_inline)) void log_out(std::string& info)
+	__attribute__((always_inline)) void log_out(std::string info)
 	{
 		std::cout << info << std::endl;
 	}
@@ -141,10 +59,44 @@ public:
 }
 }
 
-#define LogDebug(...) {andromeda::util::process_logger->log(andromeda::util::log_level::LOG_DEBUG, ##__VA_ARGS__);}
+#define LogDebugTo(logger_ptr, ...)\
+		{\
+			if(logger_ptr)\
+				logger_ptr->log(andromeda::util::log_level::LOG_DEBUG, "[", std::chrono::system_clock::now(), "] [DEBUG] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+		}
 
-#define LogInfo(...) {andromeda::util::process_logger->log(andromeda::util::log_level::LOG_INFO, ##__VA_ARGS__);}
+#define LogInfoTo(logger_ptr, ...)\
+		{\
+			if(logger_ptr)\
+				logger_ptr->log(andromeda::util::log_level::LOG_INFO, "[", std::chrono::system_clock::now(), "] [INFO] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+		}
 
-#define LogError(...) {andromeda::util::process_logger->log(andromeda::util::log_level::LOG_ERROR, ##__VA_ARGS__);}
+#define LogWarnTo(logger_ptr, ...)\
+		{\
+			if(logger_ptr)\
+				logger_ptr->log(andromeda::util::log_level::LOG_WARN, "[", std::chrono::system_clock::now(), "] [WARN] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+		}
+
+#define LogErrorTo(logger_ptr, ...)\
+		{\
+			if(logger_ptr)\
+				logger_ptr->log(andromeda::util::log_level::LOG_ERROR, "[", std::chrono::system_clock::now(), "] [ERROR] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+		}
+
+#define LogFatalTo(logger_ptr, ...)\
+		{\
+			if(logger_ptr)\
+				logger_ptr->log(andromeda::util::log_level::LOG_FATAL, "[", std::chrono::system_clock::now(), "] [FATAL] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+		}
+
+#define LogDebug(...) LogDebugTo(andromeda::util::process_logger, ##__VA_ARGS__)
+
+#define LogInfo(...) LogInfoTo(andromeda::util::process_logger, ##__VA_ARGS__)
+
+#define LogWarn(...) LogWarnTo(andromeda::util::process_logger, ##__VA_ARGS__)
+
+#define LogError(...) LogErrorTo(andromeda::util::process_logger, ##__VA_ARGS__)
+
+#define LogFatal(...) LogFatalTo(andromeda::util::process_logger, ##__VA_ARGS__)
 
 #endif //ANDROMEDA_UTIL_LOG

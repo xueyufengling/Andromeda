@@ -31,13 +31,13 @@ bool muxer::construct(video_codec* vc, audio_codec* ac)
 	}
 	if(vc)
 	{
-		format_context->video_codec_id = vc->codec->id;
-		format_context->video_codec = vc->codec;
+		format_context->video_codec_id = vc->avcodec->id;
+		format_context->video_codec = vc->avcodec;
 	}
 	if(ac)
 	{
-		format_context->audio_codec_id = ac->codec->id;
-		format_context->audio_codec = ac->codec;
+		format_context->audio_codec_id = ac->avcodec->id;
+		format_context->audio_codec = ac->avcodec;
 	}
 	return true;
 }
@@ -54,8 +54,8 @@ void muxer::new_stream(void)
 {
 	if(current_video_codec)
 	{
-		append_stream(format_context, current_video_codec->codec, current_video_codec->video_properties->nb_video_stream);
-		init_video_stream(format_context, current_video_codec->codec_context, current_video_codec->codec, current_video_stream);
+		append_stream(format_context, current_video_codec->avcodec, current_video_codec->video_properties->nb_video_stream);
+		init_video_stream(format_context, current_video_codec->codec_context, current_video_codec->avcodec, current_video_stream);
 	}
 	if(current_audio_codec)
 	{
@@ -72,7 +72,7 @@ void muxer::open_output_file(const char* file)
 	clear(file);
 	ret = avio_open(&format_context->pb, file, AVIO_FLAG_WRITE);
 	if(ret < 0)
-		logError(ret, "Open the file failed.");
+		LogError(ret, "Open the file failed.");
 	ret = avformat_write_header(format_context, nullptr);
 	if(ret < 0)
 		LogError(ret, "Write file header failed.");

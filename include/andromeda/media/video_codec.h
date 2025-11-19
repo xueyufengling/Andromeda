@@ -13,7 +13,7 @@ namespace andromeda
 {
 namespace media
 {
-class video_codec
+class video_codec: public codec
 {
 	friend class muxer;
 
@@ -51,14 +51,7 @@ public:
 	};
 
 protected:
-	AVCodec* codec;
-	AVCodecContext* codec_context;
-	AVFrame* frame;
-	AVPacket* packet;
-	std::ofstream* output_file;
 	properties* video_properties;
-	bool is_buf_alloc;
-	long int encoded_frame_count, packet_count;
 
 	bool init_codec(AVCodecID id);
 	bool construct(AVCodecID id);

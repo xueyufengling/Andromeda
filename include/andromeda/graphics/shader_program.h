@@ -12,7 +12,7 @@ namespace andromeda
 namespace graphics
 {
 
-class shader_program : public gl_component<shader_program>
+class shader_program: public gl_component<shader_program>
 {
 private:
 	GLuint vertex_shader = 0, fragment_shader = 0;
@@ -51,45 +51,32 @@ public:
 
 	bool link(bool release_shader = true); //通常不需要调用，可以自动链接，成功则返回true。release_shader决定如果链接成功是否释放已经编译的着色器资源，默认释放资源
 
-	void release_shader(); //释放已经编译的着色器资源
+	/**
+	 * 释放已经编译的着色器资源
+	 */
+	void release_shader();
 
-	static bool check_shader(const char* shader_name, GLuint shader, bool print_log = true);
+	/**
+	 * @brief 检查着色器是否编译成功，如果未成功则打印错误日志
+	 * @return true为编译成功，false为编译失败
+	 */
+	static bool check_shader(GLuint shader);
 
-	static bool check_vrtex_shader(shader_program& program, bool print_log = true) //成功则返回true。print_log决定如果出错是否打印错误信息方便调试
+	static bool check_program(GLuint shader_program);
+
+	__attribute__((always_inline)) inline bool check_vertex_shader()
 	{
-		return check_shader(andromeda::util::str_join("Vertex Shader:\n", program.vertex_shader_source), program.vertex_shader, print_log);
+		return check_shader(vertex_shader);
 	}
 
-	static bool check_vertex_shader(GLuint shader, bool print_log = true)
+	__attribute__((always_inline)) inline bool check_fragment_shader()
 	{
-		return check_shader(andromeda::util::str_join("Vertex Shader:\n", shader), shader, print_log);
+		return check_shader(fragment_shader);
 	}
 
-	static bool check_fragment_shader(shader_program& program, bool print_log = true) //成功则返回true
+	__attribute__((always_inline)) inline bool check_shader_program()
 	{
-		return check_shader(andromeda::util::str_join("Fragment Shader:\n", program.fragment_shader_source), program.fragment_shader, print_log);
-	}
-
-	static bool check_fragment_shader(GLuint shader, bool print_log = true)
-	{
-		return check_shader(andromeda::util::str_join("Fragment Shader:\n", shader), shader, print_log);
-	}
-
-	static bool check_shader_program(GLuint shader_program, bool print_log = true); //成功则返回true
-
-	__attribute__((always_inline)) inline bool check_vertex_shader(bool print_log = true) //成功则返回true。print_log决定如果出错是否打印错误信息方便调试
-	{
-		return check_vertex_shader(id(), print_log);
-	}
-
-	__attribute__((always_inline)) inline bool check_fragment_shader(bool print_log = true) //成功则返回true
-	{
-		return check_fragment_shader(*this, print_log);
-	}
-
-	__attribute__((always_inline)) inline bool check_shader_program(bool print_log = true) //成功则返回true
-	{
-		return check_shader_program(id(), print_log);
+		return check_program(gl_id);
 	}
 
 //适用于偶尔设置变量值（glGetUniformLocation查询代价高昂避免循环调用！），设置前后不改变当前着色器程序
@@ -179,7 +166,8 @@ public:
 	{
 		return variable(id(), name);
 	}
-};
+}
+;
 }
 }
 

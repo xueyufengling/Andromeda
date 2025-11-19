@@ -2,7 +2,14 @@
 #define ANDROMEDA_MEDIA_CODEC
 
 #include <functional>
+#include <andromeda/util/log.h>
+#include <andromeda/util/linked_buffer.h>
+
+extern "C"
+{
 #include <ffmpeg/libavcodec/avcodec.h>
+#include <ffmpeg/libavformat/avformat.h>
+}
 
 namespace andromeda
 {
@@ -11,6 +18,61 @@ namespace media
 
 typedef std::function<void(AVCodecContext*, AVFormatContext*, AVPacket*)> packet_proc;
 typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*)> frame_proc;
+
+void encode(AVCodecContext* codec_context, AVFormatContext* fmt_context, AVFrame* avframe, AVPacket*);
+
+class codec
+{
+protected:
+	AVCodec* avcodec = nullptr;
+	AVCodecContext* codec_context = nullptr;
+	AVFormatContext* fmt_context = nullptr;
+	AVFrame* frame = nullptr;
+	AVPacket* packet = nullptr;
+	std::ofstream* output_file = nullptr;
+
+	bool is_buf_alloc;
+	long int encoded_frame_count, packet_count;
+
+public:
+	typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*, AVPacket*)> codec_proc;
+
+	/**
+	 * @brief 初始化编解码器
+	 */
+	bool initialize(AVCodecID id);
+
+	void terminate();
+
+	template<typename T>
+	T& decode(const char* file, codec_proc proc)
+	{
+		int ret = 0;
+		if((ret = avformat_open_input(&fmt_context, file, nullptr, nullptr)) < 0)
+		{
+			LogError(ret, "codec open input file failed.");
+			return nullptr;
+		}
+		if((ret = avformat_find_stream_info(fmt_context, nullptr)) < 0)
+		{
+			LogError(ret, "codec find stream info failed.");
+			return nullptr;
+		}
+		andromeda::util::linked_buffer<T> results(fmt_context->nb_streams);
+		frame = av_frame_alloc();
+		if(!frame)
+		{
+			LogError(ret, "codec allocate frame failed.");
+			return nullptr;
+		}
+		packet = av_packet_alloc();
+		if(!packet)
+		{
+			LogError(ret, "codec allocate packet failed.");
+			return nullptr;
+		}
+	}
+};
 
 }
 }
@@ -77,7 +139,7 @@ typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*)> frame_p
             }\
         }
 
-#define startDecode(cc,pkt,frm)\
+#define StartDecode(cc,pkt,frm)\
         {\
             if(avcodec_send_packet(cc,pkt)<0)\
             {\
@@ -96,13 +158,13 @@ typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*)> frame_p
                 }\
                 {
 
-#define endDecode(cc,pkt,frm)\
+#define EndDecode(cc,pkt,frm)\
                 }\
                 av_packet_unref(((AVPacket*)(pkt)));\
             }\
         }
 
-#define startDecodeFlush(cc,frm)\
+#define StartDecodeFlush(cc,frm)\
         {\
             avcodec_send_packet(cc,nullptr);\
             int ret_dec_flu=0;\
@@ -118,7 +180,7 @@ typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*)> frame_p
                 }\
                 {
 
-#define endDecodeFlush(cc,frm)\
+#define EndDecodeFlush(cc,frm)\
                 }\
                 av_packet_unref(((AVPacket*)(pkt)));\
             }\

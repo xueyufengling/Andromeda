@@ -10,7 +10,28 @@ namespace andromeda
 {
 namespace media
 {
-class audio_codec
+inline int sizeof_sample(AVSampleFormat fmt)
+{
+	switch(fmt)
+	{
+	case AV_SAMPLE_FMT_S16:
+		case AV_SAMPLE_FMT_S16P:
+		return 16;
+	case AV_SAMPLE_FMT_S32:
+		case AV_SAMPLE_FMT_S32P:
+		return 32;
+	case AV_SAMPLE_FMT_S64:
+		case AV_SAMPLE_FMT_S64P:
+		return 64;
+	case AV_SAMPLE_FMT_U8:
+		case AV_SAMPLE_FMT_U8P:
+		return 8;
+	default:
+		return -1;
+	}
+}
+
+class audio_codec: public codec
 {
 	friend class muxer;
 
@@ -34,15 +55,9 @@ public:
 	void deconstruct();
 
 protected:
-	AVCodec* codec;
-	AVCodecContext* codec_context;
-	AVFrame* frame;
-	AVPacket* packet;
-	std::ofstream* output_file;
 	properties* audio_properties;
-	bool is_buf_alloc;
-	long int encoded_frame_count;
 };
+
 }
 }
 

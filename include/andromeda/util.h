@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_UTIL
 #define ANDROMEDA_UTIL
 
-#include <andromeda/util/linked_chunk.h>
+#include <andromeda/util/linked_buffer.h>
 #include "util/array_list.h"
 #include "util/gl_utils.h"
 #include "util/limit_counter.h"

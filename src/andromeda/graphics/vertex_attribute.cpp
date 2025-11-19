@@ -8,7 +8,7 @@ using namespace andromeda::util;
 
 vertex_attribute_info::vertex_attribute_info(const char* info)
 {
-	split_strings attrib_str = split(info, ":");
+	split_strings attrib_str = split_strings::split(info, ":");
 	split_strings attrib_name_index = split(attrib_str[0], ".");
 	name = str_cpy(attrib_name_index[0]); //属性名称
 	if(attrib_name_index.length() > 1)
@@ -55,7 +55,7 @@ vertex_attribute_info::vertex_attribute_info(const char* info)
 
 void vertex_attribute::set_attribute(const char* attrib_str)
 {
-	split_strings attrib_str_arr = split(attrib_str, ","); //析构时自动释放内存
+	split_strings attrib_str_arr = split_strings::split(attrib_str, ","); //析构时自动释放内存
 	size_t offset = 0;
 	for(int i = 0; i < attrib_str_arr.length(); ++i)
 	{

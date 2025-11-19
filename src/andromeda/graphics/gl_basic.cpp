@@ -7,7 +7,7 @@ static bool loaded_opengl = false;
 
 void andromeda::graphics::_glfw_error_print(int err_code, const char* description)
 {
-	LOG_DEBUG("GLFW Error Code:", err_code, "\nDescription:", description)
+	LogError("GLFW Error Code:", err_code, "\nDescription:", description)
 }
 
 void andromeda::graphics::_glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -22,7 +22,7 @@ bool andromeda::graphics::load_opengl()
 		if(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			loaded_opengl = true;
 		else
-			LOG_DEBUG("Initialize GLAD failed.");
+			LogFatal("Initialize GLAD failed.");
 	}
 	return loaded_opengl;
 }
@@ -30,7 +30,7 @@ bool andromeda::graphics::load_opengl()
 void andromeda::graphics::load_glfw(int major, int minor, GLFWerrorfun callback)
 {
 	if(!glfwInit())
-		LOG_DEBUG("Initialize GLFW failed.")
+		LogFatal("Initialize GLFW failed.")
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
