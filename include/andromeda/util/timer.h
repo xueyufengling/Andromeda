@@ -1,10 +1,10 @@
 #ifndef ANDROMEDA_UTIL_TIMER
 #define ANDROMEDA_UTIL_TIMER
 
+#include <andromeda/util/array.h>
 #include <chrono>
 #include <functional>
 
-#include "array_list.h"
 #include "limit_counter.h"
 
 //高精度时钟的time_point转换成秒
@@ -27,7 +27,7 @@ private:
 	long long int delta_t = 0;
 	size_t counter = 0; //每达到一次interval就计数一次
 	limit_counter<size_t> interval_idx_counter;
-	array_list<long long int> intervals;
+	array<long long int> intervals;
 
 public:
 	std::function<void(float, size_t&, size_t&)> callback;

@@ -12,7 +12,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "array_list.h"
+#include <andromeda/util/array.h>
 
 template<typename T>
 std::string to_string(const T& value);
@@ -121,16 +121,27 @@ const char* str_cpy(const char* str);
 
 const char* string_cat(const char** str_arr, int count); //把含有count个字符串的数组合并为一个字符串
 
+template<typename T>
+T value_of(const std::string& value);
+
+int value_of(const char value)
+{
+	if(value >= '0' && value <= '9')
+		return value - '0';
+	else
+		return -1;
+}
+
 namespace andromeda
 {
 namespace util
 {
 
-class split_strings: public array_list<const char*>
+class split_strings: public array<const char*>
 {
 private:
-	using array_list<const char*>::array_list;
-	using array_list<const char*>::release;
+	using array<const char*>::array;
+	using array<const char*>::release;
 	split_strings() = default;
 
 public:

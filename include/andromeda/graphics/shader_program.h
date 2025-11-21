@@ -74,7 +74,7 @@ public:
 		return check_shader(fragment_shader);
 	}
 
-	__attribute__((always_inline)) inline bool check_shader_program()
+	__attribute__((always_inline)) inline bool check_program()
 	{
 		return check_program(gl_id);
 	}

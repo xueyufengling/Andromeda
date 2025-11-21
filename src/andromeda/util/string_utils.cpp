@@ -24,7 +24,7 @@ const char* string_cat(const char** str_arr, int count)
 
 split_strings split_strings::split(const char* str, const char* delim)
 {
-	array_list<const char*> arr(16);
+	array<const char*> arr(16);
 	char* cpy = (char*)str_cpy(str); //尽管返回了许多子字符串，但由于这些字符串紧密位于同一块内存cpy中，释放内存时应只释放第一个子串的指针，即调用free((void*)arr[0])！切勿对每个子串调用free()，否则会出错
 	char* splited_str = strtok(cpy, delim); //strtok会改变原字符串，因此要先拷贝
 	while(splited_str)

@@ -1,13 +1,13 @@
 #ifndef ANDROMEDA_GRAPHICS_SPRITE
 #define ANDROMEDA_GRAPHICS_SPRITE
 
+#include <andromeda/util/array.h>
 #include <opengl/glad/glad.h>
 #include <map>
 #include "texture_2d.h"
 #include "coord_transform.h"
 #include "geometry.h"
 #include "../io/files.h"
-#include "../util/array_list.h"
 #include "../util/timer.h"
 
 namespace andromeda
@@ -20,11 +20,11 @@ class sprite_sheet
 {
 protected:
 	texture2d sheet_texture;
-	andromeda::util::array_list<uv_coord> splited_area;
+	andromeda::util::array<uv_coord> splited_area;
 	private:
 	sprite_sheet() = default;
 
-	sprite_sheet(texture2d texture, andromeda::util::array_list<uv_coord> splited_area) :
+	sprite_sheet(texture2d texture, andromeda::util::array<uv_coord> splited_area) :
 			sheet_texture(texture), splited_area(splited_area)
 	{
 
@@ -79,7 +79,7 @@ public:
 #define DefineSpriteSheet(key_type,sprite_sheet_type) set_mapping_type(key_type,sprite_sheet_type)
 
 //用于映射getSprite<int>()
-class _sprite_sheet : public sprite_sheet<_sprite_sheet>
+class _sprite_sheet: public sprite_sheet<_sprite_sheet>
 {
 public:
 	using sprite_sheet<_sprite_sheet>::get_sprite;
@@ -90,7 +90,7 @@ DefineSpriteSheet(int, _sprite_sheet)
 using sprite_sheet_divisor_index=andromeda::math::vector<2,int>;
 
 //等分裁剪，每个裁剪区域相同大小
-class equal_division_sprite_sheet : public sprite_sheet<equal_division_sprite_sheet>
+class equal_division_sprite_sheet: public sprite_sheet<equal_division_sprite_sheet>
 {
 private:
 	using sprite_sheet<equal_division_sprite_sheet>::sheet_texture;
@@ -163,7 +163,7 @@ enum sprite_split_mode
 extern const char* default_split_info_names[4];
 
 //紧凑的精灵表，裁剪区域大小、位置不固定，需要额外的CSV文件指定每个裁剪区域的位置和尺寸
-class compact_sprite_sheet : public sprite_sheet<compact_sprite_sheet>
+class compact_sprite_sheet: public sprite_sheet<compact_sprite_sheet>
 {
 private:
 	using sprite_sheet<compact_sprite_sheet>::sheet_texture;
@@ -181,7 +181,7 @@ public:
 };
 DefineSpriteSheet(std::string, compact_sprite_sheet)
 
-class sprite : public polygon
+class sprite: public polygon
 {
 public:
 	typedef struct part
@@ -221,7 +221,7 @@ public:
 
 	typedef struct frame
 	{
-		andromeda::util::array_list<part> parts;
+		andromeda::util::array<part> parts;
 		float time = 0; //持续时间
 
 		frame() = default;
@@ -231,14 +231,14 @@ public:
 
 		}
 
-		inline operator andromeda::util::array_list<part>&()
+		inline operator andromeda::util::array<part>&()
 		{
 			return parts;
 		}
 
 		inline operator part*()
 		{
-			return parts.elements();
+			return (part*)parts;
 		}
 
 		inline part& operator[](size_t idx)
@@ -259,8 +259,8 @@ private:
 	andromeda::util::timer timer; //按时间渲染不同的帧
 
 protected:
-	andromeda::util::array_list<void*> sprite_sheet; //所使用到的精灵表数组
-	andromeda::util::array_list<frame> frames; //按顺序播放
+	andromeda::util::array<void*> sprite_sheet; //所使用到的精灵表数组
+	andromeda::util::array<frame> frames; //按顺序播放
 
 public:
 	template<typename KeyType>

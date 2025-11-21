@@ -31,31 +31,24 @@ inline int sizeof_sample(AVSampleFormat fmt)
 	}
 }
 
-class audio_codec: public codec
+typedef struct audio_properties
 {
-	friend class muxer;
+	int bit_rate;
+	int sample_rate;
+	int sample_bit;
+} audio_properties;
 
+typedef struct audio_frame_info
+{
+	int bit_rate;
+} audio_frame_info;
+
+class audio_decoder
+{
 public:
-	typedef struct properties
-	{
-		int bit_rate;
-		int sample_rate;
-		int sample_bit;
-	} properties;
-
-	typedef struct frame_info
-	{
-		int bit_rate;
-	} frame_info;
-
-	audio_codec(AVCodecID id);
-	~audio_codec();
-
-	bool construct(AVCodecID id);
-	void deconstruct();
 
 protected:
-	properties* audio_properties;
+	audio_properties* audio_properties;
 };
 
 }

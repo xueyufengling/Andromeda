@@ -8,7 +8,7 @@ using namespace andromeda::math;
 shader_program::shader_program(GLuint shader_program, GLuint vertex_shader, GLuint fragment_shader) :
 		gl_component(shader_program), vertex_shader(vertex_shader), fragment_shader(fragment_shader)
 {
-	if((!check_program(false)) && check_vertex_shader(false) && check_fragment_shader(false)) //shader_program无效，但所有着色器都有效则链接着色器程序
+	if((!check_program()) && check_vertex_shader() && check_fragment_shader()) //shader_program无效，但所有着色器都有效则链接着色器程序
 		link();
 }
 
@@ -73,7 +73,7 @@ bool shader_program::set_fragment_shader(const char* fragment_shader_source)
 
 bool shader_program::set_vertex_shader(GLuint vertex_shader)
 {
-	bool shader_compiled = check_vertex_shader(vertex_shader);
+	bool shader_compiled = check_vertex_shader();
 	if(shader_compiled)
 	{
 		glDeleteShader(this->vertex_shader);
@@ -91,7 +91,7 @@ bool shader_program::set_vertex_shader(GLuint vertex_shader)
 
 bool shader_program::set_fragment_shader(GLuint fragment_shader)
 {
-	bool shader_compiled = check_fragment_shader(fragment_shader);
+	bool shader_compiled = check_fragment_shader();
 	if(shader_compiled)
 	{
 		glDeleteShader(this->fragment_shader);
@@ -116,7 +116,7 @@ bool shader_program::link(bool release_shader)
 		glAttachShader(gl_id, vertex_shader);
 		glAttachShader(gl_id, fragment_shader);
 		glLinkProgram(gl_id);
-		bool link_state = check_shader_program();
+		bool link_state = check_program();
 		if(link_state)
 		{
 			glDeleteProgram(old_program);

@@ -118,7 +118,7 @@ public:
 	static pcm_audio<T>* mix(pcm_audio<T>& aud1, pcm_audio<O>& aud2, long int pos_off)
 	{
 		pcm_audio<T>* mixed_audio = new pcm_audio<T>(aud1.bit_rate, aud1.sample_rate, std::max(aud1.nb_channels, aud2.nb_channels), std::max(aud1.sample_count, aud2.sample_count + pos_off));
-		memcpy(mixed_audio->sample_data, aud1.sample_data, getSmallerNumber(sizeof(sample) * pos_off, aud1.data_size));
+		memcpy(mixed_audio->sample_data, aud1.sample_data, std::min(sizeof(sample) * pos_off, aud1.data_size));
 		if(pos_off > aud1.sample_count)
 		{
 			memset(mixed_audio->sample_data + aud1.data_size, 0, sizeof(sample) * pos_off - aud1.data_size);
@@ -142,83 +142,83 @@ public:
 	static pcm_audio& mul_speed(pcm_audio& audio, float factor);
 
 	static pcm_audio* read(const char* file)
-	{
-		int ret = 0;
-		AVPacket* pkt = nullptr;
-		AVFrame* frm = nullptr;
-		AVCodec* c = nullptr;
-		AVCodecContext* cc = nullptr;
-		AVFormatContext* fc = nullptr;
-		if((ret = avformat_open_input(&fc, file, nullptr, nullptr)) < 0)
-		{
-			LogError(ret, "Open input file failed.");
-			return nullptr;
-		}
-		if((ret = avformat_find_stream_info(fc, nullptr)) < 0)
-		{
-			LogError(ret, "Find stream info failed.");
-			return nullptr;
-		}
-		andromeda::util::linked_buffer<pcm_audio> audios(fc->nb_streams);
-		frm = av_frame_alloc();
-		if(!frm)
-		{
-			LogError(ret, "Allocate frame failed.");
-			return nullptr;
-		}
-		pkt = av_packet_alloc();
-		if(!pkt)
-		{
-			LogError(ret, "Allocate packet failed.");
-			return nullptr;
-		}
-		for(int stream_index = 0; stream_index < fc->nb_streams; ++stream_index)
-		{
-			if(fc->streams[stream_index]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
-			{
-				cc = fc->streams[stream_index]->codec;
-				c = avcodec_find_decoder(cc->codec_id);
-				if(!c)
-				{
-					LogError(ret, "Find decoder failed.");
-					return nullptr;
-				}
-				pcm_audio current_audio(cc->bit_rate, cc->sample_rate, sizeof_sample(cc->sample_fmt), cc->channels);
-				linked_buffer<unsigned char> audio_data(2304);
-				if((ret = avcodec_open2(cc, c, nullptr)) < 0)
-				{
-					LogError(ret, "Open codec failed.");
-					return nullptr;
-				}
-				ret = av_read_frame(fc, pkt);
-				while(ret >= 0)
-				{
-					StartDecode(cc, pkt, frm)
-					for(int cp = 0; cp < cc->channels; ++cp)
-					{
-						audio_data.put(frm->extended_data[cp], frm->linesize[cp]);
-						current_audio.data_size += frm->linesize[cp];
-					}
-					EndDecode(cc, pkt, frm)
-					ret = av_read_frame(fc, pkt);
-				}
-				StartDecodeFlush(cc, frm)
-				for(int cp = 0; cp < cc->channels; ++cp)
-				{
-					audio_data.put(frm->extended_data[cp], frm->linesize[cp]);
-					current_audio.data_size += frm->linesize[cp];
-				}
-				EndDecodeFlush(cc, frm)
-				current_audio.sample_count = current_audio.data_size / sizeof(sample);
-				current_audio.sample_data = (sample*)(audio_data.to_array());
-				audios.put(current_audio);
-			}
-		}
-		avformat_close_input(&fc);
-		av_free_packet(pkt);
-		av_frame_free(&frm);
-		avformat_free_context(fc);
-		return audios.to_array_copy();
+	{/*
+	 int ret = 0;
+	 AVPacket* pkt = nullptr;
+	 AVFrame* frm = nullptr;
+	 AVCodec* c = nullptr;
+	 AVCodecContext* cc = nullptr;
+	 AVFormatContext* fc = nullptr;
+	 if((ret = avformat_open_input(&fc, file, nullptr, nullptr)) < 0)
+	 {
+	 LogError(ret, "Open input file failed.");
+	 return nullptr;
+	 }
+	 if((ret = avformat_find_stream_info(fc, nullptr)) < 0)
+	 {
+	 LogError(ret, "Find stream info failed.");
+	 return nullptr;
+	 }
+	 andromeda::util::linked_buffer<pcm_audio> audios(fc->nb_streams);
+	 frm = av_frame_alloc();
+	 if(!frm)
+	 {
+	 LogError(ret, "Allocate frame failed.");
+	 return nullptr;
+	 }
+	 pkt = av_packet_alloc();
+	 if(!pkt)
+	 {
+	 LogError(ret, "Allocate packet failed.");
+	 return nullptr;
+	 }
+	 for(int stream_index = 0; stream_index < fc->nb_streams; ++stream_index)
+	 {
+	 if(fc->streams[stream_index]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
+	 {
+	 cc = fc->streams[stream_index]->codec;
+	 c = avcodec_find_decoder(cc->codec_id);
+	 if(!c)
+	 {
+	 LogError(ret, "Find decoder failed.");
+	 return nullptr;
+	 }
+	 pcm_audio current_audio(cc->bit_rate, cc->sample_rate, sizeof_sample(cc->sample_fmt), cc->channels);
+	 linked_buffer<unsigned char> audio_data(2304);
+	 if((ret = avcodec_open2(cc, c, nullptr)) < 0)
+	 {
+	 LogError(ret, "Open codec failed.");
+	 return nullptr;
+	 }
+	 ret = av_read_frame(fc, pkt);
+	 while(ret >= 0)
+	 {
+	 StartDecode(cc, pkt, frm)
+	 for(int cp = 0; cp < cc->channels; ++cp)
+	 {
+	 audio_data.put(frm->extended_data[cp], frm->linesize[cp]);
+	 current_audio.data_size += frm->linesize[cp];
+	 }
+	 EndDecode(cc, pkt, frm)
+	 ret = av_read_frame(fc, pkt);
+	 }
+	 StartDecodeFlush(cc, frm)
+	 for(int cp = 0; cp < cc->channels; ++cp)
+	 {
+	 audio_data.put(frm->extended_data[cp], frm->linesize[cp]);
+	 current_audio.data_size += frm->linesize[cp];
+	 }
+	 EndDecodeFlush(cc, frm)
+	 current_audio.sample_count = current_audio.data_size / sizeof(sample);
+	 current_audio.sample_data = (sample*)(audio_data.to_array());
+	 audios.put(current_audio);
+	 }
+	 }
+	 avformat_close_input(&fc);
+	 av_free_packet(pkt);
+	 av_frame_free(&frm);
+	 avformat_free_context(fc);
+	 return audios.to_array_copy();*/
 	}
 
 	void write(const char* dest_file)

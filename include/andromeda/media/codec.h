@@ -2,8 +2,8 @@
 #define ANDROMEDA_MEDIA_CODEC
 
 #include <functional>
-#include <andromeda/util/log.h>
-#include <andromeda/util/linked_buffer.h>
+#include "../util/array.h"
+#include "../util/log.h"
 
 extern "C"
 {
@@ -16,61 +16,130 @@ namespace andromeda
 namespace media
 {
 
-typedef std::function<void(AVCodecContext*, AVFormatContext*, AVPacket*)> packet_proc;
-typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*)> frame_proc;
+typedef std::function<void(void*, AVCodecContext*, AVPacket*)> packet_proc;
+typedef std::function<void(andromeda::util::buffer&, AVCodecContext*, AVFrame*)> frame_proc;
+typedef std::function<bool(AVCodecContext*)> codec_init;
 
-void encode(AVCodecContext* codec_context, AVFormatContext* fmt_context, AVFrame* avframe, AVPacket*);
+extern frame_proc audio_decoded_frame_proc;
+extern codec_init no_extra_codec_init;
 
-class codec
+/**
+ * @brief 打开一个文件输出上下文
+ */
+AVFormatContext* open_output_file_context(const char* file);
+
+/**
+ * @brief 打开一个文件输入上下文
+ */
+AVFormatContext* open_input_file_context(const char* file);
+
+/**
+ * @brief 关闭一个文件上下文
+ */
+void close_file_context(AVFormatContext* fmt_context);
+
+//编码
+class encoder
 {
 protected:
-	AVCodec* avcodec = nullptr;
-	AVCodecContext* codec_context = nullptr;
-	AVFormatContext* fmt_context = nullptr;
-	AVFrame* frame = nullptr;
-	AVPacket* packet = nullptr;
-	std::ofstream* output_file = nullptr;
+	AVCodecID encoder_id = AVCodecID::AV_CODEC_ID_NONE;
+	AVCodec* encoder_codec = nullptr;
+	AVCodecContext* encoder_context = nullptr;
+	AVFrame* encoder_frame = nullptr;
+	AVPacket* encoder_packet = nullptr;
 
-	bool is_buf_alloc;
-	long int encoded_frame_count, packet_count;
+	int64_t encoded_frame_count, //已编码的帧的数量，用作时间戳
+			packet_count;
 
 public:
-	typedef std::function<void(AVCodecContext*, AVFormatContext*, AVFrame*, AVPacket*)> codec_proc;
+
+	inline AVCodecID get_encoder_id()
+	{
+		return encoder_id;
+	}
 
 	/**
-	 * @brief 初始化编解码器
+	 * @brief 初始化编码器
 	 */
-	bool initialize(AVCodecID id);
+	bool initialize_encoder(AVCodecID id, codec_init init_proc);
 
-	void terminate();
+	/**
+	 * @brief 释放编码器占用资源
+	 */
+	void terminate_encoder();
 
-	template<typename T>
-	T& decode(const char* file, codec_proc proc)
+};
+
+class decoder
+{
+protected:
+
+	//解码
+	AVCodecID decoder_id = AVCodecID::AV_CODEC_ID_NONE;
+	AVCodec* decoder_codec = nullptr;
+	AVCodecContext* decoder_context = nullptr;
+	AVFrame* decoder_frame = nullptr;
+
+	int64_t encoded_frame_count, //已解码的帧的数量
+			packet_count;
+
+	bool allocate_decode_buffer();
+
+public:
+	inline AVCodecID get_decoder_id()
 	{
-		int ret = 0;
-		if((ret = avformat_open_input(&fmt_context, file, nullptr, nullptr)) < 0)
-		{
-			LogError(ret, "codec open input file failed.");
-			return nullptr;
-		}
-		if((ret = avformat_find_stream_info(fmt_context, nullptr)) < 0)
-		{
-			LogError(ret, "codec find stream info failed.");
-			return nullptr;
-		}
-		andromeda::util::linked_buffer<T> results(fmt_context->nb_streams);
-		frame = av_frame_alloc();
-		if(!frame)
-		{
-			LogError(ret, "codec allocate frame failed.");
-			return nullptr;
-		}
-		packet = av_packet_alloc();
-		if(!packet)
-		{
-			LogError(ret, "codec allocate packet failed.");
-			return nullptr;
-		}
+		return decoder_id;
+	}
+
+	bool initialize_decoder(AVCodecID id, codec_init init_proc);
+
+	bool initialize_decoder(AVStream* stream, codec_init init_proc);
+
+	void terminate_decoder();
+
+	static AVPacket* read_packet(AVFormatContext* fmt_context);
+
+	int decode(andromeda::util::buffer& data_buffer, AVPacket* packet, frame_proc proc, bool flush = false, bool unref_packet = true);
+
+};
+
+/**
+ * @brief 文件解码器
+ */
+class media_decoder
+{
+protected:
+	AVFormatContext* fmt_context = nullptr;
+	std::vector<decoder> stream_decoder_codecs;
+
+public:
+	inline decoder& operator [](int idx)
+	{
+		return stream_decoder_codecs[idx];
+	}
+
+	/**
+	 * @brief 打开一个媒体文件并获取所有流的信息，将各个流的编码器进行初始化并打开准备解码
+	 * @return 文件的流数量，打开失败返回0
+	 */
+	int open_input_file(const char* file);
+
+	/**
+	 * @brief 当前输入文件的流的数量
+	 */
+	inline size_t stream_num()
+	{
+		return fmt_context->nb_streams;
+	}
+
+	inline AVStream* stream(size_t idx)
+	{
+		return fmt_context->streams[idx];
+	}
+
+	inline AVMediaType stream_type(size_t idx)
+	{
+		return stream(idx)->codec->codec_type;
 	}
 };
 

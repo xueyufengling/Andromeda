@@ -9,7 +9,7 @@ using namespace andromeda::util;
 vertex_attribute_info::vertex_attribute_info(const char* info)
 {
 	split_strings attrib_str = split_strings::split(info, ":");
-	split_strings attrib_name_index = split(attrib_str[0], ".");
+	split_strings attrib_name_index = split_strings::split(attrib_str[0], ".");
 	name = str_cpy(attrib_name_index[0]); //属性名称
 	if(attrib_name_index.length() > 1)
 		index = std::stoi(attrib_str[1]);
@@ -20,7 +20,7 @@ vertex_attribute_info::vertex_attribute_info(const char* info)
 		pos = 1;
 		normalized = true;
 	}
-	num = char_to_int_0_to_9(attrib_data_info_str[pos++]);
+	num = value_of(attrib_data_info_str[pos++]);
 	type = gl_type(attrib_data_info_str + pos);
 	type_size = sizeof_gl_type(type);
 	int type_str_len = 0;

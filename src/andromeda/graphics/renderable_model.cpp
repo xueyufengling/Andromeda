@@ -3,9 +3,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include <andromeda/util/array_list.h>
 #include <andromeda/util/string_utils.h>
 #include <andromeda/io/files.h>
+#include <andromeda/util/array.h>
 #include <andromeda/util/log.h>
 
 using namespace andromeda::graphics;
@@ -16,13 +16,13 @@ namespace andromeda
 {
 namespace graphics
 {
-static array_list<texture2d*> textures_loaded(16); //已经加载过的纹理将不会再次加载
+static array<texture2d*> textures_loaded(16); //已经加载过的纹理将不会再次加载
 }
 }
 
 static renderable* loadTextures(const char* model_path, renderable* renderable, aiMaterial* material, aiTextureType type)
 {
-	array_list<texture2d>& textures = renderable->textures;
+	array<texture2d>& textures = renderable->textures;
 	unsigned int texture_count = material->GetTextureCount(type);
 	if(!texture_count) //没有材质则直接返回
 		return renderable;
@@ -54,7 +54,7 @@ static renderable* loadTextures(const char* model_path, renderable* renderable, 
 static renderable loadRenderable(const char* model_path, aiMesh* mesh, const aiScene* scene, geometry_strategy geo_strategy, const char* attrib_order, const char* texture_types)
 {
 	renderable renderable;
-	array_list<float>& vertex_data = renderable.vertex_data;
+	array<float>& vertex_data = renderable.vertex_data;
 	split_strings attribs = split_strings::split(attrib_order, ",");
 	size_t attrib_num = attribs.length();
 	for(unsigned int vertex_idx = 0; vertex_idx < mesh->mNumVertices; ++vertex_idx) //加载顶点数据
