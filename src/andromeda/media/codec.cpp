@@ -1,7 +1,6 @@
 #include <andromeda/media/codec.h>
 
 #include <string.h>
-#include <andromeda/media/pcm_audio.h>
 
 using namespace andromeda::media;
 using namespace andromeda::util;
@@ -39,15 +38,15 @@ AVFormatContext* andromeda::media::open_input_file_context(const char* file)
 	return nullptr;
 }
 
-AVFormatContext* andromeda::media::open_output_file_context(const char* file)
+AVFormatContext* andromeda::media::alloc_output_file_context(const char* file, AVCodecContext** codec_contexts, size_t context_num)
 {
-	AVFormatContext* fmt_context = avformat_alloc_context();
-	if(!fmt_context)
+	int ret = 0;
+	AVFormatContext* fmt_context = alloc_output_file_context(file);
+	for(size_t idx = 0; idx < context_num; ++idx)
 	{
-		LogError("codec allocate output format context for file ", file, " failed");
-		return nullptr;
+		if((ret = avcodec_parameters_from_context((*(fmt_context->streams))->codecpar, codec_contexts[idx])) < 0)
+			LogError("copy parameters from codec context idx ", idx, " failed. error code: ", ret);
 	}
-	strcpy(fmt_context->filename, file);
 	return fmt_context;
 }
 

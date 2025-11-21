@@ -24,14 +24,42 @@ extern frame_proc audio_decoded_frame_proc;
 extern codec_init no_extra_codec_init;
 
 /**
- * @brief 打开一个文件输出上下文
- */
-AVFormatContext* open_output_file_context(const char* file);
-
-/**
  * @brief 打开一个文件输入上下文
  */
 AVFormatContext* open_input_file_context(const char* file);
+
+template<int StreamNum>
+inline void _alloc_output_file_context(AVFormatContext* fmt_context)
+{
+}
+
+template<int StreamNum, typename C, typename ...Cs>
+inline void _alloc_output_file_context(AVFormatContext* fmt_context, C codec_context, Cs* ... codec_contexts)
+{
+	int ret = 0;
+	if((ret = avcodec_parameters_from_context((*(fmt_context->streams + (StreamNum - sizeof...(Cs) - 1)))->codecpar, codec_context)) < 0)
+		LogError("copy parameters from codec context failed. error code: ", ret);
+	_alloc_output_file_context<StreamNum>(codec_contexts...);
+}
+
+/**
+ * @brief 打开一个文件输出上下文
+ */
+template<typename ...Cs>
+AVFormatContext* alloc_output_file_context(const char* file, Cs* ... codec_contexts)
+{
+	AVFormatContext* fmt_context = avformat_alloc_context();
+	if(!fmt_context)
+	{
+		LogError("codec allocate output format context for file ", file, " failed");
+		return nullptr;
+	}
+	_alloc_output_file_context<sizeof...(Cs)>(fmt_context, codec_contexts...); //将codec的参数按顺序拷贝进AVFormatContext
+	strcpy(fmt_context->filename, file);
+	return fmt_context;
+}
+
+AVFormatContext* alloc_output_file_context(const char* file, AVCodecContext** codec_contexts, size_t context_num);
 
 /**
  * @brief 关闭一个文件上下文
