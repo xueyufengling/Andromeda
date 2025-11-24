@@ -2,10 +2,9 @@
 #define ANDROMEDA_APP_WINDOWAPPLICATION
 
 #include <andromeda/app/render_system.h>
-#include <opengl/glad/glad.h>
-#include <opengl/GLFW/glfw3.h>
 #include "window.h"
 #include "frame_rate.h"
+#include "../graphics/gl_basic.h"
 #include "../graphics/color_rgba.h"
 #include "../graphics/framebuffer.h"
 #include "../util/log.h"
@@ -18,21 +17,17 @@
 
 namespace andromeda
 {
-extern bool use_opengl;
-extern bool use_openal;
-
-bool _load_opengl();
-
 namespace app
 {
 template<typename Derived>
-class window_application : public window, public andromeda::app::application<Derived>
+class window_application: public window, public andromeda::app::application<Derived>
 {
 	DefineApplication(Derived)
-	private:
+
+private:
 	using andromeda::app::application<Derived>::is_running;
 	using andromeda::app::application<Derived>::synchronize_fps;
-	using andromeda::app::application<Derived>::main_loop_thread;
+	using andromeda::app::application<Derived>::app_main_loop_thread;
 	frame_rate render_frame_rate; //渲染循环计数器
 	andromeda::graphics::framebuffer framebuffer; //双缓冲
 	int render_fps_limit = -1;
@@ -51,33 +46,35 @@ protected:
 public:
 	ImportApplicationAPI(Derived)
 
-	window_application(const char* window_title = nullptr, int width = 800, int height = 600, andromeda::graphics::color_rgba backColor_ = {0, 0, 0, 0}, bool isfullscreen = false, GLFWmonitor* monitor_ = glfwGetPrimaryMonitor())
+	window_application(const char* window_title = nullptr, int width = 800, int height = 600, andromeda::graphics::color_rgba back_color = {0, 0, 0, 0}, bool is_full_screen = false, GLFWmonitor* monitor = glfwGetPrimaryMonitor())
 	{
-		bool init_app = true; //如果需要的库没有加载，则不初始化该类，无法使用该类
-		if(!andromeda::use_opengl)
+		if(!andromeda::graphics::load_glfw())
 		{
-			LOG_ERROR("OpenGL is not used. Please set andromeda::use_opengl to true.")
-			init_app = false;
+			LogFatal("Load GLFW failed");
+			goto FAILED;
 		}
-		if(!andromeda::use_openal)
+		//if(!andromeda::use_openal)
 		{
-			LOG_ERROR("OpenAL is not used. Please set andromeda::use_openal to true.")
-			init_app = false;
-		}
-		if(!init_app)
-		{
-			LOG_ERROR("Application not initialized.")
-			return;
+			LogFatal("Load OpenAL failed");
+			//goto FAILED;
 		}
 		synchronize_fps = true; //默认开启帧率同步
 		_preinitialize(); //可以调用glfwWindowHint()，不可设置窗口参数、调用OpenGL函数，否则空指针异常
 		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-		new (this) window(window_title ? window_title : "Andromeda Application", width, height, backColor_, isfullscreen, monitor_); //初始化window
+		new (this) window(window_title ? window_title : "Andromeda Application", width, height, back_color, is_full_screen, monitor); //初始化window
 		glfwMakeContextCurrent(*this);
-		_load_opengl(); //GLAD的加载要在glfwMakeContextCurrent()之后进行
-		new (&framebuffer) andromeda::graphics::framebuffer(width, height, backColor_);
+		if(!andromeda::graphics::load_gl()) //GLAD的加载要在glfwMakeContextCurrent()之后进行
+		{
+			LogFatal("Load OpenGL failed");
+			goto FAILED;
+		}
+		new (&framebuffer) andromeda::graphics::framebuffer(width, height, back_color);
 		framebuffer.alloc();
-		set_back_color(backColor_);
+		set_back_color(back_color);
+		return;
+		FAILED:
+		LogFatal("Application initialize failed");
+		return;
 	}
 
 	~window_application()
@@ -101,7 +98,7 @@ public:
 			glfwPollEvents();
 			//开启同步帧率则优先执行更新函数
 			if(synchronize_fps)
-				turn(main_loop_thread);
+				turn(app_main_loop_thread);
 			//渲染
 			framebuffer.use();
 			framebuffer.clear_all_buffers();
@@ -117,7 +114,7 @@ public:
 	{
 		synchronize_fps = synchronize_fps_;
 		render_frame_rate.set_fps_limit(render_fps_limit);
-		main_loop_thread->set_update_rate_limit(update_rate_limit);
+		app_main_loop_thread->set_update_rate_limit(update_rate_limit);
 	}
 
 	__attribute__((always_inline)) inline int get_render_fps()
@@ -135,13 +132,13 @@ public:
 		render_fps_limit = fps_limit;
 		render_frame_rate.set_fps_limit(fps_limit);
 		if(synchronize_fps)
-			main_loop_thread->set_update_rate_limit(-1);
+			app_main_loop_thread->set_update_rate_limit(-1);
 	}
 
 	__attribute__((always_inline)) inline void set_update_rate_limit(int ur_limit)
 	{
 		update_rate_limit = ur_limit;
-		main_loop_thread->set_update_rate_limit(ur_limit);
+		app_main_loop_thread->set_update_rate_limit(ur_limit);
 		if(synchronize_fps)
 			render_frame_rate.set_fps_limit(-1); //每个线程如果开启帧率限制，均会休眠一帧剩余的时间。防止多个线程均休眠导致浪费多帧时间，一帧中只能有一个线程休眠
 	}

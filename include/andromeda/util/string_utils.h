@@ -1,10 +1,24 @@
 #ifndef ANDROMEDA_UTIL_STRINGUTILS
 #define ANDROMEDA_UTIL_STRINGUTILS
 
+#include "../io/paths.h"
+
 #define __STRING__(str) #str
 #define __VALUE_STRING__(val) __STRING__(val)
+
+#ifdef __FILE__
+#define __FILE_STRING__ __FILE__
+#define __FILENAME_STRING__ (andromeda::io::get_filename(__FILE_STRING__))
+#else
+#define __FILE_STRING__ "<__FILE__ UNDEFINED>"
+#define __FILENAME_STRING__ "<__FILE__ UNDEFINED>"
+#endif
+
+#ifdef __LINE__
 #define __LINE_STRING__ __VALUE_STRING__(__LINE__)
-#define __FUNCTION_STRING__ __VALUE_STRING__(__FUNCTION__)
+#else
+#define __LINE_STRING__ "<__LINE__ UNDEFINED>"
+#endif
 
 #include <sstream>
 #include <iomanip>
@@ -12,14 +26,14 @@
 #include <chrono>
 #include <ctime>
 
-#include <andromeda/util/array.h>
+#include "array.h"
 
 template<typename T>
 std::string to_string(const T& value);
 
 #define StdToString(type)\
 template<>\
-std::string to_string(const type& value)\
+__attribute__((always_inline)) inline std::string to_string(const type& value)\
 {\
 	return std::to_string(value);\
 }
@@ -40,14 +54,14 @@ StdToString(unsigned short)
 #undef StdToString
 
 template<>
-std::string to_string(const char& value)
+__attribute__((always_inline)) inline std::string to_string(const char& value)
 {
 	char str[2] = {value, '\0'};
 	return std::string(str);
 }
 
 template<>
-std::string to_string(const unsigned char& value)
+inline std::string to_string(const unsigned char& value)
 {
 	std::stringstream ss;
 	ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(unsigned char)) << (unsigned int)value;
@@ -55,13 +69,13 @@ std::string to_string(const unsigned char& value)
 }
 
 template<>
-std::string to_string(const std::string& value)
+__attribute__((always_inline)) inline std::string to_string(const std::string& value)
 {
 	return value;
 }
 
 template<>
-std::string to_string(const std::stringstream& value)
+__attribute__((always_inline)) inline std::string to_string(const std::stringstream& value)
 {
 	return value.str();
 }
@@ -77,14 +91,22 @@ std::string to_string(const std::chrono::time_point<Clock>& value)
 	return ss.str();
 }
 
-std::string to_string(const void* value)
+template<>
+inline std::string to_string<void*>(void*const& value)
 {
 	std::stringstream ss;
 	ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(void*)) << (unsigned long long int)value;
 	return ss.str();
 }
 
-std::string to_string(const char* value)
+template<>
+__attribute__((always_inline)) inline std::string to_string<char*>(char*const& value)
+{
+	return std::string(value);
+}
+
+template<>
+__attribute__((always_inline)) inline std::string to_string<char const*>(char const*const& value)
 {
 	return std::string(value);
 }
@@ -124,7 +146,7 @@ const char* string_cat(const char** str_arr, int count); //把含有count个字�
 template<typename T>
 T value_of(const std::string& value);
 
-int value_of(const char value)
+inline int value_of(const char value)
 {
 	if(value >= '0' && value <= '9')
 		return value - '0';

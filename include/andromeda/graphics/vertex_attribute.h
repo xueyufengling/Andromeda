@@ -2,8 +2,7 @@
 #define ANDROMEDA_GRAPHICS_VERTEXATTRIBUTE
 
 #include <andromeda/util/array.h>
-#include <opengl/glad/glad.h>
-#include "../graphics/gl_basic.h"
+#include "gl_basic.h"
 
 #define VERTEX_ATTRIB_NAME_POSITION "position"
 #define VERTEX_ATTRIB_NAME_COLOR "color"

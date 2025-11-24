@@ -1,17 +1,10 @@
-#ifndef ANDROMEDA_IO_IOUTILS
-#define ANDROMEDA_IO_IOUTILS
+#ifndef ANDROMEDA_IO_FILES
+#define ANDROMEDA_IO_FILES
 
 #include <fstream>
 #include <string.h>
 
-#define WIN32_PATH_SEPARATOR '\\'
-#define UNIX_PATH_SEPARATOR '/'
-
-#ifdef _WIN32
-#define PATH_SEPARATOR WIN32_PATH_SEPARATOR
-#else
-#define PATH_SEPARATOR UNIX_PATH_SEPARATOR
-#endif
+#include "paths.h"
 
 namespace rapidcsv
 {
@@ -61,4 +54,4 @@ rapidcsv::Document read_csv(std::string filename, char comma = ',', csv_option o
 }
 }
 
-#endif // ANDROMEDA_IO_IOUTILS
+#endif // ANDROMEDA_IO_FILES

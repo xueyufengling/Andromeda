@@ -1,7 +1,6 @@
 #ifndef ANDROMEDA_GRAPHICS_TEXTURE2D
 #define ANDROMEDA_GRAPHICS_TEXTURE2D
 
-#include <opengl/glad/glad.h>
 #include "gl_basic.h"
 #include "../media/raster_image.h"
 

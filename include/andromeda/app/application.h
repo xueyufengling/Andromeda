@@ -41,6 +41,7 @@ def_cls_has_func(render_update)
 	using andromeda::app::application<Derived>::launch;\
 	using andromeda::app::application<Derived>::exit;
 
+
 namespace andromeda
 {
 extern bool use_opengl;
@@ -51,16 +52,73 @@ namespace app
 
 template<typename Derived>
 class main_loop_thread;
-
 //主线程也是Coroutine，在客户端中负责渲染，可以与主循环更新线程轮流执行
 template<typename Derived>
 class application : public andromeda::thread::coroutine_lock
 {
-	DefineApplication(application)
+	 DefineApplication(application)
+
 protected:
+	class main_loop_thread : public andromeda::thread::thread<void(), main_loop_thread>, public andromeda::thread::coroutine_lock
+	{
+	DefineThread
+
+	friend class andromeda::thread::thread<void(), main_loop_thread>;
+	friend class andromeda::app::application<Derived>;
+
+	using andromeda::thread::coroutine_lock::turn;
+
+	protected:
+		Derived* app;
+		frame_rate update_rate;
+
+		void initialize()
+		{
+			update_rate.init();
+		}
+
+		void run() //多线程执行的更新逻辑函数
+		{
+			app->_update(update_rate.get_tpf());
+			update_rate.calc();
+			if(app->synchronize_fps)
+				turn(app);
+		}
+
+		void terminate()
+		{
+
+		}
+
+	public:
+		main_loop_thread(Derived *derived_app) :
+				andromeda::thread::thread<void(), main_loop_thread>(&(derived_app->is_running), andromeda::thread::work_mode::DETACH)
+		{
+			app = derived_app;
+		}
+
+		inline void set_update_rate_limit(int update_fps)
+		{
+			update_rate.set_fps_limit(update_fps);
+		}
+
+		inline int get_update_rate()
+		{
+			return update_rate.get_fps();
+		}
+
+		inline int get_update_rate_count()
+		{
+			return update_rate.get_fps_count();
+		}
+
+		using andromeda::thread::thread<void(),main_loop_thread>::start;
+		using andromeda::thread::thread<void(),main_loop_thread>::stop;
+	};
+
 	bool is_running = false;
 	std::atomic<bool> synchronize_fps; //主线程(如果是窗口程序则是渲染线程)是否与该线程同步
-	main_loop_thread<Derived>* main_loop_thread = nullptr;
+	main_loop_thread* app_main_loop_thread = nullptr;
 
 	using andromeda::thread::coroutine_lock::turn;
 
@@ -97,17 +155,19 @@ protected:
 			((Derived*)this)->render_update(render_tpf);
 	}
 
+
+
 public:
 	application()
 	{
-		main_loop_thread = new main_loop_thread<Derived>((Derived*)this);
+		app_main_loop_thread = new main_loop_thread((Derived*)this);
 		set_synchronize_fps(false);
 		_preinitialize(); //可以调用glfwWindowHint()，不可设置窗口参数、调用OpenGL函数，否则空指针异常
 	}
 
 	~application()
 	{
-		delete main_loop_thread;
+		delete app_main_loop_thread;
 	}
 
 	__attribute__((always_inline)) inline void _launch_main_loop()
@@ -115,14 +175,14 @@ public:
 		while(is_running)
 		{
 			//更新
-			turn(main_loop_thread);
+			turn(app_main_loop_thread);
 		}
 	}
 
 	void launch()
 	{
 		_initialize();
-		main_loop_thread->start();
+		app_main_loop_thread->start();
 		((Derived*)this)->_launch_main_loop();
 		_terminate();
 	}
@@ -139,78 +199,23 @@ public:
 
 	__attribute__((always_inline)) inline int get_update_rate()
 	{
-		return main_loop_thread->get_update_rate();
+		return app_main_loop_thread->get_update_rate();
 	}
 
 	__attribute__((always_inline)) inline int get_update_rate_count() //获取当前所在帧
 	{
-		return main_loop_thread->get_update_rate_count();
+		return app_main_loop_thread->get_update_rate_count();
 	}
 
 	__attribute__((always_inline)) inline void set_update_rate_limit(int ur_limit)
 	{
-		main_loop_thread->set_update_rate_limit(ur_limit);
-	}
-};
-
-template<typename DerivedApp>
-class main_loop_thread : public andromeda::thread::thread<void(), main_loop_thread<DerivedApp>>, public andromeda::thread::coroutine_lock
-{
-	DefineThread
-	friend class andromeda::thread::thread<void(), main_loop_thread<DerivedApp>>;
-	friend class andromeda::app::application<DerivedApp>;
-
-	using andromeda::thread::coroutine_lock::turn;
-
-protected:
-	DerivedApp* app;
-	frame_rate update_rate;
-
-	void initialize()
-	{
-		update_rate.init();
+		app_main_loop_thread->set_update_rate_limit(ur_limit);
 	}
 
-	void run() //多线程执行的更新逻辑函数
-	{
-		app->_update(update_rate.get_tpf());
-		update_rate.calc();
-		if(app->synchronize_fps)
-			turn(app);
-	}
-
-	void terminate()
-	{
-
-	}
-
-public:
-	main_loop_thread(DerivedApp *derived_app) :
-			andromeda::thread::thread<void(), main_loop_thread<DerivedApp>>(&(derived_app->is_running), andromeda::thread::work_mode::DETACH)
-	{
-		app = derived_app;
-	}
-
-	inline void set_update_rate_limit(int update_fps)
-	{
-		update_rate.set_fps_limit(update_fps);
-	}
-
-	inline int get_update_rate()
-	{
-		return update_rate.get_fps();
-	}
-
-	inline int get_update_rate_count()
-	{
-		return update_rate.get_fps_count();
-	}
-
-	using andromeda::thread::thread<void(),main_loop_thread<DerivedApp>>::start;
-	using andromeda::thread::thread<void(),main_loop_thread<DerivedApp>>::stop;
 };
 
 }
 }
+// @formatter:on
 
-#endif//ANDROMEDA_APP_APPLICATION// @formatter:on
+#endif//ANDROMEDA_APP_APPLICATION

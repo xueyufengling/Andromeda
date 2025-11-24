@@ -2,8 +2,7 @@
 #define ANDROMEDA_MEDIA_AUDIOCODEC
 
 #include <fstream>
-#include <ffmpeg/libavcodec/avcodec.h>
-#include <ffmpeg/libavformat/avformat.h>
+#include "codec.h"
 #include "pcm_audio.h"
 
 namespace andromeda

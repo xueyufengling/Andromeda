@@ -219,14 +219,14 @@ public:
 	thread(MCallable& op, bool* loopFlag = nullptr, work_mode workState = DETACH) :
 			thread() //默认采用Detach模式
 	{
-		setThreadCallable<MCallable>(op, loopFlag);
+		set_callable<MCallable>(op, loopFlag);
 		set_work_mode(workState);
 	}
 	template<typename MCallable = Callable>
 	thread(MCallable&& op, bool* loopFlag = nullptr, work_mode workState = DETACH) :
 			thread() //默认采用Detach模式
 	{
-		setThreadCallable<MCallable>(op, loopFlag);
+		set_callable<MCallable>(op, loopFlag);
 		set_work_mode(workState);
 	}
 

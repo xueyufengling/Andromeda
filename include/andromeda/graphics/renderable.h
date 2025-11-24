@@ -5,8 +5,6 @@
 #include <map>
 #include <string>
 
-#include <opengl/glad/glad.h>
-
 #include "texture_2d.h"
 #include "vertex_attribute.h"
 #include "shader_program.h"

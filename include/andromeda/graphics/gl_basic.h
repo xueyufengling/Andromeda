@@ -1,8 +1,18 @@
 #ifndef ANDROMEDA_GRAPHICS_GLUTILS
 #define ANDROMEDA_GRAPHICS_GLUTILS
 
-#include <opengl/glad/glad.h>
-#include <opengl/GLFW/glfw3.h>
+#if defined (_WIN32) || defined (_WIN64)
+#include <windows.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined (__linux__) || defined(__APPLE__)
+#endif
+
+extern "C"
+{
+#include <glad.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+}
 
 namespace andromeda
 {
@@ -11,8 +21,8 @@ namespace graphics
 extern void _glfw_error_print(int err_code, const char* description);
 extern void _glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-extern bool load_opengl();
-extern void load_glfw(int major = 3, int minor = 3, GLFWerrorfun callback = andromeda::graphics::_glfw_error_print);
+extern bool load_gl();
+extern bool load_glfw(int major = 3, int minor = 3, GLFWerrorfun callback = andromeda::graphics::_glfw_error_print);
 extern void term_glfw();
 
 extern size_t sizeof_gl_type(GLint type); //获取OpenGL的数据类型大小

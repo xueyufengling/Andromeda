@@ -1,17 +1,9 @@
 #ifndef ANDROMEDA_APP_WINDOW
 #define ANDROMEDA_APP_WINDOW
 
-#include <opengl/glad/glad.h>
-#include <opengl/GLFW/glfw3.h>
+#include "../graphics/gl_basic.h"
 #include "../graphics/color_rgba.h"
 
-#if defined (_WIN32) || defined (_WIN64)
-#include <windows.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#elif defined (__linux__) || defined(__APPLE__)
-#endif
-
-#include <opengl/GLFW/glfw3native.h>
 
 namespace andromeda
 {

@@ -129,6 +129,16 @@ public:
 		return elements;
 	}
 
+	inline operator void*()
+	{
+		return elements;
+	}
+
+	inline operator bool()
+	{
+		return elements;
+	}
+
 	/**
 	 * 浅拷贝
 	 */
@@ -301,6 +311,13 @@ template<typename E>
 size_t array<E>::default_extend_capcity = 1024;
 
 using buffer = array<unsigned char>;
+
+__attribute__((constructor)) inline void _set_buffer_default_capacity()
+{
+	buffer::default_init_capcity = 1024 * 1024;
+	buffer::default_extend_capcity = 1024 * 1024;
+}
+
 }
 }
 

@@ -5,7 +5,7 @@
 
 extern "C"
 {
-#include <ffmpeg/libavcodec/avcodec.h>
+#include <libavcodec/avcodec.h>
 }
 
 #include "../util/log.h"
@@ -237,7 +237,7 @@ public:
 		//ret=avcodec_parameters_from_context((*(format_context->streams))->codecpar,vc->codec_context);
 		if(ret < 0)
 			LogError(ret, "Copy parameters from video encoder context failed.");
-		strcpy(format_context->filename, dest_file);
+		//strcpy(format_context->filename, dest_file);
 		format_context->oformat = av_guess_format(nullptr, dest_file, nullptr);
 		//format_context->audio_codec_id=ac->codec->id;
 		//addStream(format_context,vc->codec_context,vc->codec);

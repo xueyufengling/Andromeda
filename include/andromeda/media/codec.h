@@ -7,8 +7,8 @@
 
 extern "C"
 {
-#include <ffmpeg/libavcodec/avcodec.h>
-#include <ffmpeg/libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 }
 
 namespace andromeda
@@ -17,16 +17,16 @@ namespace media
 {
 
 typedef std::function<void(void*, AVCodecContext*, AVPacket*)> packet_proc;
-typedef std::function<void(andromeda::util::buffer&, AVCodecContext*, AVFrame*)> frame_proc;
 typedef std::function<bool(AVCodecContext*)> codec_init;
 
-extern frame_proc audio_decoded_frame_proc;
 extern codec_init no_extra_codec_init;
 
 /**
  * @brief 打开一个文件输入上下文
  */
-AVFormatContext* open_input_file_context(const char* file);
+__attribute__((warn_unused_result)) AVFormatContext* open_input_file_context(const char* file);
+
+void init_fmt_context_from_codec_context(AVFormatContext* fmt_context, AVCodecContext* codec_context, size_t stream_idx);
 
 template<int StreamNum>
 inline void _alloc_output_file_context(AVFormatContext* fmt_context)
@@ -36,9 +36,7 @@ inline void _alloc_output_file_context(AVFormatContext* fmt_context)
 template<int StreamNum, typename C, typename ...Cs>
 inline void _alloc_output_file_context(AVFormatContext* fmt_context, C codec_context, Cs* ... codec_contexts)
 {
-	int ret = 0;
-	if((ret = avcodec_parameters_from_context((*(fmt_context->streams + (StreamNum - sizeof...(Cs) - 1)))->codecpar, codec_context)) < 0)
-		LogError("copy parameters from codec context failed. error code: ", ret);
+	init_fmt_context_from_codec_context(fmt_context, codec_context, (StreamNum - sizeof...(Cs) - 1));
 	_alloc_output_file_context<StreamNum>(codec_contexts...);
 }
 
@@ -46,7 +44,7 @@ inline void _alloc_output_file_context(AVFormatContext* fmt_context, C codec_con
  * @brief 打开一个文件输出上下文
  */
 template<typename ...Cs>
-AVFormatContext* alloc_output_file_context(const char* file, Cs* ... codec_contexts)
+__attribute__((warn_unused_result)) AVFormatContext* alloc_output_file_context(const char* file, Cs* ... codec_contexts)
 {
 	AVFormatContext* fmt_context = avformat_alloc_context();
 	if(!fmt_context)
@@ -55,16 +53,70 @@ AVFormatContext* alloc_output_file_context(const char* file, Cs* ... codec_conte
 		return nullptr;
 	}
 	_alloc_output_file_context<sizeof...(Cs)>(fmt_context, codec_contexts...); //将codec的参数按顺序拷贝进AVFormatContext
-	strcpy(fmt_context->filename, file);
+	strcpy(fmt_context->url, file);
+	fmt_context->oformat = av_guess_format(nullptr, file, nullptr);
 	return fmt_context;
 }
 
-AVFormatContext* alloc_output_file_context(const char* file, AVCodecContext** codec_contexts, size_t context_num);
+__attribute__((warn_unused_result)) AVFormatContext* alloc_output_file_context(const char* file, AVCodecContext** codec_contexts, size_t context_num);
 
 /**
  * @brief 关闭一个文件上下文
  */
 void close_file_context(AVFormatContext* fmt_context);
+
+/**
+ * 为指定缓冲变量赋值并初始化
+ */
+bool alloc_send_recv_buffer(AVPacket** packet, AVFrame** frame);
+
+/**
+ * @brief 从AVFormatContext中读取下一个AVPacket数据，带有位置记录
+ */
+AVPacket* read_packet(AVFormatContext* fmt_context);
+
+template<typename ...Args>
+__attribute__((warn_unused_result)) int decode_packet(AVCodecContext* decoder_context, AVPacket* raw_packet, AVFrame* decoded_frame, bool unref_packet, std::function<void(AVCodecContext*, AVFrame*, Args...)> proc, Args ...args)
+{
+	int ret = 0;
+	if((ret = avcodec_send_packet(decoder_context, raw_packet)) < 0)
+	{
+		if(raw_packet)
+		{
+			LogError("codec send the packet failed. error code: ", ret);
+		}
+		else
+		{
+			LogError("codec flush the packet failed. error code: ", ret);
+		}
+		goto FAILED;
+	}
+	while(ret >= 0)
+	{
+		ret = avcodec_receive_frame(decoder_context, decoded_frame);
+		if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) //全部帧读取完毕
+			break;
+		else if(ret < 0)
+		{
+			LogError("codec receive the frame failed");
+			goto FAILED;
+		}
+		else if(proc)
+			proc(decoder_context, decoded_frame, args...);
+	}
+	if(unref_packet)
+		av_packet_unref(raw_packet);
+	return ret;
+	FAILED:
+	avcodec_send_packet(decoder_context, nullptr); //遇到错误则清空缓冲区
+	return ret;
+}
+
+template<typename ...Args>
+inline int decode_packet_flush(AVCodecContext* decoder_context, AVFrame* decoded_frame, std::function<void(AVCodecContext*, AVFrame*, Args...)> proc, Args ...args)
+{
+	return decode_packet(decoder_context, nullptr, decoded_frame, false, proc, args...); //如果AVPacket*是nullptr则对解码缓冲区剩余内容解码，并清空缓冲区
+}
 
 //编码
 class encoder
@@ -73,11 +125,13 @@ protected:
 	AVCodecID encoder_id = AVCodecID::AV_CODEC_ID_NONE;
 	AVCodec* encoder_codec = nullptr;
 	AVCodecContext* encoder_context = nullptr;
-	AVFrame* encoder_frame = nullptr;
-	AVPacket* encoder_packet = nullptr;
+	AVFrame* raw_frame = nullptr;
+	AVPacket* encoded_packet = nullptr;
 
 	int64_t encoded_frame_count, //已编码的帧的数量，用作时间戳
 			packet_count;
+
+	bool allocate_encode_buffer();
 
 public:
 
@@ -89,7 +143,7 @@ public:
 	/**
 	 * @brief 初始化编码器
 	 */
-	bool initialize_encoder(AVCodecID id, codec_init init_proc);
+	bool initialize_encoder(AVCodecID codec_id, codec_init init_proc = codec_init());
 
 	/**
 	 * @brief 释放编码器占用资源
@@ -106,7 +160,9 @@ protected:
 	AVCodecID decoder_id = AVCodecID::AV_CODEC_ID_NONE;
 	AVCodec* decoder_codec = nullptr;
 	AVCodecContext* decoder_context = nullptr;
-	AVFrame* decoder_frame = nullptr;
+	AVCodecParserContext* decoder_parser = nullptr; //将内存数据转为AVPacket供解码
+	AVFrame* decoded_frame = nullptr;
+	AVPacket* raw_packet = nullptr;
 
 	int64_t encoded_frame_count, //已解码的帧的数量
 			packet_count;
@@ -119,15 +175,76 @@ public:
 		return decoder_id;
 	}
 
-	bool initialize_decoder(AVCodecID id, codec_init init_proc);
+	/**
+	 * @brief 初始化解码器，包括查找AVCodec、给其分配AVCodecContext、AVFrame缓冲
+	 */
+	bool initialize_decoder(AVCodecID codec_id, codec_init init_proc = codec_init());
 
-	bool initialize_decoder(AVStream* stream, codec_init init_proc);
+	/**
+	 * @brief 初始化解码器，包括查找AVCodec、给其分配AVCodecContext、AVFrame缓冲，并将codecpar拷贝给AVCodecContext上下文
+	 */
+	bool initialize_decoder(AVCodecParameters* codecpar, codec_init init_proc = codec_init());
+
+	inline bool initialize_decoder(AVStream* stream, codec_init init_proc = codec_init())
+	{
+		return initialize_decoder(stream->codecpar, init_proc);
+	}
+
+	/**
+	 * @brief 打开解码器
+	 */
+	bool open_decoder();
 
 	void terminate_decoder();
 
-	static AVPacket* read_packet(AVFormatContext* fmt_context);
+	/**
+	 * @brief 以指定的内存数据填充AVPacket，不带位置记录，每次需要手动计算新的data和size
+	 * @param packet 接收数据的AVPacket
+	 * @param data 待转换的内存数据
+	 * @param size 待转换的内存数据总长度
+	 * @return 该packet读取转换的字节数
+	 */
+	int read_packet(AVPacket* packet, void* data, size_t size);
 
-	int decode(andromeda::util::buffer& data_buffer, AVPacket* packet, frame_proc proc, bool flush = false, bool unref_packet = true);
+	template<typename ...Args>
+	inline int decode(AVPacket* packet, bool unref_packet, std::function<void(AVCodecContext*, AVFrame*, Args...)> proc, Args ...args)
+	{
+		return decode_packet(decoder_context, packet, decoded_frame, unref_packet, proc, args...);
+	}
+
+	/**
+	 * @brief 对本解码器的缓冲区剩余数据进行解码
+	 */
+	template<typename ...Args>
+	inline int decode_flush(std::function<void(AVCodecContext*, AVFrame*, Args...)> proc, Args ...args)
+	{
+		return decode_packet_flush(decoder_context, decoded_frame, proc, args...); //如果AVPacket*是nullptr则对解码缓冲区剩余内容解码，并清空缓冲区
+	}
+
+	/**
+	 * @brief 解码全部内存数据
+	 */
+	template<typename ...Args>
+	int decode(void* data, size_t size, std::function<void(AVCodecContext*, AVFrame*, Args...)> proc, Args ...args)
+	{
+		int ret = 0;
+		unsigned char* mem_data = (unsigned char*)data;
+		while(ret >= 0)
+		{
+			if((ret = read_packet(raw_packet, mem_data, size)) < 0)
+			{
+				return ret;
+			}
+			if((ret = decode(raw_packet, true, proc, args...)) < 0)
+			{
+				return ret;
+			}
+			mem_data += ret;
+			size -= ret;
+		}
+		ret = decode_flush(proc, args...);
+		return ret;
+	}
 
 };
 
@@ -167,7 +284,7 @@ public:
 
 	inline AVMediaType stream_type(size_t idx)
 	{
-		return stream(idx)->codec->codec_type;
+		return stream(idx)->codecpar->codec_type;
 	}
 };
 
@@ -231,53 +348,6 @@ public:
                 {
 
 #define EndEncodeFlush(cc,st,pkt)\
-                }\
-                av_packet_unref(((AVPacket*)(pkt)));\
-            }\
-        }
-
-#define StartDecode(cc,pkt,frm)\
-        {\
-            if(avcodec_send_packet(cc,pkt)<0)\
-            {\
-                std::cout<<"Send the packet failed."<<std::endl;\
-            }\
-            int ret_dec=0;\
-            while(ret_dec>=0)\
-            {\
-                ret_dec=avcodec_receive_frame(cc,frm);\
-                if(ret_dec==AVERROR(EAGAIN)||ret_dec==AVERROR_EOF)\
-                    break;\
-                else if(ret_dec<0)\
-                {\
-                    std::cout<<"Receive the frame failed."<<std::endl;\
-                    break;\
-                }\
-                {
-
-#define EndDecode(cc,pkt,frm)\
-                }\
-                av_packet_unref(((AVPacket*)(pkt)));\
-            }\
-        }
-
-#define StartDecodeFlush(cc,frm)\
-        {\
-            avcodec_send_packet(cc,nullptr);\
-            int ret_dec_flu=0;\
-            while(ret_dec_flu>=0)\
-            {\
-                ret_dec_flu=avcodec_receive_frame(cc,frm);\
-                if(ret_dec_flu==AVERROR(EAGAIN)||ret_dec_flu==AVERROR_EOF)\
-                    break;\
-                else if(ret_dec_flu<0)\
-                {\
-                    std::cout<<"Receive the frame failed."<<std::endl;\
-                    break;\
-                }\
-                {
-
-#define EndDecodeFlush(cc,frm)\
                 }\
                 av_packet_unref(((AVPacket*)(pkt)));\
             }\

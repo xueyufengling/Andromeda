@@ -1,7 +1,6 @@
 #ifndef ANDROMEDA_GRAPHICS_SHADERPROGRAM
 #define ANDROMEDA_GRAPHICS_SHADERPROGRAM
 
-#include <opengl/glad/glad.h>
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../util/string_utils.h"

@@ -1,5 +1,5 @@
-#include <openal/alc.h>
-#include <openal/al.h>
+#include <alc.h>
+#include <al.h>
 #include <andromeda/util/log.h>
 
 namespace andromeda

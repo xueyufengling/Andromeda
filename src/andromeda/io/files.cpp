@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string.h>
-#include <rapidcsv/rapidcsv.h>
+#include <rapidcsv.h>
 
 #ifdef __cpp_lib_filesystem
 #include <filesystem>

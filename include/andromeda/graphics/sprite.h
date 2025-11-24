@@ -2,7 +2,6 @@
 #define ANDROMEDA_GRAPHICS_SPRITE
 
 #include <andromeda/util/array.h>
-#include <opengl/glad/glad.h>
 #include <map>
 #include "texture_2d.h"
 #include "coord_transform.h"

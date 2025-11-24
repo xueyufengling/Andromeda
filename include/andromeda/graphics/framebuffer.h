@@ -1,7 +1,6 @@
 #ifndef ANDROMEDA_GRAPHICS_FRAMEBUFFER
 #define ANDROMEDA_GRAPHICS_FRAMEBUFFER
 
-#include <opengl/glad/glad.h>
 #include "gl_basic.h"
 #include "../graphics/color_rgba.h"
 #include "shader_program.h"

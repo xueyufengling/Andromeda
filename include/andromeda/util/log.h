@@ -59,34 +59,38 @@ public:
 }
 }
 
+/**
+ * __FUNCTION__不是宏，而是函数内变量，需要单独作为一个值输出，不能直接与C字符串拼接
+ * __FILENAME_STRING__为根据__FILE__宏调用函数提取的文件名，不能直接与C字符串拼接
+ */
 #define LogDebugTo(logger_ptr, ...)\
 		{\
 			if(logger_ptr)\
-				logger_ptr->log(andromeda::util::log_level::LOG_DEBUG, "[", std::chrono::system_clock::now(), "] [DEBUG] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+				logger_ptr->log(andromeda::util::log_level::LOG_DEBUG, "[", std::chrono::system_clock::now(), "] [DEBUG] ", __FILENAME_STRING__, ":" __LINE_STRING__ " ", __FUNCTION__, "(): ", ##__VA_ARGS__);\
 		}
 
 #define LogInfoTo(logger_ptr, ...)\
 		{\
 			if(logger_ptr)\
-				logger_ptr->log(andromeda::util::log_level::LOG_INFO, "[", std::chrono::system_clock::now(), "] [INFO] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+				logger_ptr->log(andromeda::util::log_level::LOG_INFO, "[", std::chrono::system_clock::now(), "] [INFO] ", __FILENAME_STRING__, ":" __LINE_STRING__ " ", __FUNCTION__, "(): ", ##__VA_ARGS__);\
 		}
 
 #define LogWarnTo(logger_ptr, ...)\
 		{\
 			if(logger_ptr)\
-				logger_ptr->log(andromeda::util::log_level::LOG_WARN, "[", std::chrono::system_clock::now(), "] [WARN] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+				logger_ptr->log(andromeda::util::log_level::LOG_WARN, "[", std::chrono::system_clock::now(), "] [WARN] ", __FILENAME_STRING__, ":" __LINE_STRING__ " ", __FUNCTION__, "(): ", ##__VA_ARGS__);\
 		}
 
 #define LogErrorTo(logger_ptr, ...)\
 		{\
 			if(logger_ptr)\
-				logger_ptr->log(andromeda::util::log_level::LOG_ERROR, "[", std::chrono::system_clock::now(), "] [ERROR] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+				logger_ptr->log(andromeda::util::log_level::LOG_ERROR, "[", std::chrono::system_clock::now(), "] [ERROR] ", __FILENAME_STRING__, ":" __LINE_STRING__ " ", __FUNCTION__, "(): ", ##__VA_ARGS__);\
 		}
 
 #define LogFatalTo(logger_ptr, ...)\
 		{\
 			if(logger_ptr)\
-				logger_ptr->log(andromeda::util::log_level::LOG_FATAL, "[", std::chrono::system_clock::now(), "] [FATAL] " __FILE__ ":" __LINE_STRING__ " " __FUNCTION_STRING__ ": ", ##__VA_ARGS__);\
+				logger_ptr->log(andromeda::util::log_level::LOG_FATAL, "[", std::chrono::system_clock::now(), "] [FATAL] ", __FILENAME_STRING__, ":" __LINE_STRING__ " ", __FUNCTION__, "(): ", ##__VA_ARGS__);\
 		}
 
 #define LogDebug(...) LogDebugTo(andromeda::util::process_logger, ##__VA_ARGS__)
