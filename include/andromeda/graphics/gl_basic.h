@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_GRAPHICS_GLUTILS
-#define ANDROMEDA_GRAPHICS_GLUTILS
+#ifndef ANDROMEDA_GRAPHICS_GLBASIC
+#define ANDROMEDA_GRAPHICS_GLBASIC
 
 #if defined (_WIN32) || defined (_WIN64)
 #include <windows.h>
@@ -117,4 +117,4 @@ public:
 }
 }
 
-#endif//ANDROMEDA_GRAPHICS_GLUTILS
+#endif//ANDROMEDA_GRAPHICS_GLBASIC

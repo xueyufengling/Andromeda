@@ -3,7 +3,7 @@
 
 #include "../graphics/gl_basic.h"
 #include "../graphics/color_rgba.h"
-
+#include "../media/raster_image.h"
 
 namespace andromeda
 {
@@ -27,6 +27,19 @@ public:
 	inline operator GLFWwindow*()
 	{
 		return window_id;
+	}
+
+	inline void set_icon(GLFWimage* icon)
+	{
+		glfwSetWindowIcon(window_id, 1, icon);
+	}
+
+	/**
+	 * @brief 设置窗口图标
+	 */
+	inline void set_icon(andromeda::media::raster_image& icon)
+	{
+		set_icon((GLFWimage*)icon);
 	}
 
 	inline void set_back_color(andromeda::graphics::color_rgba back_color = {0, 0, 0, 0})

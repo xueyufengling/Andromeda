@@ -5,12 +5,21 @@
 #include <malloc.h>
 #include <functional>
 
+extern "C"
+{
+struct GLFWimage;
+}
+
 namespace andromeda
 {
 namespace media
 {
 class raster_image
 {
+protected:
+	int width = 0, height = 0;
+	andromeda::graphics::pixel* pixels = nullptr;
+
 public:
 	typedef std::function<void(andromeda::graphics::pixel&)> traversal_func;
 
@@ -41,6 +50,11 @@ public:
 	operator const void*()
 	{
 		return (const void*)pixels;
+	}
+
+	operator GLFWimage*()
+	{
+		return (GLFWimage*)this;
 	}
 
 	raster_image(int img_width = 0, int img_height = 0, andromeda::graphics::pixel* data = nullptr, bool alloc_if_null = false); //alloc_if_null决定如果data指定为nullptr是否自动分配内存
@@ -110,10 +124,6 @@ public:
 	 * @brief 设置某个区域的图像，将覆盖区域原本的数据
 	 */
 	void set_pixels(andromeda::graphics::pixel* data, int img_width, int img_height, size_options op);
-
-protected:
-	int height = 0, width = 0;
-	andromeda::graphics::pixel* pixels = nullptr;
 };
 
 andromeda::graphics::pixel* generatePixelData(int height, int width, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255);
