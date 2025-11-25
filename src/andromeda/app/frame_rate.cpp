@@ -3,7 +3,7 @@
 #include <thread>
 
 using namespace andromeda::app;
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 void frame_rate::init()
 {

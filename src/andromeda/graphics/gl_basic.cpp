@@ -1,7 +1,7 @@
+#include <andromeda/common/log.h>
 #include <andromeda/graphics/gl_basic.h>
 
 #include <string.h>
-#include <andromeda/util/log.h>
 
 static bool gl_loaded = false;
 

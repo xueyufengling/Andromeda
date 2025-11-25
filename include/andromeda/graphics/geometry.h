@@ -14,8 +14,8 @@ private:
 	using renderable::shader;
 	using renderable::vertex_attribs;
 	using renderable::instance_geometry_strategy;
-	andromeda::util::array<andromeda::math::vector2f> vertices;
-	andromeda::util::array<float> vertex_extra_data;
+	andromeda::common::array<andromeda::math::vector2f> vertices;
+	andromeda::common::array<float> vertex_extra_data;
 
 public:
 	using renderable::vertex_data;

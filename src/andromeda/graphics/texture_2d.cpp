@@ -1,18 +1,17 @@
+#include <andromeda/common/string_utils.h>
 #include <andromeda/graphics/texture_2d.h>
 
-#include <andromeda/util/string_utils.h>
-
 using namespace andromeda::graphics;
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 bool texture2d::load(int level, bool generate_minimap, bool release_image) //实际加载图片进OpenGL内存，加载后image的数据即可释放，需要手动调用releaseImage();
 {
-	if(!gl_id) //gl_id=0才加载
+	if(!obj_id) //obj_id=0才加载
 		return false;
 	if(image.get_pixels())
 	{
-		glGenTextures(1, &gl_id);
-		use();
+		glGenTextures(1, &obj_id);
+		bind_this();
 		glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA, image.get_width(), image.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		if(generate_minimap)
 			glGenerateMipmap(GL_TEXTURE_2D);
@@ -28,12 +27,12 @@ bool texture2d::load(int level, bool generate_minimap, bool release_image) //实
 
 bool texture2d::load(int texture_unit, int level, bool generate_minimap, bool release_image)
 {
-	if(!gl_id)
+	if(!obj_id)
 		return false;
 	if(image.get_pixels())
 	{
-		glGenTextures(1, &gl_id);
-		use(texture_unit);
+		glGenTextures(1, &obj_id);
+		bind_this(texture_unit);
 		glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA, image.get_width(), image.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		if(generate_minimap)
 			glGenerateMipmap(GL_TEXTURE_2D);

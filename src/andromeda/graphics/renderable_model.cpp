@@ -1,15 +1,15 @@
+#include <andromeda/common/array.h>
+#include <andromeda/common/log.h>
+#include <andromeda/common/string_utils.h>
 #include <andromeda/graphics/renderable_model.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include <andromeda/util/string_utils.h>
 #include <andromeda/io/files.h>
-#include <andromeda/util/array.h>
-#include <andromeda/util/log.h>
 
 using namespace andromeda::graphics;
-using namespace andromeda::util;
+using namespace andromeda::common;
 using namespace andromeda::io;
 
 namespace andromeda

@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_APP_RENDERSYS
 #define ANDROMEDA_APP_RENDERSYS
 
-#include <andromeda/util/array.h>
+#include <andromeda/common/array.h>
 #include <map>
 
 #include "window.h"
@@ -14,7 +14,7 @@ namespace app
 class render_system
 {
 private:
-	andromeda::util::array<andromeda::graphics::camera> cams; //需要计算渲染的cam
+	andromeda::common::array<andromeda::graphics::camera> cams; //需要计算渲染的cam
 
 public:
 	render_system();

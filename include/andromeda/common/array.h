@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_UTIL_ARRAY
-#define ANDROMEDA_UTIL_ARRAY
+#ifndef ANDROMEDA_COMMON_ARRAY
+#define ANDROMEDA_COMMON_ARRAY
 
 #include <malloc.h>
 #include <string.h>
@@ -7,7 +7,7 @@
 
 namespace andromeda
 {
-namespace util
+namespace common
 {
 /**
  * @brief 轻量级可变长数组模板
@@ -321,4 +321,4 @@ __attribute__((constructor)) inline void _set_buffer_default_capacity()
 }
 }
 
-#endif // ANDROMEDA_UTIL_ARRAY
+#endif // ANDROMEDA_COMMON_ARRAY

@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_GRAPHICS_VERTEXATTRIBUTE
 #define ANDROMEDA_GRAPHICS_VERTEXATTRIBUTE
 
-#include <andromeda/util/array.h>
+#include <andromeda/common/array.h>
 #include "gl_basic.h"
 
 #define VERTEX_ATTRIB_NAME_POSITION "position"
@@ -16,7 +16,7 @@ namespace graphics
 class vertex_attribute_info //属性的信息
 {
 	friend class vertex_attribute;
-	friend class andromeda::util::array<vertex_attribute_info>;
+	friend class andromeda::common::array<vertex_attribute_info>;
 
 private:
 	GLint index = -1;
@@ -79,7 +79,7 @@ class vertex_attribute
 private:
 	//不储存OpenGL的VAO对象，VAO对象与渲染对象是一一对应的，本类只储存顶点属性格式
 	size_t vertex_size = 0;
-	andromeda::util::array<vertex_attribute_info> attribs;
+	andromeda::common::array<vertex_attribute_info> attribs;
 
 public:
 	vertex_attribute() = default;

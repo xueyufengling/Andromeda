@@ -49,7 +49,7 @@ typedef struct pixel_coord
 
 texture_type parse_texture_type(const char* type);
 
-class texture2d : public andromeda::graphics::gl_component<texture2d>
+class texture2d : public andromeda::graphics::gl_object<texture2d>
 {
 private:
 	const char* texture_path = nullptr;
@@ -59,7 +59,7 @@ private:
 
 public:
 	__attribute__((always_inline)) inline texture2d(GLuint exist_texture_id, texture_type type = texture_type::UNKNOWN) :
-			gl_component<texture2d>(exist_texture_id), type(type)
+			gl_object<texture2d>(exist_texture_id), type(type)
 	{
 	}
 

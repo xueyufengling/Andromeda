@@ -50,7 +50,7 @@ private:
 
 	__attribute__((always_inline)) inline void use()
 	{
-		back_frame_buffer.use();
+		back_frame_buffer.bind_this();
 		back_frame_buffer.clear_color_buffer(); //清除当前帧的内容
 	}
 

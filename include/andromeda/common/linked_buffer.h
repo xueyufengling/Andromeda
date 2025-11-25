@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_UTIL_LINKEDBUFFER
-#define ANDROMEDA_UTIL_LINKEDBUFFER
+#ifndef ANDROMEDA_COMMON_LINKEDBUFFER
+#define ANDROMEDA_COMMON_LINKEDBUFFER
 
 #include <iostream>
 #include <malloc.h>
@@ -7,7 +7,7 @@
 
 namespace andromeda
 {
-namespace util
+namespace common
 {
 template<typename E>
 class linked_buffer
@@ -258,4 +258,4 @@ public:
 }
 }
 
-#endif // ANDROMEDA_UTIL_LINKEDBUFFER
+#endif // ANDROMEDA_COMMON_LINKEDBUFFER

@@ -1,13 +1,13 @@
 #ifndef ANDROMEDA_APP_APPLICATION
 #define ANDROMEDA_APP_APPLICATION
 
+#include <andromeda/common/log.h>
 #include <atomic>
 
 #include "../thread/coroutine_lock.h"
 #include "../thread/thread.h"
 #include "frame_rate.h"
 #include "../traits/Types.h"
-#include "../util/log.h"
 
 // @formatter:off
 /**

@@ -1,8 +1,8 @@
 #ifndef ANDROMEDA_APP_FRAMERATE
 #define ANDROMEDA_APP_FRAMERATE
 
+#include <andromeda/common/timer.h>
 #include <chrono>
-#include "../util/timer.h"
 
 namespace andromeda
 {
@@ -11,7 +11,7 @@ namespace app
 class frame_rate
 {
 private:
-	andromeda::util::high_resolution_time_point current_time, previous_time;
+	andromeda::common::high_resolution_time_point current_time, previous_time;
 	double delta_t = 0;
 	double tpf = 0;
 	double tpf_max_limit = -1; //开启帧率限制后每帧的最大时间，其值为1/fps_limit，在调用calc()时如果单帧的时间不足1/fps_limit秒则会sleep该线程直到该帧的秒数占用达到1/fps_limit秒

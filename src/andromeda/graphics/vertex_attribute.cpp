@@ -1,10 +1,10 @@
+#include <andromeda/common/string_utils.h>
 #include <andromeda/graphics/vertex_attribute.h>
 
 #include<string>
-#include <andromeda/util/string_utils.h>
 
 using namespace andromeda::graphics;
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 vertex_attribute_info::vertex_attribute_info(const char* info)
 {

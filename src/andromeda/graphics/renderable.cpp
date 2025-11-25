@@ -4,7 +4,7 @@
 
 using namespace andromeda::graphics;
 using namespace andromeda::math;
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 renderable::renderable() :
 		direct_instance_list(DIRECT_INSTANCE_CAPCITY), vertex_data(1024), element_data(1024), textures(texture2d::get_max_texture_unit()), instance_divisor_data(1024)
@@ -29,7 +29,7 @@ void renderable::load_textures(bool generate_minimap, bool release_image)
 void renderable::use_textures()
 {
 	for(size_t i = 0; i < textures.length(); ++i)
-		textures[i].use(i);
+		textures[i].bind_this(i);
 }
 
 void renderable::pretransform_vertex()

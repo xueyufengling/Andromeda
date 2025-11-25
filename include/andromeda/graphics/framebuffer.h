@@ -16,7 +16,7 @@ namespace andromeda
 {
 namespace graphics
 {
-class framebuffer : public andromeda::graphics::gl_component<framebuffer>
+class framebuffer : public andromeda::graphics::gl_object<framebuffer>
 {
 private:
 	GLuint color_buffer = 0;

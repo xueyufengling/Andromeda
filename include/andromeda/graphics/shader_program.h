@@ -1,9 +1,9 @@
 #ifndef ANDROMEDA_GRAPHICS_SHADERPROGRAM
 #define ANDROMEDA_GRAPHICS_SHADERPROGRAM
 
+#include <andromeda/common/string_utils.h>
 #include "../math/vector.h"
 #include "../math/matrix.h"
-#include "../util/string_utils.h"
 #include "gl_basic.h"
 
 namespace andromeda
@@ -11,7 +11,7 @@ namespace andromeda
 namespace graphics
 {
 
-class shader_program: public gl_component<shader_program>
+class shader_program: public gl_object<shader_program>
 {
 private:
 	GLuint vertex_shader = 0, fragment_shader = 0;
@@ -21,7 +21,7 @@ private:
 	shader_program(GLuint shader_program, GLuint vertex_shader, GLuint fragment_shader);
 
 public:
-	using gl_component<shader_program>::operator GLuint;
+	using gl_object<shader_program>::operator GLuint;
 
 	/**
 	 * 使用该着色器，不记录上个使用的着色器
@@ -75,7 +75,7 @@ public:
 
 	__attribute__((always_inline)) inline bool check_program()
 	{
-		return check_program(gl_id);
+		return check_program(obj_id);
 	}
 
 //适用于偶尔设置变量值（glGetUniformLocation查询代价高昂避免循环调用！），设置前后不改变当前着色器程序

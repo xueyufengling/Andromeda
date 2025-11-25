@@ -1,11 +1,11 @@
-#ifndef ANDROMEDA_UTIL_TIMER
-#define ANDROMEDA_UTIL_TIMER
+#ifndef ANDROMEDA_COMMON_TIMER
+#define ANDROMEDA_COMMON_TIMER
 
-#include <andromeda/util/array.h>
+#include <andromeda/common/array.h>
+#include <andromeda/common/limit_counter.h>
 #include <chrono>
 #include <functional>
 
-#include "limit_counter.h"
 
 //高精度时钟的time_point转换成秒
 #define HRC_TIME_DURATION_TO_SEC(delta_time) ((double)std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time).count()/1E9)
@@ -15,7 +15,7 @@
 
 namespace andromeda
 {
-namespace util
+namespace common
 {
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> high_resolution_time_point; //采用的高精度时间点类型
 
@@ -64,4 +64,4 @@ public:
 }
 }
 
-#endif//ANDROMEDA_UTIL_TIMER
+#endif//ANDROMEDA_COMMON_TIMER

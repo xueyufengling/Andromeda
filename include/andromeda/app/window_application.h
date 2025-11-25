@@ -2,12 +2,12 @@
 #define ANDROMEDA_APP_WINDOWAPPLICATION
 
 #include <andromeda/app/render_system.h>
+#include <andromeda/common/log.h>
 #include "window.h"
 #include "frame_rate.h"
 #include "../graphics/gl_basic.h"
 #include "../graphics/color_rgba.h"
 #include "../graphics/framebuffer.h"
-#include "../util/log.h"
 #include "application.h"
 
 /**
@@ -100,7 +100,7 @@ public:
 			if(synchronize_fps)
 				turn(app_main_loop_thread);
 			//渲染
-			framebuffer.use();
+			framebuffer.bind_this();
 			framebuffer.clear_all_buffers();
 			if(andromeda::traits::is_class<Derived>::result && has_func(render_update)<void, float>::check<Derived>::result) //如果子类没有render_update()则此调用将优化掉
 				_render_update(render_frame_rate.get_tpf());

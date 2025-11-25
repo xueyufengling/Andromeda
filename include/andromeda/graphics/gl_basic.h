@@ -14,6 +14,8 @@ extern "C"
 #include <GLFW/glfw3native.h>
 }
 
+#include "../common/bindable_object.h"
+
 namespace andromeda
 {
 namespace graphics
@@ -53,64 +55,15 @@ __attribute__((always_inline)) inline GLuint gl_get_integer(GLuint param)
 }
 
 template<typename Derived>
-class gl_component
+class gl_object: public andromeda::common::bindable_object<GLuint, Derived>
 {
-private:
-	GLuint prev_bind_id = 0; //绑定本组件之前的上一个组件ID
-
-protected:
-	GLuint gl_id = 0; //本组件的ID
-
 public:
-	gl_component() = default;
+	gl_object() = default;
 
-	gl_component(GLuint existed_id) :
-			gl_id(existed_id)
+	gl_object(GLuint existed_id) :
+			andromeda::common::bindable_object<GLuint, Derived>(existed_id)
 	{
 
-	}
-
-	~gl_component() = default;
-
-	inline void invalidate()
-	{
-		Derived::invalidate(gl_id);
-	}
-
-	inline operator GLuint()
-	{
-		return gl_id;
-	}
-
-	inline GLuint id()
-	{
-		return gl_id;
-	}
-
-	template<typename ...Args>
-	inline void use(Args ... args)
-	{
-		Derived::bind(gl_id, args...);
-	}
-
-	/**
-	 * 绑定本对象并记录上次绑定的对象
-	 */
-	template<typename ...Args>
-	__attribute__((always_inline)) inline void begin_use(Args ... args)
-	{
-		prev_bind_id = Derived::current_bind();
-		Derived::bind(gl_id, args...);
-	}
-
-	/**
-	 * 本对象解绑并绑定回上次绑定的对象
-	 */
-	template<typename ...Args>
-	__attribute__((always_inline)) inline void end_use(Args ... args)
-	{
-		Derived::bind(prev_bind_id, args...);
-		prev_bind_id = 0;
 	}
 };
 

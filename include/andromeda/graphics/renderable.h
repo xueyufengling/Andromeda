@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_GRAPHICS_RENDERABLE
 #define ANDROMEDA_GRAPHICS_RENDERABLE
 
-#include <andromeda/util/array.h>
+#include <andromeda/common/array.h>
 #include <map>
 #include <string>
 
@@ -26,7 +26,7 @@ class renderable_instance
 	friend class renderable;
 	private:
 	andromeda::math::matrix4x4f model_matrix = andromeda::math::matrix4x4f::identity(); //变换数据
-	andromeda::util::array<unsigned char> instance_divisor_data; //自定义数据，以字节为单位
+	andromeda::common::array<unsigned char> instance_divisor_data; //自定义数据，以字节为单位
 public:
 	renderable_instance() = default;
 
@@ -97,18 +97,18 @@ private:
 	GLuint ebo = 0;
 	draw_strategy instance_draw_strategy = draw_strategy::NONE;
 	GLuint instance_vbo = 0; //实例数据
-	andromeda::util::array<renderable_instance> direct_instance_list; //不具名的实例对象，通常是创建后不需要操作的对象，也可以用数组中的索引获取对象实例
+	andromeda::common::array<renderable_instance> direct_instance_list; //不具名的实例对象，通常是创建后不需要操作的对象，也可以用数组中的索引获取对象实例
 	std::map<std::string, renderable_instance> named_instance_map; //具名的实例对象
-	andromeda::util::array<unsigned char> instance_divisor_data;
+	andromeda::common::array<unsigned char> instance_divisor_data;
 
 protected:
 	vertex_attribute* vertex_attribs = nullptr;
 	shader_program* shader = nullptr;
 
 public:
-	andromeda::util::array<float> vertex_data; //顶点数据的指针，采用局部坐标系
-	andromeda::util::array<unsigned int> element_data; //索引数据的指针，可选
-	andromeda::util::array<texture2d> textures; //索引对应不同纹理单元，默认只有一个纹理单元0。纹理均为0级纹理，minimap靠程序自动生成
+	andromeda::common::array<float> vertex_data; //顶点数据的指针，采用局部坐标系
+	andromeda::common::array<unsigned int> element_data; //索引数据的指针，可选
+	andromeda::common::array<texture2d> textures; //索引对应不同纹理单元，默认只有一个纹理单元0。纹理均为0级纹理，minimap靠程序自动生成
 	andromeda::math::matrix4x4f vertex_pretransform = andromeda::math::matrix4x4f::identity(); //加载模型后需要进行的变换
 	geometry_strategy instance_geometry_strategy = geometry_strategy::TRIANGLE_STRIP; //绘制的几何形状
 	data_strategy vertex_data_strategy = data_strategy::STATIC_DRAW; //原始顶点数据的数据策略，静态数据、动态改变数据或流式数据。通常都是静态STATIC_DRAW，即模型加载后顶点数据不变，而位置变换等通过实例化绘制
@@ -145,7 +145,7 @@ public:
 
 	inline void use()
 	{
-		shader->use();
+		shader->bind_this();
 		use_textures();
 		glBindVertexArray(vao);
 	}

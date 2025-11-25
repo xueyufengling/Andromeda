@@ -1,9 +1,8 @@
-#include <andromeda/util/string_utils.h>
-
+#include <andromeda/common/string_utils.h>
 #include <string.h>
 #include <sstream>
 
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 const char* str_cpy(const char* str)
 {
@@ -35,7 +34,7 @@ split_strings split_strings::split(const char* str, const char* delim)
 	return *(split_strings*)&arr;
 }
 
-void andromeda::util::pack_bits(unsigned char* bits, int bits_start_pos, unsigned char* bytes, int bytes_start_pos, long int bits_length)
+void andromeda::common::pack_bits(unsigned char* bits, int bits_start_pos, unsigned char* bytes, int bytes_start_pos, long int bits_length)
 {
 	unsigned char byte;
 	int bit_count, byte_index = 0, bit_index = 0;

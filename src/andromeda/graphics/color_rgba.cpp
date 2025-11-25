@@ -1,7 +1,7 @@
+#include <andromeda/common/typedefs.h>
 #include <andromeda/graphics/color_rgba.h>
 
 #include <andromeda/media/raster_image.h>
-#include <andromeda/util/typedefs.h>
 
 using namespace andromeda::graphics;
 

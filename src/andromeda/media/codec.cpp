@@ -3,7 +3,7 @@
 #include <string.h>
 
 using namespace andromeda::media;
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 codec_init andromeda::media::no_extra_codec_init = [](AVCodecContext* decoder_context) -> bool
 		{

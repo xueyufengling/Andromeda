@@ -8,8 +8,8 @@ extern "C"
 #include <libavcodec/avcodec.h>
 }
 
-#include "../util/log.h"
-#include "../util/linked_buffer.h"
+#include <andromeda/common/log.h>
+#include <andromeda/common/linked_buffer.h>
 #include "audio_codec.h"
 
 namespace andromeda

@@ -1,19 +1,18 @@
+#include <andromeda/common/log.h>
 #include <andromeda/graphics/shader_program.h>
-
-#include <andromeda/util/log.h>
 
 using namespace andromeda::graphics;
 using namespace andromeda::math;
 
 shader_program::shader_program(GLuint shader_program, GLuint vertex_shader, GLuint fragment_shader) :
-		gl_component(shader_program), vertex_shader(vertex_shader), fragment_shader(fragment_shader)
+		gl_object(shader_program), vertex_shader(vertex_shader), fragment_shader(fragment_shader)
 {
 	if((!check_program()) && check_vertex_shader() && check_fragment_shader()) //shader_program无效，但所有着色器都有效则链接着色器程序
 		link();
 }
 
 shader_program::shader_program(GLuint shader_program) :
-		gl_component(shader_program)
+		gl_object(shader_program)
 {
 }
 
@@ -109,13 +108,13 @@ bool shader_program::set_fragment_shader(GLuint fragment_shader)
 
 bool shader_program::link(bool release_shader)
 {
-	GLuint old_program = gl_id;
+	GLuint old_program = obj_id;
 	if(check_vertex_shader() && check_fragment_shader()) //所有着色器都编译成功后才执行链接操作
 	{
-		gl_id = glCreateProgram();
-		glAttachShader(gl_id, vertex_shader);
-		glAttachShader(gl_id, fragment_shader);
-		glLinkProgram(gl_id);
+		obj_id = glCreateProgram();
+		glAttachShader(obj_id, vertex_shader);
+		glAttachShader(obj_id, fragment_shader);
+		glLinkProgram(obj_id);
 		bool link_state = check_program();
 		if(link_state)
 		{
@@ -126,8 +125,8 @@ bool shader_program::link(bool release_shader)
 		}
 		else
 		{
-			glDeleteProgram(gl_id);
-			gl_id = old_program;
+			glDeleteProgram(obj_id);
+			obj_id = old_program;
 			return false;
 		}
 	}
@@ -144,55 +143,55 @@ void shader_program::release_shader()
 
 void shader_program::set(const char* name, const int value)
 {
-	glUniform1i(glGetUniformLocation(gl_id, name), value);
+	glUniform1i(glGetUniformLocation(obj_id, name), value);
 }
 
 void shader_program::set(const char* name, const unsigned int value)
 {
-	glUniform1ui(glGetUniformLocation(gl_id, name), value);
+	glUniform1ui(glGetUniformLocation(obj_id, name), value);
 }
 
 void shader_program::set(const char* name, const bool value)
 {
-	glUniform1ui(glGetUniformLocation(gl_id, name), value ? 1 : 0);
+	glUniform1ui(glGetUniformLocation(obj_id, name), value ? 1 : 0);
 }
 
 void shader_program::set(const char* name, const vector3f vec3)
 {
-	glUniform1fv(glGetUniformLocation(gl_id, name), 3, (const GLfloat*)&vec3);
+	glUniform1fv(glGetUniformLocation(obj_id, name), 3, (const GLfloat*)&vec3);
 }
 
 void shader_program::set(const char* name, const float value)
 {
-	glUniform1f(glGetUniformLocation(gl_id, name), value);
+	glUniform1f(glGetUniformLocation(obj_id, name), value);
 }
 
 void shader_program::set(const char* name, int count, const int* value_arr)
 {
-	glUniform1iv(glGetUniformLocation(gl_id, name), count, value_arr);
+	glUniform1iv(glGetUniformLocation(obj_id, name), count, value_arr);
 }
 
 void shader_program::set(const char* name, int count, const unsigned int* value_arr)
 {
-	glUniform1uiv(glGetUniformLocation(gl_id, name), count, value_arr);
+	glUniform1uiv(glGetUniformLocation(obj_id, name), count, value_arr);
 }
 
 void shader_program::set(const char* name, int count, const float* value_arr)
 {
-	glUniform1fv(glGetUniformLocation(gl_id, name), count, value_arr);
+	glUniform1fv(glGetUniformLocation(obj_id, name), count, value_arr);
 }
 
 void shader_program::set(const char* name, int count, const andromeda::math::matrix3x3f* value_arr, bool transpose)
 {
-	glUniformMatrix4fv(glGetUniformLocation(gl_id, name), count, transpose, (const GLfloat*)value_arr);
+	glUniformMatrix4fv(glGetUniformLocation(obj_id, name), count, transpose, (const GLfloat*)value_arr);
 }
 
 void shader_program::set(const char* name, const matrix3x3f& mat3, bool transpose)
 {
-	glUniformMatrix3fv(glGetUniformLocation(gl_id, name), 1, transpose, (const GLfloat*)&mat3);
+	glUniformMatrix3fv(glGetUniformLocation(obj_id, name), 1, transpose, (const GLfloat*)&mat3);
 }
 
 void shader_program::set(const char* name, const matrix3x3f* mat3, bool transpose)
 {
-	glUniformMatrix3fv(glGetUniformLocation(gl_id, name), 1, transpose, (const GLfloat*)mat3);
+	glUniformMatrix3fv(glGetUniformLocation(obj_id, name), 1, transpose, (const GLfloat*)mat3);
 }

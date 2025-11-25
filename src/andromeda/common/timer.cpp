@@ -1,6 +1,6 @@
-#include <andromeda/util/timer.h>
+#include <andromeda/common/timer.h>
 
-using namespace andromeda::util;
+using namespace andromeda::common;
 
 void timer::init()
 {

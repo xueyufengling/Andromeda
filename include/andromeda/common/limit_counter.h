@@ -1,9 +1,9 @@
-#ifndef ANDROMEDA_UTIL_LIMITCOUNTER
-#define ANDROMEDA_UTIL_LIMITCOUNTER
+#ifndef ANDROMEDA_COMMON_LIMITCOUNTER
+#define ANDROMEDA_COMMON_LIMITCOUNTER
 
 namespace andromeda
 {
-namespace util
+namespace common
 {
 //设置起始值和终止值构成循环序列，则自增、自减运算结果值都落入该序列。只适用于基础数据类型
 template<typename T>
@@ -75,4 +75,4 @@ public:
 }
 }
 
-#endif//ANDROMEDA_UTIL_LIMITCOUNTER
+#endif//ANDROMEDA_COMMON_LIMITCOUNTER

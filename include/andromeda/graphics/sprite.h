@@ -1,13 +1,13 @@
 #ifndef ANDROMEDA_GRAPHICS_SPRITE
 #define ANDROMEDA_GRAPHICS_SPRITE
 
-#include <andromeda/util/array.h>
+#include <andromeda/common/array.h>
+#include <andromeda/common/timer.h>
 #include <map>
 #include "texture_2d.h"
 #include "coord_transform.h"
 #include "geometry.h"
 #include "../io/files.h"
-#include "../util/timer.h"
 
 namespace andromeda
 {
@@ -19,11 +19,11 @@ class sprite_sheet
 {
 protected:
 	texture2d sheet_texture;
-	andromeda::util::array<uv_coord> splited_area;
+	andromeda::common::array<uv_coord> splited_area;
 	private:
 	sprite_sheet() = default;
 
-	sprite_sheet(texture2d texture, andromeda::util::array<uv_coord> splited_area) :
+	sprite_sheet(texture2d texture, andromeda::common::array<uv_coord> splited_area) :
 			sheet_texture(texture), splited_area(splited_area)
 	{
 
@@ -220,7 +220,7 @@ public:
 
 	typedef struct frame
 	{
-		andromeda::util::array<part> parts;
+		andromeda::common::array<part> parts;
 		float time = 0; //持续时间
 
 		frame() = default;
@@ -230,7 +230,7 @@ public:
 
 		}
 
-		inline operator andromeda::util::array<part>&()
+		inline operator andromeda::common::array<part>&()
 		{
 			return parts;
 		}
@@ -255,11 +255,11 @@ public:
 	};
 
 private:
-	andromeda::util::timer timer; //按时间渲染不同的帧
+	andromeda::common::timer timer; //按时间渲染不同的帧
 
 protected:
-	andromeda::util::array<void*> sprite_sheet; //所使用到的精灵表数组
-	andromeda::util::array<frame> frames; //按顺序播放
+	andromeda::common::array<void*> sprite_sheet; //所使用到的精灵表数组
+	andromeda::common::array<frame> frames; //按顺序播放
 
 public:
 	template<typename KeyType>

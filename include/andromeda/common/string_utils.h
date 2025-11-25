@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_UTIL_STRINGUTILS
-#define ANDROMEDA_UTIL_STRINGUTILS
+#ifndef ANDROMEDA_COMMON_STRINGUTILS
+#define ANDROMEDA_COMMON_STRINGUTILS
 
 #include "../io/paths.h"
 
@@ -26,7 +26,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "array.h"
+#include <andromeda/common/array.h>
 
 template<typename T>
 std::string to_string(const T& value);
@@ -139,9 +139,9 @@ std::string string_cat(Args ...vals)
 /**
  * 拷贝字符串
  */
-const char* str_cpy(const char* str);
+extern const char* str_cpy(const char* str);
 
-const char* string_cat(const char** str_arr, int count); //把含有count个字符串的数组合并为一个字符串
+extern const char* string_cat(const char** str_arr, int count); //把含有count个字符串的数组合并为一个字符串
 
 template<typename T>
 T value_of(const std::string& value);
@@ -156,7 +156,7 @@ inline int value_of(const char value)
 
 namespace andromeda
 {
-namespace util
+namespace common
 {
 
 class split_strings: public array<const char*>
@@ -189,4 +189,4 @@ inline char lowercase(char ch)
 }
 }
 
-#endif // ANDROMEDA_UTIL_STRINGUTILS
+#endif // ANDROMEDA_COMMON_STRINGUTILS

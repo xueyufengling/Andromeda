@@ -1,9 +1,9 @@
 #ifndef ANDROMEDA_MEDIA_CODEC
 #define ANDROMEDA_MEDIA_CODEC
 
+#include <andromeda/common/array.h>
+#include <andromeda/common/log.h>
 #include <functional>
-#include "../util/array.h"
-#include "../util/log.h"
 
 extern "C"
 {

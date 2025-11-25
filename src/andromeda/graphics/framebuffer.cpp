@@ -1,9 +1,9 @@
+#include <andromeda/common/log.h>
 #include <andromeda/graphics/framebuffer.h>
 
 #include <andromeda/graphics/shader_program.h>
 #include <andromeda/graphics/internal_shaders.h>
 #include <andromeda/graphics/vertex_attribute.h>
-#include <andromeda/util/log.h>
 
 using namespace andromeda::graphics;
 
@@ -13,18 +13,18 @@ bool framebuffer::alloc(int try_timeout)
 		clear_all_buffers();
 	else
 	{
-		glGenFramebuffers(1, &gl_id); //生成帧缓冲
-		glBindFramebuffer(GL_FRAMEBUFFER, gl_id);
+		glGenFramebuffers(1, &obj_id); //生成帧缓冲
+		glBindFramebuffer(GL_FRAMEBUFFER, obj_id);
 		glGenTextures(1, &color_buffer); //生成颜色缓冲，可读可写
 		glBindTexture(GL_TEXTURE_2D, color_buffer);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FRAMEBUFFER_BUFFER_SIZE(width), FRAMEBUFFER_BUFFER_SIZE(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); //为颜色缓冲分配内存
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //设置颜色缓冲采样格式
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_buffer, 0); //将颜色缓冲绑定到帧缓冲gl_id
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_buffer, 0); //将颜色缓冲绑定到帧缓冲obj_id
 		glGenRenderbuffers(1, &depth_stencil_buffer); //生成渲染缓冲的深度、模板缓冲部件，GL_RENDERBUFFER效率比GL_TEXTURE_2D更高，该缓冲是只写的
 		glBindRenderbuffer(GL_RENDERBUFFER, depth_stencil_buffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, FRAMEBUFFER_BUFFER_SIZE(width), FRAMEBUFFER_BUFFER_SIZE(height)); //为深度模板缓冲分配内存
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depth_stencil_buffer); //将深度模板缓冲绑定到gl_id
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depth_stencil_buffer); //将深度模板缓冲绑定到obj_id
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); //解绑帧缓冲
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -98,7 +98,7 @@ void framebuffer::render_to_screen(float* vertex_arr)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); //绑定到屏幕帧缓冲
 	glDisable(GL_DEPTH_TEST);
 	clear_color_buffer();
-	andromeda::graphics::pt_default_shader_program().use();
+	andromeda::graphics::pt_default_shader_program().bind_this();
 	vertex_attribute& vertex_attribs = vertex_attribute::position3f_texcoord2f();
 	//绘制到屏幕，绑定顺序是VAO、VBO、EBO，最后调用glVertexAttribPointer()设置顶点属性的格式
 	glBindVertexArray(frame_vao);
