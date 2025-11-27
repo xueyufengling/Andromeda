@@ -8,42 +8,9 @@ extern "C"
 }
 
 #include "../common/bindable_object.h"
-#include "../common/log.h"
+#include <andromeda/common/lib_call.h>
 
-/**
- * @brief 调用OpenAL函数并返回操作的成功或错误码
- */
-template<typename Ret, typename Callable, typename ...Args>
-__attribute__((always_inline)) inline ALenum alCall(Callable callable, Ret* ret, Args ... args)
-{
-	if(ret)
-		*ret = callable(args...);
-	else
-		callable(args...);
-	return alGetError();
-}
-
-template<typename Callable, typename ...Args>
-__attribute__((always_inline)) inline ALenum alCallVoid(Callable callable, Args ... args)
-{
-	callable(args...);
-	return alGetError();
-}
-
-/**
- * @brief 调用OpenAL函数并返回操作的结果
- */
-template<typename Callable, typename ...Args>
-__attribute__((always_inline)) inline auto alCallRet(Callable callable, Args ... args) -> decltype(callable(args...))
-{
-	ALenum err_code = AL_NO_ERROR;
-	decltype(callable(args...)) ret = callable(args...);
-	if((err_code = alGetError()) != AL_NO_ERROR)
-	{
-		LogError("alCallRet failed. error code: ", err_code);
-	}
-	return ret;
-}
+LibCallAll(alCall, ALenum, alGetError, AL_NO_ERROR)
 
 inline ALboolean al_IsExtensionPresent(const char* ext_name)
 {
@@ -52,52 +19,52 @@ inline ALboolean al_IsExtensionPresent(const char* ext_name)
 
 inline ALenum al_GenBuffers(ALsizei n, ALuint* buffers)
 {
-	return alCallVoid(&alGenBuffers, n, buffers);
+	return alCallRet(&alGenBuffers, n, buffers);
 }
 
 inline ALenum al_DeleteBuffers(ALsizei n, const ALuint* buffers)
 {
-	return alCallVoid(&alDeleteBuffers, n, buffers);
+	return alCallRet(&alDeleteBuffers, n, buffers);
 }
 
 inline ALenum al_BufferData(ALuint bid, ALenum format, const ALvoid* data, ALsizei size, ALsizei freq)
 {
-	return alCallVoid(&alBufferData, bid, format, data, size, freq);
+	return alCallRet(&alBufferData, bid, format, data, size, freq);
 }
 
 inline ALenum al_GenSources(ALsizei n, ALuint* sources)
 {
-	return alCallVoid(&alGenSources, n, sources);
+	return alCallRet(&alGenSources, n, sources);
 }
 
 inline ALenum al_DeleteSources(ALsizei n, const ALuint* sources)
 {
-	return alCallVoid(&alDeleteSources, n, sources);
+	return alCallRet(&alDeleteSources, n, sources);
 }
 
 inline ALenum al_Sourcei(ALuint sid, ALenum param, ALint value)
 {
-	return alCallVoid(&alSourcei, sid, param, value);
+	return alCallRet(&alSourcei, sid, param, value);
 }
 
 inline ALenum al_Sourcef(ALuint sid, ALenum param, ALfloat value)
 {
-	return alCallVoid(&alSourcef, sid, param, value);
+	return alCallRet(&alSourcef, sid, param, value);
 }
 
 inline ALenum al_Source3f(ALuint sid, ALenum param, ALfloat value1, ALfloat value2, ALfloat value3)
 {
-	return alCallVoid(&alSource3f, sid, param, value1, value2, value3);
+	return alCallRet(&alSource3f, sid, param, value1, value2, value3);
 }
 
 inline ALenum al_SourcePlay(ALuint sid)
 {
-	return alCallVoid(&alSourcePlay, sid);
+	return alCallRet(&alSourcePlay, sid);
 }
 
 inline ALenum al_GetSourcei(ALuint sid, ALenum param, ALint* value)
 {
-	return alCallVoid(&alGetSourcei, sid, param, value);
+	return alCallRet(&alGetSourcei, sid, param, value);
 }
 
 inline ALCdevice* alc_OpenDevice(const ALCchar* devicename)
@@ -117,12 +84,12 @@ inline ALCcontext* alc_CreateContext(ALCdevice* device, const ALCint* attrlist)
 
 inline ALenum alc_DestroyContext(ALCcontext* context)
 {
-	return alCallVoid(&alcDestroyContext, context);
+	return alCallRet(&alcDestroyContext, context);
 }
 
 inline ALenum alc_MakeContextCurrent(ALCcontext* context)
 {
-	return alCallVoid(&alcMakeContextCurrent, context);
+	return alCallRet(&alcMakeContextCurrent, context);
 }
 
 inline ALCcontext* alc_GetCurrentContext(void)
@@ -140,18 +107,37 @@ namespace andromeda
 namespace audio
 {
 
-template<typename Derived>
-class al_object: public andromeda::common::bindable_object<ALuint, Derived>
+__attribute__((always_inline)) inline ALint al_get_integer(ALuint source, ALuint param)
 {
-public:
-	al_object() = default;
+	ALint result = 0;
+	al_GetSourcei(source, param, &result);
+	return result;
+}
 
-	al_object(ALuint existed_id) :
-			andromeda::common::bindable_object<ALuint, Derived>(existed_id)
-	{
+inline ALint al_get_source_state(ALuint source)
+{
+	return al_get_integer(source, AL_SOURCE_STATE);
+}
 
-	}
-};
+inline ALenum al_set_source_buffer(ALuint source, ALuint buffer)
+{
+	return al_Sourcei(source, AL_BUFFER, buffer);
+}
+
+inline ALenum al_set_source_loop(ALuint source, bool loop)
+{
+	return al_Sourcei(source, AL_LOOPING, loop);
+}
+
+inline ALenum al_set_source_gain(ALuint source, float gain)
+{
+	return al_Sourcef(source, AL_GAIN, gain);
+}
+
+inline ALenum al_set_source_pos(ALuint source, float x, float y, float z)
+{
+	return al_Source3f(source, AL_POSITION, x, y, z);
+}
 
 /**
  * @brief 一个音频输出设备的结构体

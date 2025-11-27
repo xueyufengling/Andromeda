@@ -72,7 +72,7 @@ public:
 						axis[0] * axis[2] * (1 - cos(rad)) - axis[1] * sin(rad), axis[1] * axis[2] * (1 - cos(rad)) + axis[0] * sin(rad), cos(rad) + axis[2] * axis[2] * (1 - cos(rad)), 0,
 						0, 0, 0, 1
 				};
-		return andromeda::traits::cast<matrix4x4<T> >(m_elem);
+		return cast<matrix4x4<T> >(m_elem);
 	}
 };
 }

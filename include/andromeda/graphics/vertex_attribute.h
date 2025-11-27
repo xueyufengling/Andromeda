@@ -103,16 +103,16 @@ public:
 
 	__attribute__((always_inline)) inline void load(GLuint vao) //在glBindBuffer()后、glDraw*()前调用，用于把顶点属性格式装载进指定的VAO中
 	{
-		glBindVertexArray(vao);
+		gl_BindVertexArray(vao);
 		for(size_t i = 0; i < attribs.length(); ++i)
 		{
 			vertex_attribute_info& attrib = attribs[i];
-			glVertexAttribPointer(attrib.index, attrib.num, attrib.type, attrib.normalized, vertex_size, (void*)(attrib.offset));
-			glEnableVertexAttribArray(attrib.index);
+			gl_VertexAttribPointer(attrib.index, attrib.num, attrib.type, attrib.normalized, vertex_size, (void*)(attrib.offset));
+			gl_EnableVertexAttribArray(attrib.index);
 			if(attrib.divisor)
-				glVertexAttribDivisor(attrib.index, attrib.divisor);
+				gl_VertexAttribDivisor(attrib.index, attrib.divisor);
 		}
-		glBindVertexArray(0);
+		gl_BindVertexArray(0);
 	}
 
 	vertex_attribute_info get_vertex_attribute_info(const char* attrib_name);

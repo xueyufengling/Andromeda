@@ -32,25 +32,25 @@ public:
 
 	inline renderable_instance& scale(float scale_factor)
 	{
-		model_matrix = andromeda::traits::cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::scale(scale_factor));
+		model_matrix = cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::scale(scale_factor));
 		return *this;
 	}
 
 	inline renderable_instance& shift(andromeda::math::vector3f shift)
 	{
-		model_matrix = andromeda::traits::cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::shift(shift));
+		model_matrix = cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::shift(shift));
 		return *this;
 	}
 
 	inline renderable_instance& rotate(float rad_x, float rad_y, float rad_z)
 	{
-		model_matrix = andromeda::traits::cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::Rxyz(rad_x, rad_y, rad_z));
+		model_matrix = cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::Rxyz(rad_x, rad_y, rad_z));
 		return *this;
 	}
 
 	inline renderable_instance& rotate(andromeda::math::vector3f axis, float rad)
 	{
-		model_matrix = andromeda::traits::cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::R(axis, rad));
+		model_matrix = cast<andromeda::math::matrix4x4f>(model_matrix * andromeda::math::R(axis, rad));
 		return *this;
 	}
 
@@ -174,17 +174,17 @@ public:
 				return;
 			buffer_divisor_data(data_strategy::DYNAMIC_DRAW);
 			if(ebo)
-				glDrawElementsInstanced((GLuint)instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, 0, instance_count);
+				gl_DrawElementsInstanced((GLuint)instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, 0, instance_count);
 			else
-				glDrawArraysInstanced((GLuint)instance_geometry_strategy, 0, get_vertex_count(), instance_count);
+				gl_DrawArraysInstanced((GLuint)instance_geometry_strategy, 0, get_vertex_count(), instance_count);
 		}
 			break;
 		case draw_strategy::NORMAL:
 			{
 			if(ebo)
-				glDrawElements((GLuint)instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, 0);
+				gl_DrawElements((GLuint)instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, 0);
 			else
-				glDrawArrays((GLuint)instance_geometry_strategy, 0, get_vertex_count());
+				gl_DrawArrays((GLuint)instance_geometry_strategy, 0, get_vertex_count());
 		}
 			break;
 		}

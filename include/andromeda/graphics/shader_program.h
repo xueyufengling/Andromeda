@@ -28,12 +28,12 @@ public:
 	 */
 	__attribute__((always_inline)) inline static void bind(GLuint program_id)
 	{
-		glUseProgram(program_id);
+		gl_UseProgram(program_id);
 	}
 
 	__attribute__((always_inline)) inline static void invalidate(GLuint program_id)
 	{
-		glUseProgram(program_id);
+		gl_UseProgram(program_id);
 	}
 
 	inline static GLuint current_bind()
@@ -107,57 +107,57 @@ public:
 		inline variable(GLuint shader_program, const char* name) :
 				shader_program(shader_program)
 		{
-			var_loc = glGetUniformLocation(shader_program, name);
+			var_loc = gl_GetUniformLocation(shader_program, name);
 		}
 
 		inline void use()
 		{
-			glUseProgram(shader_program);
+			gl_UseProgram(shader_program);
 		}
 
 		inline void set(const int value)
 		{
-			glUniform1i(var_loc, value);
+			gl_Uniform1i(var_loc, value);
 		}
 
 		inline void set(const unsigned int value)
 		{
-			glUniform1ui(var_loc, value);
+			gl_Uniform1ui(var_loc, value);
 		}
 
 		inline void set(const float value)
 		{
-			glUniform1f(var_loc, value);
+			gl_Uniform1f(var_loc, value);
 		}
 
 		inline void set(const int count, int* value_arr)
 		{
-			glUniform1iv(var_loc, count, value_arr);
+			gl_Uniform1iv(var_loc, count, value_arr);
 		}
 
 		inline void set(int count, const unsigned int* value_arr)
 		{
-			glUniform1uiv(var_loc, count, value_arr);
+			gl_Uniform1uiv(var_loc, count, value_arr);
 		}
 
 		inline void set(int count, const float* value_arr)
 		{
-			glUniform1fv(var_loc, count, value_arr);
+			gl_Uniform1fv(var_loc, count, value_arr);
 		}
 
 		inline void set(const andromeda::math::vector3f vec3)
 		{
-			glUniform1fv(var_loc, 3, (const GLfloat*)&vec3);
+			gl_Uniform1fv(var_loc, 3, (const GLfloat*)&vec3);
 		}
 
 		inline void set(const andromeda::math::matrix3x3f& mat3, bool transpose = false)
 		{
-			glUniformMatrix3fv(var_loc, 1, transpose, (const GLfloat*)&mat3);
+			gl_UniformMatrix3fv(var_loc, 1, transpose, (const GLfloat*)&mat3);
 		}
 
 		inline void set(const andromeda::math::matrix3x3f* mat3, bool transpose = false)
 		{
-			glUniformMatrix3fv(var_loc, 1, transpose, (const GLfloat*)mat3);
+			gl_UniformMatrix3fv(var_loc, 1, transpose, (const GLfloat*)mat3);
 		}
 	};
 

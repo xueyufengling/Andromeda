@@ -16,7 +16,7 @@ namespace andromeda
 {
 namespace graphics
 {
-class framebuffer : public andromeda::graphics::gl_object<framebuffer>
+class framebuffer: public andromeda::graphics::gl_object<framebuffer>
 {
 private:
 	GLuint color_buffer = 0;
@@ -69,7 +69,7 @@ public:
 
 	__attribute__((always_inline)) inline static void bind(GLuint framebuffer_id)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+		gl_BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
 	}
 
 	/**
@@ -100,19 +100,19 @@ public:
 
 	__attribute__((always_inline)) inline void clear_all_buffers() //清除所有缓存数据
 	{
-		glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		gl_ClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
+		gl_Clear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	}
 
 	__attribute__((always_inline)) inline void clear_color_buffer() //只清除颜色缓冲
 	{
-		glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
-		glClear(GL_COLOR_BUFFER_BIT);
+		gl_ClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
+		gl_Clear(GL_COLOR_BUFFER_BIT);
 	}
 
 	__attribute__((always_inline)) static inline void clear_depth_stencil_buffer() //只清除颜色缓冲
 	{
-		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		gl_Clear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
 	bool alloc(int try_timeout = 1); //分配内存，需要在使用前最先调用。try_timeout为尝试分配的次数，返回值为分配是否成功

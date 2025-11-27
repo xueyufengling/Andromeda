@@ -12,7 +12,7 @@ void andromeda::graphics::_glfw_error_print(int err_code, const char* descriptio
 
 void andromeda::graphics::_glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, width, height);
+	gl_Viewport(0, 0, width, height);
 }
 
 bool andromeda::graphics::load_gl()
@@ -49,13 +49,13 @@ void andromeda::graphics::term_glfw()
 	glfwTerminate();
 }
 
-void andromeda::graphics::clear_gl_error()
+void andromeda::graphics::gl_clear_error()
 {
 	while(glGetError() != GL_NO_ERROR)
 		;
 }
 
-GLenum andromeda::graphics::next_gl_error()
+GLenum andromeda::graphics::gl_next_error()
 {
 	while(GLenum error = glGetError())
 		return error;

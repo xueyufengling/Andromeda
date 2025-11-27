@@ -48,20 +48,20 @@ void renderable::buffer_vertex_data()
 	size_t vertex_count = get_vertex_count();
 	if((!vertex_data) || (!vertex_count)) //如果没有顶点数据则直接返回
 		return;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertex_count * vertex_attribs->get_vertex_size(), vertex_data, (GLuint)vertex_data_strategy);
+	gl_GenVertexArrays(1, &vao);
+	gl_BindVertexArray(vao);
+	gl_GenBuffers(1, &vbo);
+	gl_BindBuffer(GL_ARRAY_BUFFER, vbo);
+	gl_BufferData(GL_ARRAY_BUFFER, vertex_count * vertex_attribs->get_vertex_size(), vertex_data, (GLuint)vertex_data_strategy);
 	if(element_data && get_element_count())
 	{
-		glGenBuffers(1, &ebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * get_element_count(), element_data, (GLuint)vertex_data_strategy);
+		gl_GenBuffers(1, &ebo);
+		gl_BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		gl_BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * get_element_count(), element_data, (GLuint)vertex_data_strategy);
 	}
 	vertex_attribs->load(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	gl_BindBuffer(GL_ARRAY_BUFFER, 0);
+	gl_BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void renderable::buffer_divisor_data(data_strategy data_strategy)
@@ -69,8 +69,8 @@ void renderable::buffer_divisor_data(data_strategy data_strategy)
 	if(instance_draw_strategy != draw_strategy::INSTANCED) //如果不是实例模式则直接返回
 		return;
 	if(!instance_vbo)
-		glGenBuffers(1, &instance_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, instance_vbo);
+		gl_GenBuffers(1, &instance_vbo);
+	gl_BindBuffer(GL_ARRAY_BUFFER, instance_vbo);
 	instance_divisor_data.clear();
 	for(size_t direct_idx = 0; direct_idx < direct_instance_list.length(); ++direct_idx)
 	{
@@ -82,8 +82,8 @@ void renderable::buffer_divisor_data(data_strategy data_strategy)
 		renderable_instance& instance = (*iter).second;
 		instance_divisor_data.add(instance.instance_divisor_data, instance.instance_divisor_data.length());
 	}
-	glBufferData(GL_ARRAY_BUFFER, instance_divisor_data.length(), instance_divisor_data, (GLuint)data_strategy); //实例数据是需要经常变化的
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	gl_BufferData(GL_ARRAY_BUFFER, instance_divisor_data.length(), instance_divisor_data, (GLuint)data_strategy); //实例数据是需要经常变化的
+	gl_BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void renderable::set_vertex_attribute_shader(vertex_attribute* vertex_attribs, shader_program* shader)

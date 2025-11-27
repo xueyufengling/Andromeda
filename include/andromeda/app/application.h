@@ -14,39 +14,25 @@
  * 抽象的应用类，只包含更新逻辑，无图形渲染、音频等，可用于编写服务端
  */
 
-#ifndef HAS_FUNC_INITIALIZE
-#define HAS_FUNC_INITIALIZE
-def_cls_has_func(initialize)
-#endif//#HAS_FUNC_INITIALIZE#ifndef HAS_FUNC_PREINITIALIZE
-#define HAS_FUNC_PREINITIALIZE
-def_cls_has_func(preinitialize)
-#endif//#HAS_FUNC_PREINITIALIZE#ifndef HAS_FUNC_UPDATE#define HAS_FUNC_UPDATEdef_cls_has_func(update)#endif//HAS_FUNC_UPDATE
-#ifndef HAS_FUNC_RENDER_UPDATE
-#define HAS_FUNC_RENDER_UPDATE
-def_cls_has_func(render_update)
-#endif//#HAS_FUNC_RENDER_UPDATE#ifndef HAS_FUNC_TERMINATE#define HAS_FUNC_TERMINATEdef_cls_has_func(terminate)#endif//HAS_FUNC_TERMINATE
-
-//所有andromeda::app::Application（包括其本身）必须添加的friend class
-#define DefineApplication(Derived) \
-	friend class has_func(initialize)<void>;\
-	friend class has_func(preinitialize)<void>;\
-	friend class has_func(terminate)<void>;\
-	friend class has_func(update)<void,float>;\
-	friend class has_func(render_update)<void,float>;\
-	friend class andromeda::app::main_loop_thread<Derived>;\
-	friend class andromeda::app::application<Derived>;
+#ifndef EXIST_MEMB_FUNC_INITIALIZE
+#define EXIST_MEMB_FUNC_INITIALIZE
+decl_exist_memb_func(initialize, void)
+#endif//#EXIST_MEMB_FUNC_INITIALIZE#ifndef EXIST_MEMB_FUNC_PREINITIALIZE
+#define EXIST_MEMB_FUNC_PREINITIALIZE
+decl_exist_memb_func(preinitialize, void)
+#endif//#EXIST_MEMB_FUNC_PREINITIALIZE#ifndef EXIST_MEMB_FUNC_UPDATE#define EXIST_MEMB_FUNC_UPDATEdecl_exist_memb_func(update, void)#endif//EXIST_MEMB_FUNC_UPDATE
+#ifndef EXIST_MEMB_FUNC_RENDER_UPDATE
+#define EXIST_MEMB_FUNC_RENDER_UPDATE
+decl_exist_memb_func(render_update, void)
+#endif//#EXIST_MEMB_FUNC_RENDER_UPDATE#ifndef EXIST_MEMB_FUNC_TERMINATE#define EXIST_MEMB_FUNC_TERMINATEdecl_exist_memb_func(terminate, void)#endif//EXIST_MEMB_FUNC_TERMINATE
 
 //设置andromeda::app::Application为友元并导入其函数，所有直接继承子类都需要有
 #define ImportApplicationAPI(Derived) \
 	using andromeda::app::application<Derived>::launch;\
 	using andromeda::app::application<Derived>::exit;
 
-
 namespace andromeda
 {
-extern bool use_opengl;
-extern bool use_portaudio;
-
 namespace app
 {
 
@@ -56,13 +42,9 @@ class main_loop_thread;
 template<typename Derived>
 class application : public andromeda::thread::coroutine_lock
 {
-	 DefineApplication(application)
-
 protected:
 	class main_loop_thread : public andromeda::thread::thread<void(), main_loop_thread>, public andromeda::thread::coroutine_lock
 	{
-	DefineThread
-
 	friend class andromeda::thread::thread<void(), main_loop_thread>;
 	friend class andromeda::app::application<Derived>;
 
@@ -125,33 +107,33 @@ protected:
 	//主线程函数，负责事件处理和更新
 	__attribute__((always_inline)) inline void _preinitialize() //在初始化Application时调用（各系统初始化之前）
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(preinitialize)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, preinitialize, void)::result)
 			((Derived*)this)->preinitialize();
 	}
 
 	__attribute__((always_inline)) inline void _initialize() //在各系统初始化完成后调用
 	{
 		is_running = true;
-		if(andromeda::traits::is_class<Derived>::result && has_func(initialize)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result)
 			((Derived*)this)->initialize();
 	}
 
 	__attribute__((always_inline)) inline void _terminate()
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(terminate)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
 			((Derived*)this)->terminate();
 		is_running=false;
 	}
 
 	__attribute__((always_inline)) inline void _update(float tpf)
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(update)<void,float>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, update, void)::result)
 			((Derived*)this)->update(tpf);
 	}
 
 	__attribute__((always_inline)) inline void _render_update(float render_tpf)
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(render_update)<void,float>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, render_update, void, float)::check<Derived>::result)
 			((Derived*)this)->render_update(render_tpf);
 	}
 

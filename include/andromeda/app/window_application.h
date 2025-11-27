@@ -102,7 +102,7 @@ public:
 			//渲染
 			framebuffer.bind_this();
 			framebuffer.clear_all_buffers();
-			if(andromeda::traits::is_class<Derived>::result && has_func(render_update)<void, float>::check<Derived>::result) //如果子类没有render_update()则此调用将优化掉
+			if(andromeda::traits::is_class<Derived>::result && func_exist(render_update)<void, float>::check<Derived>::result) //如果子类没有render_update()则此调用将优化掉
 				_render_update(render_frame_rate.get_tpf());
 			framebuffer.blit_to_screen();
 			glfwSwapBuffers(*this);
@@ -170,10 +170,13 @@ public:
 	using window::set_window_decorated;
 	using window::is_window_decorated;
 	using window::set_window_opacity;
-	#ifdef GLFW_MOUSE_PASSTHROUGH
+
+#ifdef GLFW_MOUSE_PASSTHROUGH
 	using window::set_window_mouse_event_passthrough;
 	using window::is_window_mouse_event_passthrough;
-	#endif
+
+#endif
+
 	using window::set_window_transparent_color;
 };
 }

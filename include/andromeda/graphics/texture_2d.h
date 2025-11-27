@@ -49,7 +49,7 @@ typedef struct pixel_coord
 
 texture_type parse_texture_type(const char* type);
 
-class texture2d : public andromeda::graphics::gl_object<texture2d>
+class texture2d: public andromeda::graphics::gl_object<texture2d>
 {
 private:
 	const char* texture_path = nullptr;
@@ -89,7 +89,7 @@ public:
 	__attribute__((always_inline)) static inline int get_max_texture_unit()
 	{
 		if(!max_texture_unit)
-			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_unit);
+			gl_GetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_unit);
 		return max_texture_unit;
 	}
 
@@ -124,7 +124,7 @@ public:
 
 	__attribute__((always_inline)) inline texture2d& set_parameter(GLint para_name, GLint para_value) //设置之前先调用use()
 	{
-		glTexParameteri(GL_TEXTURE_2D, para_name, para_value);
+		gl_TexParameteri(GL_TEXTURE_2D, para_name, para_value);
 		return *this;
 	}
 
@@ -138,13 +138,13 @@ public:
 
 	__attribute__((always_inline)) inline static void bind(GLuint texture_id)
 	{
-		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_BindTexture(GL_TEXTURE_2D, texture_id);
 	}
 
 	__attribute__((always_inline)) inline static void bind(GLuint texture_id, int texture_unit)
 	{
-		glActiveTexture(GL_TEXTURE0 + texture_unit);
-		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_ActiveTexture(GL_TEXTURE0 + texture_unit);
+		gl_BindTexture(GL_TEXTURE_2D, texture_id);
 	}
 
 	/**

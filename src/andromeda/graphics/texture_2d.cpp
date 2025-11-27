@@ -1,5 +1,6 @@
-#include <andromeda/common/string_utils.h>
 #include <andromeda/graphics/texture_2d.h>
+
+#include <andromeda/common/string_utils.h>
 
 using namespace andromeda::graphics;
 using namespace andromeda::common;
@@ -10,11 +11,11 @@ bool texture2d::load(int level, bool generate_minimap, bool release_image) //实
 		return false;
 	if(image.get_pixels())
 	{
-		glGenTextures(1, &obj_id);
+		gl_GenTextures(1, &obj_id);
 		bind_this();
-		glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA, image.get_width(), image.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		gl_TexImage2D(GL_TEXTURE_2D, level, GL_RGBA, image.get_width(), image.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		if(generate_minimap)
-			glGenerateMipmap(GL_TEXTURE_2D);
+			gl_GenerateMipmap(GL_TEXTURE_2D);
 		if(release_image)
 			this->release_image();
 		return true;
@@ -31,11 +32,11 @@ bool texture2d::load(int texture_unit, int level, bool generate_minimap, bool re
 		return false;
 	if(image.get_pixels())
 	{
-		glGenTextures(1, &obj_id);
+		gl_GenTextures(1, &obj_id);
 		bind_this(texture_unit);
-		glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA, image.get_width(), image.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		gl_TexImage2D(GL_TEXTURE_2D, level, GL_RGBA, image.get_width(), image.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		if(generate_minimap)
-			glGenerateMipmap(GL_TEXTURE_2D);
+			gl_GenerateMipmap(GL_TEXTURE_2D);
 		if(release_image)
 			this->release_image();
 		return true;

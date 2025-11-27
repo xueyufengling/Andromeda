@@ -7,45 +7,48 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "../traits/types.h"
+#include "../traits/call.h"
 
 //THREAD宏可用于任何Callable，但不可用func参数不能传入ClassObj.Func，因为decltype无法解析可能的重载函数
 #define THREAD(obj_name,func) andromeda::util::Thread<decltype(func)> obj_name(func)
-
-#ifndef HAS_FUNC_INITIALIZE
-#define HAS_FUNC_INITIALIZE
-def_cls_has_func(initialize)
-#endif//HAS_FUNC_INITIALIZE#ifndef HAS_FUNC_RUN
-#define HAS_FUNC_RUN
-def_cls_has_func(run)
-#endif//HAS_FUNC_RUN#ifndef HAS_FUNC_TERMINATE#define HAS_FUNC_TERMINATE
-def_cls_has_func(terminate)
-#endif//HAS_FUNC_TERMINATE#ifndef HAS_FUNC_BEFORE_STOP#define HAS_FUNC_BEFORE_STOP
-def_cls_has_func(before_stop)
-#endif//HAS_FUNC_BEFORE_STOP#ifndef HAS_FUNC_AFTER_STOP#define HAS_FUNC_AFTER_STOP
-def_cls_has_func(after_stop)
-#endif//HAS_FUNC_AFTER_STOP#ifndef HAS_FUNC_BEFORE_SUSPENDED#define HAS_FUNC_BEFORE_SUSPENDED
-def_cls_has_func(before_suspended)
-#endif//HAS_FUNC_BEFORE_SUSPENDED#ifndef HAS_FUNC_AFTER_SUSPENDED#define HAS_FUNC_AFTER_SUSPENDED
-def_cls_has_func(after_suspended)
-#endif//HAS_FUNC_AFTER_SUSPENDED#ifndef HAS_FUNC_BEFORE_RESUME#define HAS_FUNC_BEFORE_RESUME
-def_cls_has_func(before_resume)
-#endif//HAS_FUNC_BEFORE_RESUME#ifndef HAS_FUNC_AFTER_RESUME#define HAS_FUNC_AFTER_RESUME
-def_cls_has_func(after_resume)
-#endif//HAS_FUNC_AFTER_RESUME
-
-//子类必须添加的friend class
-#define DefineThread \
-	friend class has_func(initialize)<void>;\
-	friend class has_func(run)<void>;\
-	friend class has_func(terminate)<void>;\
-	friend class has_func(before_stop)<void>;\
-	friend class has_func(after_stop)<void>;\
-	friend class has_func(before_suspended)<void>;\
-	friend class has_func(after_suspended)<void>;\
-	friend class has_func(before_resume)<void>;\
-	friend class has_func(after_resume)<void>;
-
+/*
+ #ifndef EXIST_MEMB_FUNC_INITIALIZE
+ #define EXIST_MEMB_FUNC_INITIALIZE
+ decl_exist_memb_func(initialize, void)
+ #endif//EXIST_MEMB_FUNC_INITIALIZE
+ ifndef EXIST_MEMB_FUNC_RUN
+ #define EXIST_MEMB_FUNC_RUN
+ decl_exist_memb_func(run, void)
+ #endif//EXIST_MEMB_FUNC_RUN
+ ifndef EXIST_MEMB_FUNC_TERMINATE
+ define EXIST_MEMB_FUNC_TERMINATE
+ decl_exist_memb_func(terminate, void)
+ #endif//EXIST_MEMB_FUNC_TERMINATE
+ ifndef EXIST_MEMB_FUNC_BEFORE_STOP
+ define EXIST_MEMB_FUNC_BEFORE_STOP
+ decl_exist_memb_func(before_stop, void)
+ #endif//EXIST_MEMB_FUNC_BEFORE_STOP
+ ifndef EXIST_MEMB_FUNC_AFTER_STOP
+ define EXIST_MEMB_FUNC_AFTER_STOP
+ decl_exist_memb_func(after_stop, void)
+ #endif//EXIST_MEMB_FUNC_AFTER_STOP
+ ifndef EXIST_MEMB_FUNC_BEFORE_SUSPENDED
+ define EXIST_MEMB_FUNC_BEFORE_SUSPENDED
+ decl_exist_memb_func(before_suspended, void)
+ #endif//EXIST_MEMB_FUNC_BEFORE_SUSPENDED
+ ifndef EXIST_MEMB_FUNC_AFTER_SUSPENDED
+ define EXIST_MEMB_FUNC_AFTER_SUSPENDED
+ decl_exist_memb_func(after_suspended, void)
+ #endif//EXIST_MEMB_FUNC_AFTER_SUSPENDED
+ ifndef EXIST_MEMB_FUNC_BEFORE_RESUME
+ define EXIST_MEMB_FUNC_BEFORE_RESUME
+ decl_exist_memb_func(before_resume, void)
+ #endif//EXIST_MEMB_FUNC_BEFORE_RESUME
+ ifndef EXIST_MEMB_FUNC_AFTER_RESUME
+ define EXIST_MEMB_FUNC_AFTER_RESUME
+ decl_exist_memb_func(after_resume, void)
+ #endif//EXIST_MEMB_FUNC_AFTER_RESUME
+ */
 namespace andromeda
 {
 namespace thread
@@ -69,13 +72,16 @@ static inline void exit(Thread* thread)
 template<typename Callable, typename Derived = void> //Callable为任何可调用对象（包括成员函数），Derived用于继承时传入子类CRTP，若is_class<Derived>=false则表示不继承
 class thread
 {
-	DefineThread
 	friend void exit<>(thread<Callable, Derived>* thread);
 
 public:
-	typedef typename andromeda::traits::degenerate_func<Callable>::result_type degenerated_callable;
+	typedef typename degenerate_type<Callable>::result_type degenerated_callable;
+	typedef typename return_type<Callable>::result_type ret_type;
 
 private:
+	enable_access(Derived, initialize, void());
+	enable_access(Derived, func, void());
+
 	std::thread* _thread = nullptr;
 	work_mode _work_state = DETACH;
 	state _state = STOPPED;
@@ -93,7 +99,7 @@ private:
 	{
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL); //允许退出线程
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); //收到CANCEL信号后立即退出线程
-		if(andromeda::traits::is_class<Derived>::result && has_func(initialize)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result)
 			_initialize();
 		if(should_loop())
 			while(!should_stop)
@@ -110,7 +116,7 @@ private:
 			_callable(args...); //is_loop=false时只调用一次执行函数
 		should_pause = false;
 		should_stop = false;
-		if(andromeda::traits::is_class<Derived>::result && has_func(terminate)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
 			_terminate();
 		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThreadCallable()
 	}
@@ -119,7 +125,7 @@ private:
 	{
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL); //允许退出线程
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); //收到CANCEL信号后立即退出线程
-		if(andromeda::traits::is_class<Derived>::result && has_func(initialize)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result)
 			_initialize();
 		if(should_loop())
 			while(!should_stop)
@@ -136,7 +142,7 @@ private:
 			_run(); //isLoop=false时只调用一次执行函数
 		should_pause = false;
 		should_stop = false;
-		if(andromeda::traits::is_class<Derived>::result && has_func(terminate)<void>::check<Derived>::result)
+		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
 			_terminate();
 		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThreadCallable()
 	}
@@ -149,56 +155,56 @@ protected:
 	//CRTP实现
 	__attribute__((always_inline)) inline void _initialize() //执行函数执行之前调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(initialize)<void>::check<Derived>::result) //Derived是类且有该成员函数
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->initialize();
+		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result) //Derived是类且有该成员函数
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->initialize();
 	}
 
 	__attribute__((always_inline)) inline void _run() //供继承类重写使用的执行函数，重写后可以不执行_callable_obj
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(run)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->run();
+		if(is_class<Derived>::result && exist_memb_func(Derived, run, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->run();
 	}
 
 	__attribute__((always_inline)) inline void _terminate() //执行函数（包括isLoop=true时的情况）结束后调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(terminate)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->terminate();
+		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->terminate();
 	}
 
 	__attribute__((always_inline)) inline void _before_stop() //每次成功调用stop()前调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(before_stop)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_stop();
+		if(is_class<Derived>::result && exist_memb_func(Derived, before_stop, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_stop();
 	}
 
 	__attribute__((always_inline)) inline void _after_stop() //每次成功调用stop()后调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(after_stop)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_stop();
+		if(is_class<Derived>::result && exist_memb_func(Derived, after_stop, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_stop();
 	}
 
 	__attribute__((always_inline)) inline void _before_suspended() //每次成功调用suspended()前调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(before_suspended)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_suspended();
+		if(is_class<Derived>::result && exist_memb_func(Derived, before_suspended, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_suspended();
 	}
 
 	__attribute__((always_inline)) inline void _after_suspended() //每次成功调用suspended()后调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(after_suspended)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_suspended();
+		if(is_class<Derived>::result && exist_memb_func(Derived, after_suspended, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_suspended();
 	}
 
 	__attribute__((always_inline)) inline void _before_resume() //每次成功调用resume()前调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(before_resume)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_resume();
+		if(is_class<Derived>::result && exist_memb_func(Derived, before_resume, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_resume();
 	}
 
 	__attribute__((always_inline)) inline void _after_resume() //每次成功调用resume()后调用一次
 	{
-		if(andromeda::traits::is_class<Derived>::result && has_func(after_resume)<void>::check<Derived>::result)
-			((typename andromeda::traits::_if<andromeda::traits::is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_resume();
+		if(is_class<Derived>::result && exist_memb_func(Derived, after_resume, void)::result)
+			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_resume();
 	}
 
 public:
@@ -287,18 +293,18 @@ public:
 			return;
 		if(!is_callable_set) //没有设置运行函数，调用子类的run()
 		{
-			if(andromeda::traits::is_class<Derived>::result && has_func(run)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, run, void)::result)
 			{
 				_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run_derived, this));
 				goto END;
 			}
 			else
-				//子类没有run()则是无效调用直接返回
-				return;
+				return; //子类没有run()则是无效调用直接返回
 		}
 		_callable = std::function<degenerated_callable>(*(degenerated_callable*)_callable_obj);
 		_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run<Args...>, this, args...));
-		END: _state = RUNNING;
+		END:
+		_state = RUNNING;
 		switch(_work_state)
 		{
 		case JOIN:
@@ -317,19 +323,18 @@ public:
 			return;
 		if(!is_callable_set) //没有设置运行函数，调用子类的run()
 		{
-			if(andromeda::traits::is_class<Derived>::result && has_func(run)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, run, void)::result)
 			{
 				_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run_derived, this));
 				goto END;
 			}
 			else
-				//子类没有run()则是无效调用直接返回
-				return;
+				return; //子类没有run()则是无效调用直接返回
 		}
-		typedef typename andromeda::traits::get_func_ret_type<Callable, Args...>::result_type ret_type;
-		_callable = andromeda::traits::bind_this<Class, ret_type, Args...>::bind(*(typename andromeda::traits::func_type<Class, ret_type, Args...>::result_type*)_callable_obj, cls); //为成员函数绑定this
+		_callable = bind_this<ret_type, Args...>(*(typename func_type<Class, ret_type, Args...>::result_type*)_callable_obj, cls); //为成员函数绑定this
 		_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run<Args...>, this, args...));
-		END: _state = RUNNING;
+		END:
+		_state = RUNNING;
 		switch(_work_state)
 		{
 		case JOIN:
@@ -346,11 +351,11 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(andromeda::traits::is_class<Derived>::result && has_func(before_suspended)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, before_suspended, void)::result)
 				_before_suspended();
 			should_pause = true;
 			_state = SUSPENDED;
-			if(andromeda::traits::is_class<Derived>::result && has_func(after_suspended)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, after_suspended, void)::result)
 				_after_suspended();
 			return true;
 		}
@@ -361,12 +366,12 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(andromeda::traits::is_class<Derived>::result && has_func(before_resume)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, before_resume, void)::result)
 				_before_resume();
 			should_pause = false;
 			_condition.notify_all();
 			_state = RUNNING;
-			if(andromeda::traits::is_class<Derived>::result && has_func(after_resume)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, after_resume, void)::result)
 				_after_resume();
 			return true;
 		}
@@ -377,14 +382,14 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(andromeda::traits::is_class<Derived>::result && has_func(before_stop)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, before_stop, void)::result)
 				_before_stop();
 			should_pause = false;
 			should_stop = true;
 			_condition.notify_all();
 			_thread->join();
 			exit();
-			if(andromeda::traits::is_class<Derived>::result && has_func(after_stop)<void>::check<Derived>::result)
+			if(is_class<Derived>::result && exist_memb_func(Derived, after_stop, void)::result)
 				_after_stop();
 			return true;
 		}

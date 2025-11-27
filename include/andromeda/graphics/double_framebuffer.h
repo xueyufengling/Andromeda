@@ -57,7 +57,7 @@ private:
 	__attribute__((always_inline)) inline void swap()
 	{
 		back_frame_buffer.blit_to_screen(); //当前帧渲染到屏幕
-		glFlush();
+		gl_Flush();
 	}
 };
 }
