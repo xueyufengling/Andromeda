@@ -19,7 +19,7 @@ __attribute__((always_inline)) inline constexpr T1& cast(T2&& rv)
 /**
  * @brief 判断Cond是否为true，如果是则result_type类型为TrueType，否则为FalseType
  */
-template<bool Cond, typename TrueType = void, typename FalseType = void>
+template<bool Cond, typename TrueType = void, typename FalseType = TrueType>
 struct _if
 {
 };

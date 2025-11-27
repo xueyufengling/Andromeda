@@ -80,7 +80,14 @@ public:
 
 private:
 	enable_access(Derived, initialize, void());
-	enable_access(Derived, func, void());
+	enable_access(Derived, run, void());
+	enable_access(Derived, terminate, void());
+	enable_access(Derived, before_stop, void());
+	enable_access(Derived, after_stop, void());
+	enable_access(Derived, before_suspended, void());
+	enable_access(Derived, after_suspended, void());
+	enable_access(Derived, before_resume, void());
+	enable_access(Derived, after_resume, void());
 
 	std::thread* _thread = nullptr;
 	work_mode _work_state = DETACH;
