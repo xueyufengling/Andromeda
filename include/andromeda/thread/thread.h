@@ -7,48 +7,26 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "../traits/access.h"
 #include "../traits/call.h"
 
 //THREAD宏可用于任何Callable，但不可用func参数不能传入ClassObj.Func，因为decltype无法解析可能的重载函数
 #define THREAD(obj_name,func) andromeda::util::Thread<decltype(func)> obj_name(func)
-/*
- #ifndef EXIST_MEMB_FUNC_INITIALIZE
- #define EXIST_MEMB_FUNC_INITIALIZE
- decl_exist_memb_func(initialize, void)
- #endif//EXIST_MEMB_FUNC_INITIALIZE
- ifndef EXIST_MEMB_FUNC_RUN
- #define EXIST_MEMB_FUNC_RUN
- decl_exist_memb_func(run, void)
- #endif//EXIST_MEMB_FUNC_RUN
- ifndef EXIST_MEMB_FUNC_TERMINATE
- define EXIST_MEMB_FUNC_TERMINATE
- decl_exist_memb_func(terminate, void)
- #endif//EXIST_MEMB_FUNC_TERMINATE
- ifndef EXIST_MEMB_FUNC_BEFORE_STOP
- define EXIST_MEMB_FUNC_BEFORE_STOP
- decl_exist_memb_func(before_stop, void)
- #endif//EXIST_MEMB_FUNC_BEFORE_STOP
- ifndef EXIST_MEMB_FUNC_AFTER_STOP
- define EXIST_MEMB_FUNC_AFTER_STOP
- decl_exist_memb_func(after_stop, void)
- #endif//EXIST_MEMB_FUNC_AFTER_STOP
- ifndef EXIST_MEMB_FUNC_BEFORE_SUSPENDED
- define EXIST_MEMB_FUNC_BEFORE_SUSPENDED
- decl_exist_memb_func(before_suspended, void)
- #endif//EXIST_MEMB_FUNC_BEFORE_SUSPENDED
- ifndef EXIST_MEMB_FUNC_AFTER_SUSPENDED
- define EXIST_MEMB_FUNC_AFTER_SUSPENDED
- decl_exist_memb_func(after_suspended, void)
- #endif//EXIST_MEMB_FUNC_AFTER_SUSPENDED
- ifndef EXIST_MEMB_FUNC_BEFORE_RESUME
- define EXIST_MEMB_FUNC_BEFORE_RESUME
- decl_exist_memb_func(before_resume, void)
- #endif//EXIST_MEMB_FUNC_BEFORE_RESUME
- ifndef EXIST_MEMB_FUNC_AFTER_RESUME
- define EXIST_MEMB_FUNC_AFTER_RESUME
- decl_exist_memb_func(after_resume, void)
- #endif//EXIST_MEMB_FUNC_AFTER_RESUME
- */
+
+#define __thread_friend__(memb_name) friend class exist_memb_with_type(memb_name)<void>;
+
+//子类必须添加的friend class
+#define DefineThread\
+	friend class has_func(initialize)<void>;\
+	friend class has_func(run)<void>;\
+	friend class has_func(terminate)<void>;\
+	friend class has_func(before_stop)<void>;\
+	friend class has_func(after_stop)<void>;\
+	friend class has_func(before_suspended)<void>;\
+	friend class has_func(after_suspended)<void>;\
+	friend class has_func(before_resume)<void>;\
+	friend class has_func(after_resume)<void>;
+
 namespace andromeda
 {
 namespace thread
@@ -57,11 +35,14 @@ enum work_mode
 {
 	JOIN, DETACH
 };
+
 //处于Stopped时_thread=nullptr，只能重新调用start()执行
 enum state
 {
 	STOPPED, RUNNING, SUSPENDED
 };
+
+decl_exist_memb_with_type(initialize, run, terminate, before_stop, after_stop, before_suspended, after_suspended, before_resume, after_resume)
 
 template<typename Thread>
 static inline void exit(Thread* thread)
@@ -75,20 +56,10 @@ class thread
 	friend void exit<>(thread<Callable, Derived>* thread);
 
 public:
-	typedef typename degenerate_type<Callable>::result_type degenerated_callable;
+	typedef typename degenerated_type<Callable>::result_type degenerated_callable;
 	typedef typename return_type<Callable>::result_type ret_type;
 
 private:
-	enable_access(Derived, initialize, void());
-	enable_access(Derived, run, void());
-	enable_access(Derived, terminate, void());
-	enable_access(Derived, before_stop, void());
-	enable_access(Derived, after_stop, void());
-	enable_access(Derived, before_suspended, void());
-	enable_access(Derived, after_suspended, void());
-	enable_access(Derived, before_resume, void());
-	enable_access(Derived, after_resume, void());
-
 	std::thread* _thread = nullptr;
 	work_mode _work_state = DETACH;
 	state _state = STOPPED;
@@ -106,7 +77,7 @@ private:
 	{
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL); //允许退出线程
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); //收到CANCEL信号后立即退出线程
-		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, initialize)::result)
 			_initialize();
 		if(should_loop())
 			while(!should_stop)
@@ -123,7 +94,7 @@ private:
 			_callable(args...); //is_loop=false时只调用一次执行函数
 		should_pause = false;
 		should_stop = false;
-		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, terminate)::result)
 			_terminate();
 		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThreadCallable()
 	}
@@ -132,7 +103,7 @@ private:
 	{
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL); //允许退出线程
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); //收到CANCEL信号后立即退出线程
-		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, initialize)::result)
 			_initialize();
 		if(should_loop())
 			while(!should_stop)
@@ -149,7 +120,7 @@ private:
 			_run(); //isLoop=false时只调用一次执行函数
 		should_pause = false;
 		should_stop = false;
-		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, terminate)::result)
 			_terminate();
 		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThreadCallable()
 	}
@@ -162,55 +133,55 @@ protected:
 	//CRTP实现
 	__attribute__((always_inline)) inline void _initialize() //执行函数执行之前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, initialize, void)::result) //Derived是类且有该成员函数
+		if(is_class<Derived>::result && exist_memb(Derived, initialize)::result) //Derived是类且有该成员函数
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->initialize();
 	}
 
 	__attribute__((always_inline)) inline void _run() //供继承类重写使用的执行函数，重写后可以不执行_callable_obj
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, run, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, run)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->run();
 	}
 
 	__attribute__((always_inline)) inline void _terminate() //执行函数（包括isLoop=true时的情况）结束后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, terminate, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, terminate)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->terminate();
 	}
 
 	__attribute__((always_inline)) inline void _before_stop() //每次成功调用stop()前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, before_stop, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, before_stop)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_stop();
 	}
 
 	__attribute__((always_inline)) inline void _after_stop() //每次成功调用stop()后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, after_stop, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, after_stop)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_stop();
 	}
 
 	__attribute__((always_inline)) inline void _before_suspended() //每次成功调用suspended()前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, before_suspended, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, before_suspended)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_suspended();
 	}
 
 	__attribute__((always_inline)) inline void _after_suspended() //每次成功调用suspended()后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, after_suspended, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, after_suspended)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_suspended();
 	}
 
 	__attribute__((always_inline)) inline void _before_resume() //每次成功调用resume()前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, before_resume, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, before_resume)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->before_resume();
 	}
 
 	__attribute__((always_inline)) inline void _after_resume() //每次成功调用resume()后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_func(Derived, after_resume, void)::result)
+		if(is_class<Derived>::result && exist_memb(Derived, after_resume)::result)
 			((typename _if<is_class<Derived>::result, Derived, thread<Callable, Derived>>::result_type*)this)->after_resume();
 	}
 
@@ -300,7 +271,7 @@ public:
 			return;
 		if(!is_callable_set) //没有设置运行函数，调用子类的run()
 		{
-			if(is_class<Derived>::result && exist_memb_func(Derived, run, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, run)::result)
 			{
 				_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run_derived, this));
 				goto END;
@@ -330,7 +301,7 @@ public:
 			return;
 		if(!is_callable_set) //没有设置运行函数，调用子类的run()
 		{
-			if(is_class<Derived>::result && exist_memb_func(Derived, run, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, run)::result)
 			{
 				_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run_derived, this));
 				goto END;
@@ -358,11 +329,11 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(is_class<Derived>::result && exist_memb_func(Derived, before_suspended, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, before_suspended)::result)
 				_before_suspended();
 			should_pause = true;
 			_state = SUSPENDED;
-			if(is_class<Derived>::result && exist_memb_func(Derived, after_suspended, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, after_suspended)::result)
 				_after_suspended();
 			return true;
 		}
@@ -373,12 +344,12 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(is_class<Derived>::result && exist_memb_func(Derived, before_resume, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, before_resume)::result)
 				_before_resume();
 			should_pause = false;
 			_condition.notify_all();
 			_state = RUNNING;
-			if(is_class<Derived>::result && exist_memb_func(Derived, after_resume, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, after_resume)::result)
 				_after_resume();
 			return true;
 		}
@@ -389,14 +360,14 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(is_class<Derived>::result && exist_memb_func(Derived, before_stop, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, before_stop)::result)
 				_before_stop();
 			should_pause = false;
 			should_stop = true;
 			_condition.notify_all();
 			_thread->join();
 			exit();
-			if(is_class<Derived>::result && exist_memb_func(Derived, after_stop, void)::result)
+			if(is_class<Derived>::result && exist_memb(Derived, after_stop)::result)
 				_after_stop();
 			return true;
 		}

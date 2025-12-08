@@ -2,9 +2,7 @@
 #define ANDROMEDA_COMMON_STRINGUTILS
 
 #include "../io/paths.h"
-
-#define __STRING__(str) #str
-#define __VALUE_STRING__(val) __STRING__(val)
+#include "../traits/macros.h"
 
 #ifdef __FILE__
 #define __FILE_STRING__ __FILE__
@@ -15,7 +13,7 @@
 #endif
 
 #ifdef __LINE__
-#define __LINE_STRING__ __VALUE_STRING__(__LINE__)
+#define __LINE_STRING__ __str__(__LINE__)
 #else
 #define __LINE_STRING__ "<__LINE__ UNDEFINED>"
 #endif

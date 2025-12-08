@@ -1,9 +1,9 @@
 #ifndef ANDROMEDA_APP_APPLICATION
 #define ANDROMEDA_APP_APPLICATION
 
-#include <andromeda/common/log.h>
 #include <atomic>
 
+#include "../common/log.h"
 #include "../thread/coroutine_lock.h"
 #include "../thread/thread.h"
 #include "frame_rate.h"
@@ -16,7 +16,7 @@
 
 #ifndef EXIST_MEMB_FUNC_INITIALIZE
 #define EXIST_MEMB_FUNC_INITIALIZE
-decl_exist_memb_func(initialize, void)
+decl_exist_memb(initialize)
 #endif//#EXIST_MEMB_FUNC_INITIALIZE#ifndef EXIST_MEMB_FUNC_PREINITIALIZE
 #define EXIST_MEMB_FUNC_PREINITIALIZE
 decl_exist_memb_func(preinitialize, void)
@@ -25,6 +25,21 @@ decl_exist_memb_func(preinitialize, void)
 #define EXIST_MEMB_FUNC_RENDER_UPDATE
 decl_exist_memb_func(render_update, void)
 #endif//#EXIST_MEMB_FUNC_RENDER_UPDATE#ifndef EXIST_MEMB_FUNC_TERMINATE#define EXIST_MEMB_FUNC_TERMINATEdecl_exist_memb_func(terminate, void)#endif//EXIST_MEMB_FUNC_TERMINATE
+
+//所有andromeda::app::Application（包括其本身）必须添加的friend class
+#define DefineApplication(Derived) \
+	friend class has_func(initialize)<void>;\
+	friend class has_func(preinitialize)<void>;\
+	friend class has_func(terminate)<void>;\
+	friend class has_func(update)<void,float>;\
+	friend class has_func(render_update)<void,float>;\
+	friend class andromeda::app::MainLoopThread<Derived>;\
+	friend class andromeda::app::Application<Derived>;
+
+//设置andromeda::app::Application为友元并导入其函数，所有直接继承子类都需要有
+#define ImportApplicationAPI(Derived) \
+	using andromeda::app::Application<Derived>::launch;\
+	using andromeda::app::Application<Derived>::exit;
 
 //设置andromeda::app::Application为友元并导入其函数，所有直接继承子类都需要有
 #define ImportApplicationAPI(Derived) \
