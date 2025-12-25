@@ -22,7 +22,7 @@ namespace app
 template<typename Derived>
 class window_application: public window, public andromeda::app::application<Derived>
 {
-	DefineApplication(Derived)
+	ConstructApplication(Derived)
 
 private:
 	using andromeda::app::application<Derived>::is_running;
@@ -44,8 +44,6 @@ protected:
 	render_system render_sys;
 
 public:
-	ImportApplicationAPI(Derived)
-
 	window_application(const char* window_title = nullptr, int width = 800, int height = 600, andromeda::graphics::color_rgba back_color = {0, 0, 0, 0}, bool is_full_screen = false, GLFWmonitor* monitor = glfwGetPrimaryMonitor())
 	{
 		if(!andromeda::graphics::load_glfw())
@@ -102,7 +100,7 @@ public:
 			//渲染
 			framebuffer.bind_this();
 			framebuffer.clear_all_buffers();
-			if(andromeda::traits::is_class<Derived>::result && func_exist(render_update)<void, float>::check<Derived>::result) //如果子类没有render_update()则此调用将优化掉
+			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(float), render_update)::result) //如果子类没有render_update()则此调用将优化掉
 				_render_update(render_frame_rate.get_tpf());
 			framebuffer.blit_to_screen();
 			glfwSwapBuffers(*this);

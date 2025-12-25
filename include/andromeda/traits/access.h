@@ -138,6 +138,10 @@ template<typename AccessIdentifier>
 struct __accessor: __accessor_impl<AccessIdentifier, AccessIdentifier::classification>
 {
 	typedef AccessIdentifier identifier;
+	static constexpr type_classification classification = AccessIdentifier::classification;
+
+	typedef typename AccessIdentifier::memb_ptr_type memb_ptr_type;
+	using __accessor_impl<AccessIdentifier, AccessIdentifier::classification>::memb_ptr;
 
 	using typename __accessor_impl<AccessIdentifier, AccessIdentifier::classification>::class_type;
 
@@ -173,9 +177,20 @@ private:
 	}
 };
 
+/**
+ * @brief 对于指定类名和成员名的accessor标识符
+ */
 #define access_identifier(class_name, memb_name) __cat_4__(__access_identifier_, class_name, _, memb_name)
 
+/**
+ * @brief 对于指定类名和成员名的accessor类名
+ */
 #define accessor(class_name, memb_name) __accessor<access_identifier(class_name, memb_name)>
+
+/**
+ * @brief 用于显式实例化accessor_initializer
+ */
+#define accessor_initialize(...) template class __VA_ARGS__
 
 /**
  * @brief 执行取成员指针行为的类名，已经带全部模板参数，需要在前面加template class显示实例化本类执行取成员指针
@@ -184,23 +199,31 @@ private:
 #define accessor_initializer(class_name, memb_name) __accessor_initializer<access_identifier(class_name, memb_name), constexpr_val(&class_name::memb_name)>
 
 #define decl_accessor(class_name, memb_name, memb_type)\
-	struct access_identifier(class_name, memb_name): __access_identifier<class_name, memb_type> {};
+	struct access_identifier(class_name, memb_name): __access_identifier<class_name, memb_type> {}
 
-#define exist_memb_identifier_name(memb_name) __cat__(__exist_memb_, memb_name)
+/**
+ * @brief 是否存在指定名称的成员
+ */
+#define exist_memb(...) __macro_with_params__(exist_memb, __VA_ARGS__)
+
+#define exist_memb1(memb_name) __cat__(__exist_memb_, memb_name)
+
+#define exist_memb2(class_name, memb_name) exist_memb1(memb_name)<class_name>
+
 /*
  * @brief 判断类中是否存在某个名称的成员，即具有指定名称的字段、函数、类型均可被判定为具有该成员，绕过访问权限。
- *		  用法：在文件开头decl_exist_memb(成员名)，decl_exist_memb宏应当使用ifndef-define来防止重复定义
+ *		  用法：在文件开头decl_exist_memb(成员名)，并使用exist_memb(类名, 成员名)::result得到结果。
  *		  原理：
  *		  在模板参数推导过程中，对存在歧义的成员取成员取成员指针会不是硬错误，可以根据SFINAE机制不实例化该模板函数，转而调用__check(...)函数。注意如果在模板默认值而非推导中对不存在的成员取成员指针时会报错有歧义。
  *		  需要构造一个继承自被检测目标类(Class)并继承自另一个具有public权限的与被检测目标同名的成员的类(__dummy_decl，此时两个歧义成员都是继承而来的同一层级，不会互相覆盖)的伪造类(__dummy_class)，这样伪造类就具有一个或两个相同名称的成员，如果有两个则产生歧义。该方案缺陷是无法检测ubion和final类，因为它们不能被继承。
  *		  因此，不能直接对伪造类取成员指针，而应该将伪造类作为模板参数，对这个模板参数取成员指针，此时产生歧义就是在参数推导过程中取指针失败，可以通过SFINAE机制解决而非抛出编译错误。
  */
-#define decl_exist_memb(memb_name)\
+#define decl_exist_memb_intl(memb_name)\
 		template<typename Class>\
-		struct exist_memb_identifier_name(memb_name)\
+		struct exist_memb(memb_name)\
 		{\
 		private:\
-			exist_memb_identifier_name(memb_name)() = delete;\
+			exist_memb(memb_name)() = delete;\
 			struct __dummy_decl\
 			{\
 				char memb_name;\
@@ -222,21 +245,30 @@ private:
 			static const bool result = __check<__dummy_class>(nullptr);\
 		};
 
-#define exist_memb(class_name, memb_name) exist_memb_identifier_name(memb_name)<class_name>
+#define decl_exist_memb(...) __repeat_each__(decl_exist_memb_intl, ##__VA_ARGS__)
 
-#define exist_memb_with_type(...) __macro_with_args__(exist_memb_with_type, __VA_ARGS__)
+/**
+ * @brief 是否存在指定名称和类型的成员
+ */
+#define exist_memb_with_type(...) __macro_with_params__(exist_memb_with_type, __VA_ARGS__)
 
-#define exist_memb_with_type_1(memb_name) __cat__(__exist_memb_func_, memb_name)
+#define exist_memb_with_type1(memb_name) __cat__(__exist_memb_with_type_, memb_name)
 
-#define exist_memb_with_type_2(memb_name, class_name, type) exist_memb_with_type_1(memb_name)<class_name, type>
+#define exist_memb_with_type3(class_name, type, memb_name) exist_memb_with_type1(memb_name)<class_name, type>
 
+/**
+ * @brief 判断类中是否存在某个名称和类型的成员，需要public访问权限或将本类添加为目标类的friend class。
+ * 		  check_ptr()必须有个区别于Class的类型参数DeducedClass，实际调用时DeducedClass被替换成Class，如果目标不存在则属于推导错误，可以使用SFINAE机制。如果直接&Class::memb_name由于Class在推导阶段前就已知，目标不存在导致硬错误编译失败
+ * 		  注：在gcc version 14.1.0 (Rev3, Built by MSYS2 project)版本中，检查类中存在但类型不匹配的成员时，check_ptr<>()推导过程中抛出编译器内部错误：internal compiler error: in instantiate_type, at cp/class.cc:9115
+ */
 #define decl_exist_memb_with_type_intl(memb_name)\
 		template<typename Class, typename T>\
 		struct exist_memb_with_type(memb_name)\
 		{\
 		private:\
-			template<T Class::*Memb = &Class::memb_name>\
-			static constexpr bool check_ptr(Class* cls)\
+			exist_memb_with_type(memb_name)() = delete;\
+			template<typename DeducedClass = Class, T DeducedClass::*MembPtr = &DeducedClass::memb_name>\
+			static constexpr bool check_ptr(int)\
 			{\
 				return true;\
 			};\
@@ -245,7 +277,7 @@ private:
 				return false;\
 			};\
 		public:\
-			static const bool result = check_ptr((Class*)0);\
+			static const bool result = check_ptr(0);\
 		};
 
 /*
@@ -253,5 +285,7 @@ private:
  * @params ... 名称列表
  */
 #define decl_exist_memb_with_type(...) __repeat_each__(decl_exist_memb_with_type_intl, ##__VA_ARGS__)
+
+#define enable_exist_memb_with_type(...) __friend_classes__(__op_each__(exist_memb_with_type, __VA_ARGS__))
 
 #endif //ANDROMEDA_TRAITS_ACCESS

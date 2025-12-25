@@ -27,7 +27,7 @@ __attribute__((always_inline)) inline errcode_type func_name(Callable callable, 
 #define LibCallRet(func_name, errcode_type, errcode_func, errcode_noerr)\
 template<typename Callable, typename ...Args>\
 __attribute__((always_inline)) inline auto func_name(Callable callable, Args ... args) -> \
-		typename _if<type_equal<decltype(callable(args...)), void>::result, errcode_type, decltype(callable(args...))>::result_type\
+		typename _if<type_equal<decltype(callable(args...)), void>::result>::resolve_type<errcode_type, decltype(callable(args...))>::result_type\
 {\
 	call_ret<Callable> call(callable);\
 	decltype(call(args...)) ret;\

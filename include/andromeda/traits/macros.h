@@ -204,6 +204,286 @@
 #define __if__(cond) __if_else__(cond)(__scan__, __empty__)
 
 /**
+ * @brief 判断是否定义了__equal__x(x) x 宏，未定义则留下__equal__x()()，__match_parenthesis__宏将其判定为0；如果已经定义，则只留下括号()，判定为1
+ */
+#define __defined_equal__(x) __match_parenthesis__(__cat__(__equal__, x)(()))
+
+/**
+ * @brief 判断相等的内部实现，如果相等由于宏被涂蓝标记后不会继续展开，最终留下__equal__param2()，如果不相同则两个宏都可以展开，结果为空
+ */
+#define __equal_intl__(param1, param2) __not_intl__(__match_parenthesis__(__cat__(__equal__, param1)(__cat__(__equal__, param2))(())))
+
+/**
+ * @brief 判断两个符号是否相同。需要对两个符号m、n分别定义
+ * 		  #define __equal__m(x) x
+ * 		  #define __equal__n(x) x
+ * 		  如果不定义，则比较结果始终是0
+ */
+#define __equal__(param1, param2)\
+	__if_else__(__and_intl__(__defined_equal__(param1), __defined_equal__(param2)))(\
+		__equal_intl__(param1, param2),\
+		0\
+	)
+
+#define __equal__0(x) x
+#define __equal__1(x) x
+#define __equal__2(x) x
+#define __equal__3(x) x
+#define __equal__4(x) x
+#define __equal__5(x) x
+#define __equal__6(x) x
+#define __equal__7(x) x
+#define __equal__8(x) x
+#define __equal__9(x) x
+#define __equal__10(x) x
+#define __equal__11(x) x
+#define __equal__12(x) x
+#define __equal__13(x) x
+#define __equal__14(x) x
+#define __equal__15(x) x
+#define __equal__16(x) x
+#define __equal__17(x) x
+#define __equal__18(x) x
+#define __equal__19(x) x
+#define __equal__20(x) x
+#define __equal__21(x) x
+#define __equal__22(x) x
+#define __equal__23(x) x
+#define __equal__24(x) x
+#define __equal__25(x) x
+#define __equal__26(x) x
+#define __equal__27(x) x
+#define __equal__28(x) x
+#define __equal__29(x) x
+#define __equal__30(x) x
+#define __equal__31(x) x
+#define __equal__32(x) x
+#define __equal__33(x) x
+#define __equal__34(x) x
+#define __equal__35(x) x
+#define __equal__36(x) x
+#define __equal__37(x) x
+#define __equal__38(x) x
+#define __equal__39(x) x
+#define __equal__40(x) x
+#define __equal__41(x) x
+#define __equal__42(x) x
+#define __equal__43(x) x
+#define __equal__44(x) x
+#define __equal__45(x) x
+#define __equal__46(x) x
+#define __equal__47(x) x
+#define __equal__48(x) x
+#define __equal__49(x) x
+#define __equal__50(x) x
+#define __equal__51(x) x
+#define __equal__52(x) x
+#define __equal__53(x) x
+#define __equal__54(x) x
+#define __equal__55(x) x
+#define __equal__56(x) x
+#define __equal__57(x) x
+#define __equal__58(x) x
+#define __equal__59(x) x
+#define __equal__60(x) x
+#define __equal__61(x) x
+#define __equal__62(x) x
+#define __equal__63(x) x
+#define __equal__64(x) x
+#define __equal__65(x) x
+#define __equal__66(x) x
+#define __equal__67(x) x
+#define __equal__68(x) x
+#define __equal__69(x) x
+#define __equal__70(x) x
+#define __equal__71(x) x
+#define __equal__72(x) x
+#define __equal__73(x) x
+#define __equal__74(x) x
+#define __equal__75(x) x
+#define __equal__76(x) x
+#define __equal__77(x) x
+#define __equal__78(x) x
+#define __equal__79(x) x
+#define __equal__80(x) x
+#define __equal__81(x) x
+#define __equal__82(x) x
+#define __equal__83(x) x
+#define __equal__84(x) x
+#define __equal__85(x) x
+#define __equal__86(x) x
+#define __equal__87(x) x
+#define __equal__88(x) x
+#define __equal__89(x) x
+#define __equal__90(x) x
+#define __equal__91(x) x
+#define __equal__92(x) x
+#define __equal__93(x) x
+#define __equal__94(x) x
+#define __equal__95(x) x
+#define __equal__96(x) x
+#define __equal__97(x) x
+#define __equal__98(x) x
+#define __equal__99(x) x
+#define __equal__100(x) x
+#define __equal__101(x) x
+#define __equal__102(x) x
+#define __equal__103(x) x
+#define __equal__104(x) x
+#define __equal__105(x) x
+#define __equal__106(x) x
+#define __equal__107(x) x
+#define __equal__108(x) x
+#define __equal__109(x) x
+#define __equal__110(x) x
+#define __equal__111(x) x
+#define __equal__112(x) x
+#define __equal__113(x) x
+#define __equal__114(x) x
+#define __equal__115(x) x
+#define __equal__116(x) x
+#define __equal__117(x) x
+#define __equal__118(x) x
+#define __equal__119(x) x
+#define __equal__120(x) x
+#define __equal__121(x) x
+#define __equal__122(x) x
+#define __equal__123(x) x
+#define __equal__124(x) x
+#define __equal__125(x) x
+#define __equal__126(x) x
+#define __equal__127(x) x
+#define __equal__128(x) x
+#define __equal__129(x) x
+#define __equal__130(x) x
+#define __equal__131(x) x
+#define __equal__132(x) x
+#define __equal__133(x) x
+#define __equal__134(x) x
+#define __equal__135(x) x
+#define __equal__136(x) x
+#define __equal__137(x) x
+#define __equal__138(x) x
+#define __equal__139(x) x
+#define __equal__140(x) x
+#define __equal__141(x) x
+#define __equal__142(x) x
+#define __equal__143(x) x
+#define __equal__144(x) x
+#define __equal__145(x) x
+#define __equal__146(x) x
+#define __equal__147(x) x
+#define __equal__148(x) x
+#define __equal__149(x) x
+#define __equal__150(x) x
+#define __equal__151(x) x
+#define __equal__152(x) x
+#define __equal__153(x) x
+#define __equal__154(x) x
+#define __equal__155(x) x
+#define __equal__156(x) x
+#define __equal__157(x) x
+#define __equal__158(x) x
+#define __equal__159(x) x
+#define __equal__160(x) x
+#define __equal__161(x) x
+#define __equal__162(x) x
+#define __equal__163(x) x
+#define __equal__164(x) x
+#define __equal__165(x) x
+#define __equal__166(x) x
+#define __equal__167(x) x
+#define __equal__168(x) x
+#define __equal__169(x) x
+#define __equal__170(x) x
+#define __equal__171(x) x
+#define __equal__172(x) x
+#define __equal__173(x) x
+#define __equal__174(x) x
+#define __equal__175(x) x
+#define __equal__176(x) x
+#define __equal__177(x) x
+#define __equal__178(x) x
+#define __equal__179(x) x
+#define __equal__180(x) x
+#define __equal__181(x) x
+#define __equal__182(x) x
+#define __equal__183(x) x
+#define __equal__184(x) x
+#define __equal__185(x) x
+#define __equal__186(x) x
+#define __equal__187(x) x
+#define __equal__188(x) x
+#define __equal__189(x) x
+#define __equal__190(x) x
+#define __equal__191(x) x
+#define __equal__192(x) x
+#define __equal__193(x) x
+#define __equal__194(x) x
+#define __equal__195(x) x
+#define __equal__196(x) x
+#define __equal__197(x) x
+#define __equal__198(x) x
+#define __equal__199(x) x
+#define __equal__200(x) x
+#define __equal__201(x) x
+#define __equal__202(x) x
+#define __equal__203(x) x
+#define __equal__204(x) x
+#define __equal__205(x) x
+#define __equal__206(x) x
+#define __equal__207(x) x
+#define __equal__208(x) x
+#define __equal__209(x) x
+#define __equal__210(x) x
+#define __equal__211(x) x
+#define __equal__212(x) x
+#define __equal__213(x) x
+#define __equal__214(x) x
+#define __equal__215(x) x
+#define __equal__216(x) x
+#define __equal__217(x) x
+#define __equal__218(x) x
+#define __equal__219(x) x
+#define __equal__220(x) x
+#define __equal__221(x) x
+#define __equal__222(x) x
+#define __equal__223(x) x
+#define __equal__224(x) x
+#define __equal__225(x) x
+#define __equal__226(x) x
+#define __equal__227(x) x
+#define __equal__228(x) x
+#define __equal__229(x) x
+#define __equal__230(x) x
+#define __equal__231(x) x
+#define __equal__232(x) x
+#define __equal__233(x) x
+#define __equal__234(x) x
+#define __equal__235(x) x
+#define __equal__236(x) x
+#define __equal__237(x) x
+#define __equal__238(x) x
+#define __equal__239(x) x
+#define __equal__240(x) x
+#define __equal__241(x) x
+#define __equal__242(x) x
+#define __equal__243(x) x
+#define __equal__244(x) x
+#define __equal__245(x) x
+#define __equal__246(x) x
+#define __equal__247(x) x
+#define __equal__248(x) x
+#define __equal__249(x) x
+#define __equal__250(x) x
+#define __equal__251(x) x
+#define __equal__252(x) x
+#define __equal__253(x) x
+#define __equal__254(x) x
+#define __equal__255(x) x
+#define __equal__256(x) x
+
+/**
  * @brief 0-255的自增运算
  */
 #define __inc__(x) __cat__(__inc__, x)
@@ -786,12 +1066,12 @@
 /**
  * @brief 获取传入本宏的参数个数，最大支持256个参数
  */
-#define __macro_params_num__(...) __macro_params_num_intl__(__VA_ARGS__, __macro_params_nums_values__)
+#define __numof__(...) __macro_params_num_intl__(__VA_ARGS__, __macro_params_nums_values__)
 
-#define __repeat_each_intl__(params_num, macro_name, arg, ...)\
+#define __repeat_each_intl__(params_num, macro_name, param, ...)\
 	__if__(params_num)\
 	(\
-		macro_name(arg)\
+		macro_name(param)\
 		__2_pass_alias__(__alias_repeat_each_intl__)()(__dec__(params_num), macro_name, __VA_ARGS__)\
 	)
 #define __alias_repeat_each_intl__() __repeat_each_intl__
@@ -801,27 +1081,50 @@
  * 		  __repeat__(count, macro_name, macro_args...)
  * 		  注：使用__full_scan__(...)多次扫描确保展开每一次宏递归
  */
-#define __repeat_each__(macro_name,  ...) __full_scan__(__repeat_each_intl__(__macro_params_num__(__VA_ARGS__), macro_name, __VA_ARGS__))
+#define __repeat_each__(macro_name,  ...) __full_scan__(__repeat_each_intl__(__numof__(__VA_ARGS__), macro_name, __VA_ARGS__))
+
+#define __op_each_intl__comma(op_macro, op_param) op_macro(op_param),
+#define __op_each_intl__no_comma(op_macro, op_param) op_macro(op_param)
+
+#define __op_each_intl__(params_num, op_macro, op_param, ...)\
+	__if__(params_num)\
+	(\
+		__if_else__(__equal__(params_num, 1))(\
+			__op_each_intl__no_comma(op_macro, op_param),\
+			__op_each_intl__comma(op_macro, op_param)\
+		)\
+		__2_pass_alias__(__alias_op_each_intl__)()(__dec__(params_num), op_macro, __VA_ARGS__)\
+	)
+#define __alias_op_each_intl__() __op_each_intl__
+
+/**
+ * @brief 对变长参数列表的每个参数应用单元操作，其中op_macro为单参数宏。结果为应用该op_macro()的参数列表
+ * 		  例如：
+ * 		  #define op(x) x##X
+ * 		  __op_each__(op, a, b, c)
+ * 		  将得到aX, bX, cX
+ * 		  末尾元素的逗号,将自动去除
+ */
+#define __op_each__(op_macro,  ...) __full_scan__(__op_each_intl__(__numof__(__VA_ARGS__), op_macro, __VA_ARGS__))
 
 /**
  * @brief 同名变体宏的名称。
- * 		  如果是重载宏，则为原名称_参数个数
+ * 		  如果是重载宏，则为原名称+参数个数
  */
-#define __macro_variant_name__(macro_name, n) __cat_3__(macro_name, _, n)
-
-#define __macro_with_params__(macro_name, ...) __macro_variant_name__(macro_name, __macro_params_num__(__VA_ARGS__))(__VA_ARGS__)
+#define __macro_variant_name__(macro_name, n) __cat__(macro_name, n)
 
 /**
  * @brief 定义重载参数宏的示例，重载宏的名称需要与__macro_overloaded_name()保持一致
+ * 例如定义一个名为example_macro的宏，并实现其0、1、2个参数的实现，可以写为
+ * #define example_macro(...) __macro_with_params__(example_macro, __VA_ARGS__)
+ * #define example_macro0() ...
+ * #define example_macro1(x) ...
+ * #define example_macro2(x, y) ...
  */
-#define example_macro(...) __macro_with_params__(example_macro, __VA_ARGS__)
-#define example_macro_0() ...
-#define example_macro_1(x) ...
-#define example_macro_2(x, y) ...
+#define __macro_with_params__(macro_name, ...) __macro_variant_name__(macro_name, __numof__(__VA_ARGS__))(__VA_ARGS__)
 
-#undef example_macro_2
-#undef example_macro_1
-#undef example_macro_0
-#undef example_macro
+#define __friend_class__(cls) friend class cls;
+
+#define __friend_classes__(...) __repeat_each__(__friend_class__, __VA_ARGS__)
 
 #endif //ANDROMEDA_TRAITS_MACROS

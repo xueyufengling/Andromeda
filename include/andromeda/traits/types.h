@@ -35,7 +35,7 @@ struct type_equal<T, T>
  * @brief 声明变量，相关函数只有声明没有定义，只能在decltype()表达式中使用
  */
 template<typename T>
-struct decl
+struct __decl_impl
 {
 	typedef T result_type;
 
@@ -46,6 +46,18 @@ struct decl
 	static constexpr result_type* ptr() noexcept;
 
 	static constexpr result_type&& x() noexcept;
+};
+
+template<typename T>
+struct decl: __decl_impl<T>
+{
+	using __decl_impl<T>::result_type;
+};
+
+template<typename RetType, typename ... ArgTypes>
+struct decl<RetType(ArgTypes...)> : __decl_impl<RetType (*)(ArgTypes...)>
+{
+	using __decl_impl<RetType (*)(ArgTypes...)>::result_type;
 };
 
 template<typename T>
@@ -394,8 +406,8 @@ __define_primitive_types__(
 		short int, unsigned short int,
 		int, unsigned int, long int, unsigned long int,
 		long long int, unsigned long long int,
-		float, double, long double, bool, void, void*
-)
+		float, double, long double, bool, void
+		)
 
 #undef __define_primitive_types__
 #undef __define_primitive_type__
