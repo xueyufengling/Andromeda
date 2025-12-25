@@ -791,7 +791,7 @@
 #define __repeat_each_intl__(params_num, macro_name, arg, ...)\
 	__if__(params_num)\
 	(\
-		__2_pass_alias__(macro_name)(arg)\
+		macro_name(arg)\
 		__2_pass_alias__(__alias_repeat_each_intl__)()(__dec__(params_num), macro_name, __VA_ARGS__)\
 	)
 #define __alias_repeat_each_intl__() __repeat_each_intl__
