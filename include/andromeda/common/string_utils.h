@@ -36,18 +36,18 @@ __attribute__((always_inline)) inline std::string to_string(const type& value)\
 	return std::to_string(value);\
 }
 
-StdToString(double)
-StdToString(float)
-StdToString(int)
-StdToString(long double)
-StdToString(long int)
-StdToString(long long int)
-StdToString(unsigned int)
-StdToString(unsigned long int)
-StdToString(unsigned long long int)
-
-StdToString(short)
-StdToString(unsigned short)
+__repeat_each__(StdToString,
+		double,
+		float,
+		int,
+		long double,
+		long int,
+		long long int,
+		unsigned int,
+		unsigned long int,
+		unsigned long long int,
+		short,
+		unsigned short)
 
 #undef StdToString
 
@@ -64,6 +64,12 @@ inline std::string to_string(const unsigned char& value)
 	std::stringstream ss;
 	ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(unsigned char)) << (unsigned int)value;
 	return ss.str();
+}
+
+template<>
+__attribute__((always_inline)) inline std::string to_string(const bool& value)
+{
+	return value ? "true" : "false";
 }
 
 template<>

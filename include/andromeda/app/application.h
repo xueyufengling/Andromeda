@@ -4,42 +4,43 @@
 #include <atomic>
 
 #include "../common/log.h"
-#include "../thread/coroutine_lock.h"
 #include "../thread/thread.h"
+#include "../thread/sequential_lock.h"
 #include "frame_rate.h"
 
 #include "../common/intl_memb_detect.h"
 
 // @formatter:off
 
-//所有andromeda::app::Application（包括其本身）必须添加的friend class
+//所有andromeda::app::application必须添加的friend class
 #define ConstructApplication(Derived)\
-		enable_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate);\
-		friend class andromeda::app::main_loop_thread<Derived>;\
-		friend class andromeda::app::application<Derived>;
+		enable_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)\
+		friend class andromeda::app::application<Derived>;\
+		friend class andromeda::app::application<Derived>::main_loop_thread;
 
 namespace andromeda
 {
 namespace app
 {
-//主线程也是Coroutine，在客户端中负责渲染，可以与主循环更新线程轮流执行
 template<typename Derived>
-class main_loop_thread;
+class window_application;
 
 /**
  * 抽象的应用类，只包含更新逻辑，无图形渲染、音频等，可用于编写服务端
- *
  */
 template<typename Derived>
-class application : public andromeda::thread::coroutine_lock
+class application : public andromeda::thread::sequential_lock
 {
+	enable_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)
+
 protected:
-	class main_loop_thread: public andromeda::thread::thread<void(), main_loop_thread>, public andromeda::thread::coroutine_lock
+	class main_loop_thread: public andromeda::thread::thread<void(), main_loop_thread>, public andromeda::thread::sequential_lock
 	{
 	friend class andromeda::thread::thread<void(), main_loop_thread>;
 	friend class andromeda::app::application<Derived>;
+	friend class andromeda::app::window_application<Derived>;
 
-	using andromeda::thread::coroutine_lock::turn;
+	using andromeda::thread::sequential_lock::swap;
 
 	protected:
 		Derived* app;
@@ -55,7 +56,7 @@ protected:
 			app->_update(update_rate.get_tpf());
 			update_rate.calc();
 			if(app->synchronize_fps)
-				turn(app);
+				swap(app);
 		}
 
 		void terminate()
@@ -89,11 +90,11 @@ protected:
 		using andromeda::thread::thread<void(),main_loop_thread>::stop;
 	};
 
-	bool is_running = false;
+	volatile bool is_running = false;
 	std::atomic<bool> synchronize_fps; //主线程(如果是窗口程序则是渲染线程)是否与该线程同步
 	main_loop_thread* app_main_loop_thread = nullptr;
 
-	using andromeda::thread::coroutine_lock::turn;
+	using andromeda::thread::sequential_lock::swap;
 
 	//主线程函数，负责事件处理和更新
 	__attribute__((always_inline)) inline void _preinitialize() //在初始化Application时调用（各系统初始化之前）
@@ -128,8 +129,6 @@ protected:
 			((Derived*)this)->render_update(render_tpf);
 	}
 
-
-
 public:
 	application()
 	{
@@ -148,7 +147,7 @@ public:
 		while(is_running)
 		{
 			//更新
-			turn(app_main_loop_thread);
+			swap(app_main_loop_thread);
 		}
 	}
 
@@ -156,7 +155,8 @@ public:
 	{
 		_initialize();
 		app_main_loop_thread->start();
-		((Derived*)this)->_launch_main_loop();
+		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), _launch_main_loop)::result)
+			((Derived*)this)->_launch_main_loop();
 		_terminate();
 	}
 
@@ -184,7 +184,6 @@ public:
 	{
 		app_main_loop_thread->set_update_rate_limit(ur_limit);
 	}
-
 };
 
 }

@@ -286,6 +286,8 @@ private:
  */
 #define decl_exist_memb_with_type(...) __repeat_each__(decl_exist_memb_with_type_intl, ##__VA_ARGS__)
 
-#define enable_exist_memb_with_type(...) __friend_classes__(__op_each__(exist_memb_with_type, __VA_ARGS__))
+#define __exist_memb_with_type_template_params__() typename, typename
+
+#define enable_exist_memb_with_type(...) __template_friend_classes__(__exist_memb_with_type_template_params__, __op_each__(exist_memb_with_type, __VA_ARGS__))
 
 #endif //ANDROMEDA_TRAITS_ACCESS

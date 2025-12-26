@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 
+#include "gl_basic.h"
 #include "texture_2d.h"
 #include "vertex_attribute.h"
 #include "shader_program.h"
@@ -65,25 +66,6 @@ public:
 	{
 		instance_divisor_data.add((unsigned char*)data, size);
 	}
-};
-
-/* 绘制策略为NONE则不绘制；NORMAL表示普通绘制，INSTANCED表示实例化绘制
- * 普通绘制只会绘制一个物体，这个物体由vertex_data和element_data定义
- * 实例化绘制将以普通绘制的物体为模板，每个实例有自己的divisor数据，这部分数据添加在vertex_data全部顶点数据的后面
- */
-enum struct draw_strategy : GLuint
-{
-	NONE, NORMAL, INSTANCED
-};
-
-enum struct geometry_strategy : GLuint
-{
-	POINTS = 0, LINES, LINE_LOOP, LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, GL_QUADS, GL_QUAD_STRIP
-};
-
-enum struct data_strategy : GLuint
-{
-	STREAM_DRAW = GL_STREAM_DRAW, STREAM_READ = GL_STREAM_READ, STREAM_COPY = GL_STREAM_COPY, STATIC_DRAW = GL_STATIC_DRAW, STATIC_READ = GL_STATIC_READ, STATIC_COPY = GL_STATIC_COPY, DYNAMIC_DRAW = GL_DYNAMIC_DRAW, DYNAMIC_READ = GL_DYNAMIC_READ, DYNAMIC_COPY = GL_DYNAMIC_COPY
 };
 
 /* 最小可渲染对象，该对象作为一个整体渲染。更复杂的物体可能由多个部件组合而成，这种情况应该使用RenderableModel

@@ -1,10 +1,16 @@
 #ifndef ANDROMEDA_COMMON_LOG
 #define ANDROMEDA_COMMON_LOG
 
-#include <andromeda/common/string_utils.h>
 #include <iostream>
 
-#define LOGGER_TYPE terminal_logger
+#include "string_utils.h"
+#include "object_val.h"
+#include "array.h"
+
+#include "../io/files.h"
+#include "terminal_style.h"
+
+#define LOGGER_TYPE universal_logger
 
 namespace andromeda
 {
@@ -22,8 +28,49 @@ class logger
 {
 private:
 	log_level current_log_level = log_level::LOG_INFO;
+	bool enable = true;
+	array<object_val> extra_params;
+
+protected:
+	__attribute__((always_inline)) inline static void log_to_terminal(const std::string& text_style, const std::string info)
+	{
+		std::cout << text_style << info << std::endl;
+	}
+
+	__attribute__((always_inline)) inline static void log_to_file(const std::string& file_path, const std::string info)
+	{
+		andromeda::io::append_string_newline(file_path, info);
+	}
+
+	template<typename T>
+	void add_extra_param(const T& extra_param)
+	{
+		this->extra_params.add(extra_param);
+	}
+
+	template<typename T>
+	void set_extra_param(int idx, const T& extra_param)
+	{
+		this->extra_params[idx] = extra_param;
+	}
+
+	template<typename T>
+	T& get_extra_param(int idx)
+	{
+		return object_val::fetch<T>(extra_params, idx);
+	}
 
 public:
+	inline void set_enable(bool enable)
+	{
+		this->enable = enable;
+	}
+
+	inline void is_enable(bool enable)
+	{
+		this->enable = enable;
+	}
+
 	void set_log_level(log_level new_log_level)
 	{
 		current_log_level = new_log_level;
@@ -32,8 +79,8 @@ public:
 	template<typename ...Args>
 	__attribute__((always_inline)) inline void log(log_level msg_level, Args ...info)
 	{
-		if(current_log_level <= msg_level)
-			((Derived*)this)->log_out(string_cat(info...));
+		if(enable && current_log_level <= msg_level)
+			((Derived*)this)->log_out(msg_level, string_cat(info...));
 	}
 
 	template<typename ...Args>
@@ -47,13 +94,63 @@ public:
  */
 extern LOGGER_TYPE* process_logger;
 
-class terminal_logger: public logger<terminal_logger>
+/**
+ * @brief 具有文件记录和终端打印的通用日志记录器
+ * 		  额外参数1为日志文件名，额外参数2为终端文本样式字符串
+ */
+class universal_logger: public logger<universal_logger>
 {
+protected:
+	static constexpr size_t file_path_idx = 0;
+
+	bool log_out_to_terminal = true;
+	bool log_out_to_file = true;
+
+	array<std::string> log_text_styles = array<std::string>(5);
+
 public:
-	__attribute__((always_inline)) void log_out(std::string info)
+	universal_logger();
+
+	/**
+	 * @brief 设置是否开启终端打印输出
+	 */
+	__attribute__((always_inline)) inline void set_log_to_terminal(bool log_out_to_terminal)
 	{
-		std::cout << info << std::endl;
+		this->log_out_to_terminal = log_out_to_terminal;
 	}
+
+	/**
+	 * @brief 设置是否开启文件输出
+	 */
+	__attribute__((always_inline)) inline void set_log_to_file(bool log_out_to_file)
+	{
+		this->log_out_to_file = log_out_to_file;
+	}
+
+	__attribute__((always_inline)) inline void set_text_style(log_level msg_level, const std::string& text_style)
+	{
+		log_text_styles[msg_level] = text_style;
+	}
+
+	void set_default_text_styles();
+
+	/**
+	 * @brief 获取不同等级的终端文本样式
+	 */
+	__attribute__((always_inline)) inline std::string& get_text_style(log_level msg_level)
+	{
+		return log_text_styles[msg_level];
+	}
+
+	/**
+	 * @brief 获取当前日志文件名
+	 */
+	__attribute__((always_inline)) inline const std::string& log_file_path()
+	{
+		return get_extra_param<std::string>(file_path_idx);
+	}
+
+	void log_out(log_level msg_level, const std::string info);
 };
 
 }
@@ -93,6 +190,15 @@ public:
 				logger_ptr->log(andromeda::common::log_level::LOG_FATAL, "[", std::chrono::system_clock::now(), "] [FATAL] ", __FILENAME_STRING__, ":" __LINE_STRING__ " ", __FUNCTION__, "(): ", ##__VA_ARGS__);\
 		}
 
+/**
+ * @brief 为指定日志记录器设置日志等级
+ */
+#define LogLevelFor(logger_ptr, level)\
+		{\
+			if(logger_ptr)\
+				logger_ptr->set_log_level(level);\
+		}
+
 #define LogDebug(...) LogDebugTo(andromeda::common::process_logger, ##__VA_ARGS__)
 
 #define LogInfo(...) LogInfoTo(andromeda::common::process_logger, ##__VA_ARGS__)
@@ -102,5 +208,7 @@ public:
 #define LogError(...) LogErrorTo(andromeda::common::process_logger, ##__VA_ARGS__)
 
 #define LogFatal(...) LogFatalTo(andromeda::common::process_logger, ##__VA_ARGS__)
+
+#define LogLevel(level) LogLevelFor(andromeda::common::process_logger, level)
 
 #endif //ANDROMEDA_COMMON_LOG

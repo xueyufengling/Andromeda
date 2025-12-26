@@ -1,20 +1,19 @@
 #ifndef ANDROMEDA_APP_WINDOWAPPLICATION
 #define ANDROMEDA_APP_WINDOWAPPLICATION
 
-#include <andromeda/app/render_system.h>
-#include <andromeda/common/log.h>
+#include "../common/log.h"
 #include "window.h"
 #include "frame_rate.h"
 #include "../graphics/gl_basic.h"
 #include "../graphics/color_rgba.h"
 #include "../graphics/framebuffer.h"
+#include "render_system.h"
 #include "application.h"
 
 /**
  * 带有图形和音频的应用，可用于编写客户端
  * GLFW只能在主线程使用，因此主线程负责窗口事件及渲染
  */
-
 namespace andromeda
 {
 namespace app
@@ -30,17 +29,17 @@ private:
 	using andromeda::app::application<Derived>::app_main_loop_thread;
 	frame_rate render_frame_rate; //渲染循环计数器
 	andromeda::graphics::framebuffer framebuffer; //双缓冲
-	int render_fps_limit = -1;
-	int update_rate_limit = -1;
+	int render_fps_limit = andromeda::app::frame_rate::UNLIMITED;
+	int update_rate_limit = andromeda::app::frame_rate::UNLIMITED;
 
-protected:
 	using andromeda::app::application<Derived>::_initialize;
 	using andromeda::app::application<Derived>::_preinitialize;
 	using andromeda::app::application<Derived>::_terminate;
 	using andromeda::app::application<Derived>::_update;
 	using andromeda::app::application<Derived>::_render_update;
-	using andromeda::app::application<Derived>::turn;
+	using andromeda::app::application<Derived>::swap;
 
+protected:
 	render_system render_sys;
 
 public:
@@ -59,7 +58,7 @@ public:
 		synchronize_fps = true; //默认开启帧率同步
 		_preinitialize(); //可以调用glfwWindowHint()，不可设置窗口参数、调用OpenGL函数，否则空指针异常
 		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-		new (this) window(window_title ? window_title : "Andromeda Application", width, height, back_color, is_full_screen, monitor); //初始化window
+		new (this) window(window_title ? window_title : "", width, height, back_color, is_full_screen, monitor); //初始化window
 		glfwMakeContextCurrent(*this);
 		if(!andromeda::graphics::load_gl()) //GLAD的加载要在glfwMakeContextCurrent()之后进行
 		{
@@ -96,7 +95,7 @@ public:
 			glfwPollEvents();
 			//开启同步帧率则优先执行更新函数
 			if(synchronize_fps)
-				turn(app_main_loop_thread);
+				swap(app_main_loop_thread);
 			//渲染
 			framebuffer.bind_this();
 			framebuffer.clear_all_buffers();
@@ -112,7 +111,10 @@ public:
 	{
 		synchronize_fps = synchronize_fps_;
 		render_frame_rate.set_fps_limit(render_fps_limit);
-		app_main_loop_thread->set_update_rate_limit(update_rate_limit);
+		if(synchronize_fps_)
+			app_main_loop_thread->set_update_rate_limit(andromeda::app::frame_rate::UNLIMITED); //开启了帧率同步，则以渲染帧率去同步更新率
+		else
+			app_main_loop_thread->set_update_rate_limit(update_rate_limit);
 	}
 
 	__attribute__((always_inline)) inline int get_render_fps()
@@ -130,7 +132,7 @@ public:
 		render_fps_limit = fps_limit;
 		render_frame_rate.set_fps_limit(fps_limit);
 		if(synchronize_fps)
-			app_main_loop_thread->set_update_rate_limit(-1);
+			app_main_loop_thread->set_update_rate_limit(andromeda::app::frame_rate::UNLIMITED);
 	}
 
 	__attribute__((always_inline)) inline void set_update_rate_limit(int ur_limit)
@@ -138,7 +140,7 @@ public:
 		update_rate_limit = ur_limit;
 		app_main_loop_thread->set_update_rate_limit(ur_limit);
 		if(synchronize_fps)
-			render_frame_rate.set_fps_limit(-1); //每个线程如果开启帧率限制，均会休眠一帧剩余的时间。防止多个线程均休眠导致浪费多帧时间，一帧中只能有一个线程休眠
+			render_frame_rate.set_fps_limit(andromeda::app::frame_rate::UNLIMITED);
 	}
 
 	using application<Derived>::get_update_rate;

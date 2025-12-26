@@ -155,11 +155,12 @@
 #define __match_parenthesis_holds_expr__(...) __match_expr_intl_holds_expr__
 
 /**
- * @brief 将任意宏展开变为一个bool值，如果宏展开为0或空则为false，否则为true。
+ * @brief 将任意宏展开变为一个bool值，如果宏展开为0、false或空则为false，否则为true。
  */
 #define __bool__(...) __notmatch_expr__(__cat_3__(__boolexpr__ __with_comma__(__VA_ARGS__), 0))
 #define __boolexpr__0 __notmatch_expr_intl_holds_expr__ //expr为空也将视作false，当expr为空时不可定义__bool_of__宏，否则会被展开
 #define __boolexpr__00 __boolexpr__0
+#define __boolexpr__false0 __boolexpr__0 //false视作0
 
 /**
  * @brief 逻辑非
@@ -1083,6 +1084,24 @@
  */
 #define __repeat_each__(macro_name,  ...) __full_scan__(__repeat_each_intl__(__numof__(__VA_ARGS__), macro_name, __VA_ARGS__))
 
+#define __repeat_each_extras_intl__(params_num, macro_name, extra_params_macro, param, ...)\
+	__if__(params_num)\
+	(\
+		macro_name(param, extra_params_macro())\
+		__2_pass_alias__(__alias_repeat_each_extras_intl__)()(__dec__(params_num), macro_name, extra_params_macro, __VA_ARGS__)\
+	)
+#define __alias_repeat_each_extras_intl__() __repeat_each_extras_intl__
+
+/**
+ * @brief 重复一段代码，同__repeat_each__，但macro_name()参数列表末尾具有额外固定参数宏。例如
+ * 		  #define extra_args() a, b, c
+ * 		  #define example_macro(each_arg, ...) ...
+ * 		  __repeat_each_extras__(example_macro, extra_args, x, y, z)
+ * 		  展开得到example_macro(x, a, b, c)、example_macro(y, a, b, c)、example_macro(z, a, b, c)
+ * 		  额外参数必须是带空参数列表的宏，防止递归时自动展开
+ */
+#define __repeat_each_extras__(macro_name, extra_params_macro, ...) __full_scan__(__repeat_each_extras_intl__(__numof__(__VA_ARGS__), macro_name, extra_params_macro, __VA_ARGS__))
+
 #define __op_each_intl__comma(op_macro, op_param) op_macro(op_param),
 #define __op_each_intl__no_comma(op_macro, op_param) op_macro(op_param)
 
@@ -1123,8 +1142,19 @@
  */
 #define __macro_with_params__(macro_name, ...) __macro_variant_name__(macro_name, __numof__(__VA_ARGS__))(__VA_ARGS__)
 
-#define __friend_class__(cls) friend class cls;
+/**
+ * 声明友元类
+ */
+#define __friend_class__(...) __macro_with_params__(__friend_class__, __VA_ARGS__)
+#define __friend_class__0(...)
+#define __friend_class__1(cls) friend class cls;
 
 #define __friend_classes__(...) __repeat_each__(__friend_class__, __VA_ARGS__)
+
+#define __template_friend_class__(cls, ...)\
+	template<__VA_ARGS__>\
+	friend class cls;
+
+#define __template_friend_classes__(template_params_macro, ...) __repeat_each_extras__(__template_friend_class__, template_params_macro, __VA_ARGS__)
 
 #endif //ANDROMEDA_TRAITS_MACROS

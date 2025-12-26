@@ -13,7 +13,9 @@ using namespace std::filesystem;
 using namespace std::experimental::filesystem;
 #endif
 
-unsigned char* andromeda::io::read(std::string filename, size_t* data_length, long long int read_length, size_t reserve_length)
+#include <andromeda/common/log.h>
+
+unsigned char* andromeda::io::read(const std::string filename, size_t* data_length, long long int read_length, size_t reserve_length)
 {
 	std::ifstream file(u8path(filename).generic_u8string(), std::ifstream::ate | std::ios::binary);
 	if(file.is_open())
@@ -29,11 +31,11 @@ unsigned char* andromeda::io::read(std::string filename, size_t* data_length, lo
 		return data;
 	}
 	else
-		std::cerr << "Open file " << filename << " failed." << std::endl;
+		LogError("Open file ", filename, " failed.");
 	return nullptr;
 }
 
-std::string andromeda::io::read_string(std::string filename, long long int read_length, size_t reserve_length)
+std::string andromeda::io::read_string(const std::string filename, long long int read_length, size_t reserve_length)
 {
 	size_t str_length = 0;
 	char* str = (char*)andromeda::io::read(filename, &str_length, read_length, reserve_length + 1);
@@ -41,27 +43,41 @@ std::string andromeda::io::read_string(std::string filename, long long int read_
 	return str;
 }
 
-void andromeda::io::write(std::string filename, void* data, size_t length)
+void andromeda::io::write(const std::string filename, const void* data, size_t length)
 {
 	std::ofstream file(u8path(filename).generic_u8string(), std::ios::out | std::ios::binary);
 	file.write((const char*)data, length);
 	file.close();
 }
 
-void andromeda::io::append(std::string filename, void* data, size_t length)
+void andromeda::io::append(const std::string filename, const void* data, size_t length)
 {
 	std::ofstream file(u8path(filename).generic_u8string(), std::ios::app | std::ios::binary);
 	file.write((const char*)data, length);
 	file.close();
 }
 
-std::string andromeda::io::directory_of(std::string file_path)
+void andromeda::io::append_string(const std::string filename, const std::string& str)
+{
+	std::ofstream file(u8path(filename).generic_u8string(), std::ios::app);
+	file << str;
+	file.close();
+}
+
+void andromeda::io::append_string_newline(const std::string filename, const std::string& str)
+{
+	std::ofstream file(u8path(filename).generic_u8string(), std::ios::app);
+	file << '\n' << str;
+	file.close();
+}
+
+std::string andromeda::io::directory_of(const std::string file_path)
 {
 	static const char _path_separators[3] = {WIN32_PATH_SEPARATOR, UNIX_PATH_SEPARATOR, '\0'};
 	return file_path.substr(0, file_path.find_last_of(_path_separators));
 }
 
-rapidcsv::Document andromeda::io::read_csv(std::string filename, char comma, csv_option option)
+rapidcsv::Document andromeda::io::read_csv(const std::string filename, char comma, csv_option option)
 {
 	return rapidcsv::Document(filename, rapidcsv::LabelParams(option & ROW_HEADER ? 0 : -1, option & COLUMN_HEADER ? 0 : -1), rapidcsv::SeparatorParams(comma));
 }

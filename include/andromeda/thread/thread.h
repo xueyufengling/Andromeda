@@ -27,7 +27,6 @@ enum work_mode
 	JOIN, DETACH
 };
 
-//处于Stopped时_thread=nullptr，只能重新调用start()执行
 enum state
 {
 	STOPPED, RUNNING, SUSPENDED
@@ -58,7 +57,7 @@ private:
 	std::condition_variable _condition;
 	void* _callable_obj = nullptr; //储存原始的调用对象或函数指针。
 	std::function<degenerated_callable> _callable; //用于实际执行的封装后的可调用对象，Callable如果是成员函数则退化为等效的普通函数并绑定this
-	bool* loop_flag = nullptr; //循环控制变量，nullptr表示不循环执行
+	volatile bool* loop_flag = nullptr; //循环控制变量，nullptr表示不循环执行
 	bool is_callable_set = false; //如果为false则调用子类的run()函数
 
 	template<typename ...Args>
@@ -119,6 +118,7 @@ protected:
 	{
 		return loop_flag && (*loop_flag);
 	}
+
 	//CRTP实现
 	__attribute__((always_inline)) inline void _initialize() //执行函数执行之前调用一次
 	{
@@ -180,27 +180,30 @@ public:
 		should_pause = false;
 		should_stop = false;
 	}
+
 	//此构造函数可用于继承类中重写run()的类
-	thread(bool* loopFlag, work_mode workState = DETACH) :
-			thread() //默认采用Detach模式
+	thread(volatile bool* loop_flag, work_mode work_state = DETACH) :
+			thread() //默认采用DETACH模式
 	{
-		this->loop_flag = loopFlag;
-		set_work_mode(workState);
+		this->loop_flag = loop_flag;
+		set_work_mode(work_state);
 	}
+
 	//isLoop设定是否循环执行运行函数。如果设定为false，则不可使用pause()、resume()、stop()，在执行运行函数期间只可执行exit()操作
 	template<typename MCallable = Callable>
-	thread(MCallable& op, bool* loopFlag = nullptr, work_mode workState = DETACH) :
+	thread(MCallable& op, bool* loop_flag = nullptr, work_mode work_state = DETACH) :
 			thread() //默认采用Detach模式
 	{
-		set_callable<MCallable>(op, loopFlag);
-		set_work_mode(workState);
+		set_callable<MCallable>(op, loop_flag);
+		set_work_mode(work_state);
 	}
+
 	template<typename MCallable = Callable>
-	thread(MCallable&& op, bool* loopFlag = nullptr, work_mode workState = DETACH) :
+	thread(MCallable&& op, bool* loop_flag = nullptr, work_mode work_state = DETACH) :
 			thread() //默认采用Detach模式
 	{
-		set_callable<MCallable>(op, loopFlag);
-		set_work_mode(workState);
+		set_callable<MCallable>(op, loop_flag);
+		set_work_mode(work_state);
 	}
 
 	~thread()
@@ -245,7 +248,10 @@ public:
 		return *this;
 	}
 
-	thread& reset_callable() //清除已经设置的运行函数
+	/**
+	 * @brief 清除已经设置的运行函数
+	 */
+	thread& reset_callable()
 	{
 		if(_thread) //如果线程已经存在，则强制结束线程并释放
 			exit();
@@ -313,7 +319,10 @@ public:
 		}
 	}
 
-	//返回true表示操作成功，返回false表示失败
+	/**
+	 * @brief 对于循环执行的线程，可以将其在当前循环执行完成后挂起。
+	 * @return 返回true表示操作成功，返回false表示失败
+	 */
 	bool suspend()
 	{
 		if(_thread && should_loop())
@@ -345,7 +354,10 @@ public:
 		return false;
 	}
 
-	bool stop() //stop()后依然可以直接继续调用start()重新执行
+	/**
+	 * @brief 停止当前执行的线程。stop()后依然可以直接继续调用start()重新执行
+	 */
+	bool stop()
 	{
 		if(_thread && should_loop())
 		{
@@ -378,7 +390,11 @@ public:
 		return _thread ? _thread->get_id() : std::thread::id(0);
 	}
 
-	inline std::thread::native_handle_type get_native_handle() //线程不存在则返回nullptr
+	/**
+	 * @brief 获取线程的本地句柄
+	 * @return 线程未创建则返回nullptr
+	 */
+	inline std::thread::native_handle_type get_native_handle()
 	{
 		return _thread ? _thread->native_handle() : (std::thread::native_handle_type)nullptr;
 	}

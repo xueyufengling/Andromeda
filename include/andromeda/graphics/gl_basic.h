@@ -15,7 +15,7 @@ extern "C"
 }
 
 #include "../common/bindable_object.h"
-#include <andromeda/common/lib_call.h>
+#include "../common/lib_call.h"
 
 LibCallAll(glCall, GLenum, glGetError, GL_NO_ERROR)
 
@@ -496,6 +496,46 @@ public:
 	{
 
 	}
+};
+
+/* 绘制策略为NONE则不绘制；NORMAL表示普通绘制，INSTANCED表示实例化绘制
+ * 普通绘制只会绘制一个物体，这个物体由vertex_data和element_data定义
+ * 实例化绘制将以普通绘制的物体为模板，每个实例有自己的divisor数据，这部分数据添加在vertex_data全部顶点数据的后面
+ */
+enum struct draw_strategy : GLuint
+{
+	NONE, NORMAL, INSTANCED
+};
+
+enum struct geometry_strategy : GLuint
+{
+	POINTS = GL_POINTS,
+	LINES = GL_LINES,
+	LINE_LOOP = GL_LINE_LOOP,
+	LINE_STRIP = GL_LINE_STRIP,
+	TRIANGLES = GL_TRIANGLES,
+	TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
+	TRIANGLE_FAN = GL_TRIANGLE_FAN,
+
+#ifdef GL_QUADS
+	QUADS = GL_QUADS,
+#endif
+#ifdef GL_QUAD_STRIP
+	QUAD_STRIP = GL_QUAD_STRIP,
+#endif
+};
+
+enum struct data_strategy : GLuint
+{
+	STREAM_DRAW = GL_STREAM_DRAW,
+	STREAM_READ = GL_STREAM_READ,
+	STREAM_COPY = GL_STREAM_COPY,
+	STATIC_DRAW = GL_STATIC_DRAW,
+	STATIC_READ = GL_STATIC_READ,
+	STATIC_COPY = GL_STATIC_COPY,
+	DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
+	DYNAMIC_READ = GL_DYNAMIC_READ,
+	DYNAMIC_COPY = GL_DYNAMIC_COPY
 };
 
 }
