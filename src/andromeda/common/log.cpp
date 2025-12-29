@@ -1,12 +1,22 @@
 #include <andromeda/common/log.h>
 
+#include <andromeda/common/terminal_style.h>
+
 using namespace andromeda::common;
+
+const std::string andromeda::common::terminal_fatal_style = andromeda::common::terminal_style(terminal_text_style::SET_FOREGROUND_COLOR_BRIGHT_WHITE, terminal_text_style::SET_BACKGROUND_COLOR_BRIGHT_RED);
+const std::string andromeda::common::terminal_error_style = andromeda::common::terminal_style(terminal_text_style::SET_FOREGROUND_COLOR_RED);
+const std::string andromeda::common::terminal_warn_style = andromeda::common::terminal_style(terminal_text_style::SET_FOREGROUND_COLOR_YELLOW);
+const std::string andromeda::common::terminal_reset_style = andromeda::common::terminal_style(terminal_text_style::RESET);
+const std::string andromeda::common::terminal_debug_style = andromeda::common::terminal_style(terminal_text_style::SET_FOREGROUND_COLOR_GREEN);
 
 LOGGER_TYPE* andromeda::common::process_logger = new LOGGER_TYPE();
 
-universal_logger::universal_logger()
+universal_logger::universal_logger() :
+		log_text_styles(log_level::LOG_LEVELNUM)
 {
-	add_extra_param("D:\\log\\log_file.log");
+	log_text_styles.construct();
+	//add_extra_param("D:\\log\\log_file.log");
 	set_default_text_styles();
 }
 

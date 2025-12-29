@@ -15,19 +15,20 @@
 #define THREAD(obj_name,func) andromeda::util::Thread<decltype(func)> obj_name(func)
 
 //子类必须添加的friend class
-#define ConstructThread\
-	enable_exist_memb_with_type(initialize, run, terminate, before_stop, after_stop, before_suspended, after_suspended, before_resume, after_resume);
+#define ConstructThread(Derived, FuncType)\
+	enable_intl_exist_memb_with_type(initialize, run, terminate, before_stop, after_stop, before_suspended, after_suspended, before_resume, after_resume)\
+	friend class andromeda::thread::thread<FuncType, Derived>;
 
 namespace andromeda
 {
 namespace thread
 {
-enum work_mode
+enum thread_work_mode
 {
 	JOIN, DETACH
 };
 
-enum state
+enum thread_state
 {
 	STOPPED, RUNNING, SUSPENDED
 };
@@ -49,8 +50,8 @@ public:
 
 private:
 	std::thread* _thread = nullptr;
-	work_mode _work_state = DETACH;
-	state _state = STOPPED;
+	thread_work_mode _work_state = thread_work_mode::DETACH;
+	thread_state _state = thread_state::STOPPED;
 	std::atomic_bool should_pause;
 	std::atomic_bool should_stop;
 	std::mutex _mutex;
@@ -182,7 +183,7 @@ public:
 	}
 
 	//此构造函数可用于继承类中重写run()的类
-	thread(volatile bool* loop_flag, work_mode work_state = DETACH) :
+	thread(volatile bool* loop_flag, thread_work_mode work_state = thread_work_mode::DETACH) :
 			thread() //默认采用DETACH模式
 	{
 		this->loop_flag = loop_flag;
@@ -191,7 +192,7 @@ public:
 
 	//isLoop设定是否循环执行运行函数。如果设定为false，则不可使用pause()、resume()、stop()，在执行运行函数期间只可执行exit()操作
 	template<typename MCallable = Callable>
-	thread(MCallable& op, bool* loop_flag = nullptr, work_mode work_state = DETACH) :
+	thread(MCallable& op, bool* loop_flag = nullptr, thread_work_mode work_state = thread_work_mode::DETACH) :
 			thread() //默认采用Detach模式
 	{
 		set_callable<MCallable>(op, loop_flag);
@@ -199,7 +200,7 @@ public:
 	}
 
 	template<typename MCallable = Callable>
-	thread(MCallable&& op, bool* loop_flag = nullptr, work_mode work_state = DETACH) :
+	thread(MCallable&& op, bool* loop_flag = nullptr, thread_work_mode work_state = thread_work_mode::DETACH) :
 			thread() //默认采用Detach模式
 	{
 		set_callable<MCallable>(op, loop_flag);
@@ -213,13 +214,16 @@ public:
 
 	void exit() //调用exit()后强制结束线程并释放内存
 	{
-		pthread_cancel(_thread->native_handle());
-		delete _thread;
-		_thread = nullptr;
-		_state = STOPPED;
+		if(_thread)
+		{
+			pthread_cancel(_thread->native_handle());
+			delete _thread;
+			_thread = nullptr;
+		}
+		_state = thread_state::STOPPED;
 	}
 
-	inline thread& set_work_mode(work_mode work_state) //只能在执行start()前调用，一旦执行start()后将无法改变
+	inline thread& set_work_mode(thread_work_mode work_state) //只能在执行start()前调用，一旦执行start()后将无法改变
 	{
 		if(!_thread)
 			_work_state = work_state;
@@ -238,7 +242,7 @@ public:
 	}
 
 	template<typename MCallable = Callable>
-	thread& set_callable(MCallable&& op, bool* loop_flag = nullptr)
+	thread& set_callable(MCallable&& op, volatile bool* loop_flag = nullptr)
 	{
 		if(_thread) //如果线程已经存在，则强制结束线程并释放
 			exit();
@@ -277,13 +281,13 @@ public:
 		_callable = std::function<degenerated_callable>(*(degenerated_callable*)_callable_obj);
 		_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run<Args...>, this, args...));
 		END:
-		_state = RUNNING;
+		_state = thread_state::RUNNING;
 		switch(_work_state)
 		{
-		case JOIN:
+		case thread_work_mode::JOIN:
 			_thread->join();
 			break;
-		case DETACH:
+		case thread_work_mode::DETACH:
 			_thread->detach();
 			break;
 		}
@@ -307,13 +311,13 @@ public:
 		_callable = bind_this<ret_type, Args...>(*(typename func_type<Class, ret_type, Args...>::result_type*)_callable_obj, cls); //为成员函数绑定this
 		_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run<Args...>, this, args...));
 		END:
-		_state = RUNNING;
+		_state = thread_state::RUNNING;
 		switch(_work_state)
 		{
-		case JOIN:
+		case thread_work_mode::JOIN:
 			_thread->join();
 			break;
-		case DETACH:
+		case thread_work_mode::DETACH:
 			_thread->detach();
 			break;
 		}
@@ -330,7 +334,7 @@ public:
 			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_suspended)::result)
 				_before_suspended();
 			should_pause = true;
-			_state = SUSPENDED;
+			_state = thread_state::SUSPENDED;
 			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_suspended)::result)
 				_after_suspended();
 			return true;
@@ -346,7 +350,7 @@ public:
 				_before_resume();
 			should_pause = false;
 			_condition.notify_all();
-			_state = RUNNING;
+			_state = thread_state::RUNNING;
 			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_resume)::result)
 				_after_resume();
 			return true;
@@ -375,12 +379,12 @@ public:
 		return false;
 	}
 
-	inline work_mode get_work_state()
+	inline thread_work_mode get_work_state()
 	{
 		return _work_state;
 	}
 
-	inline state get_state()
+	inline thread_state get_state()
 	{
 		return _state;
 	}

@@ -8,7 +8,6 @@
 #include "array.h"
 
 #include "../io/files.h"
-#include "terminal_style.h"
 
 #define LOGGER_TYPE universal_logger
 
@@ -20,8 +19,17 @@ class LOGGER_TYPE;
 
 enum log_level
 {
-	LOG_DEBUG = 0, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL
+	LOG_DEBUG = 0, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL, LOG_LEVELNUM
 };
+
+/**
+ * @brief 终端打印日志颜色样式
+ */
+extern const std::string terminal_fatal_style;
+extern const std::string terminal_error_style;
+extern const std::string terminal_warn_style;
+extern const std::string terminal_reset_style;
+extern const std::string terminal_debug_style;
 
 template<typename Derived>
 class logger
@@ -32,12 +40,12 @@ private:
 	array<object_val> extra_params;
 
 protected:
-	__attribute__((always_inline)) inline static void log_to_terminal(const std::string& text_style, const std::string info)
+	__attribute__((always_inline)) inline static void log_to_terminal(const std::string& text_style, const std::string& info)
 	{
-		std::cout << text_style << info << std::endl;
+		std::cout << andromeda::common::terminal_reset_style << text_style << info << andromeda::common::terminal_reset_style << std::endl;
 	}
 
-	__attribute__((always_inline)) inline static void log_to_file(const std::string& file_path, const std::string info)
+	__attribute__((always_inline)) inline static void log_to_file(const std::string& file_path, const std::string& info)
 	{
 		andromeda::io::append_string_newline(file_path, info);
 	}
@@ -106,7 +114,7 @@ protected:
 	bool log_out_to_terminal = true;
 	bool log_out_to_file = true;
 
-	array<std::string> log_text_styles = array<std::string>(5);
+	array<std::string> log_text_styles;
 
 public:
 	universal_logger();

@@ -10,6 +10,15 @@ namespace andromeda
 namespace common
 {
 /**
+ * @brief 将变长参数列表打包成指定类型的数组
+ */
+template<typename T, typename ...Args>
+inline T* pack_c_array(Args ... args)
+{
+	return new T[sizeof...(args)]{args...};
+}
+
+/**
  * @brief 轻量级可变长数组模板
  */
 template<typename E>
@@ -19,6 +28,9 @@ public:
 	static size_t default_init_capcity;
 	static size_t default_extend_capcity;
 
+	static constexpr size_t no_element_idx = -1;
+	static constexpr size_t capacity_placeholder = -2;
+
 protected:
 	size_t capcity = default_init_capcity, //当前容量
 			extend_capcity = default_extend_capcity; //每次拓展时的新增容量
@@ -26,7 +38,7 @@ protected:
 	E* elements = nullptr;
 
 private:
-	size_t end_pos = -1; //末尾元素索引
+	size_t end_pos = no_element_idx; //末尾元素索引
 	bool self_alloc = true; //本数组的内存是否是自己分配的
 
 	inline void _add()
@@ -122,6 +134,25 @@ public:
 	array(E* elem, size_t len, size_t extend_capcity = default_extend_capcity) :
 			elements(elem), capcity(len), end_pos(len - 1), extend_capcity(extend_capcity), self_alloc(false)
 	{
+	}
+
+	/**
+	 * @brief 对内存区域调用T的构造函数。必须手动调用。
+	 * 		  如果T不是基本类型，那么新分配的内存区域全是垃圾数据构成的对象，对其赋值时有可能因为拷贝/移动构造函数中操作垃圾数据引发崩溃
+	 * @param start_idx 以E为单位的起始坐标
+	 * @param end_idx 以E为单位的终止坐标
+	 */
+	template<typename T = E, typename ...Args>
+	array& construct(size_t start_idx = 0, size_t end_idx = capacity_placeholder, Args ...args)
+	{
+		end_idx = (end_idx == capacity_placeholder) ? capcity : end_idx;
+		size_t length = end_idx - start_idx + 1;
+		T* dest = (T*)(elements + start_idx);
+		for(size_t idx = 0; idx < length; ++idx)
+		{
+			new (dest + idx) T(args...);
+		}
+		return *this;
 	}
 
 	inline operator E*()
@@ -259,7 +290,7 @@ public:
 
 	inline void clear()
 	{
-		end_pos = -1;
+		end_pos = no_element_idx;
 	}
 
 	/**
@@ -270,7 +301,7 @@ public:
 		free(elements);
 		capcity = default_init_capcity;
 		extend_capcity = default_extend_capcity;
-		end_pos = -1;
+		end_pos = no_element_idx;
 		elements = nullptr;
 		self_alloc = true;
 	}

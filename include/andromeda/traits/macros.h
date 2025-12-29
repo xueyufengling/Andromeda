@@ -483,6 +483,8 @@
 #define __equal__254(x) x
 #define __equal__255(x) x
 #define __equal__256(x) x
+#define __equal__true(x) x
+#define __equal__false(x) x
 
 /**
  * @brief 0-255的自增运算
@@ -1102,13 +1104,14 @@
  */
 #define __repeat_each_extras__(macro_name, extra_params_macro, ...) __full_scan__(__repeat_each_extras_intl__(__numof__(__VA_ARGS__), macro_name, extra_params_macro, __VA_ARGS__))
 
-#define __op_each_intl__comma(op_macro, op_param) op_macro(op_param),
-#define __op_each_intl__no_comma(op_macro, op_param) op_macro(op_param)
+#define __op_each_intl__comma(op_macro, ...) op_macro(__VA_ARGS__),
+#define __op_each_intl__no_comma(op_macro, ...) op_macro(__VA_ARGS__)
 
 #define __op_each_intl__(params_num, op_macro, op_param, ...)\
 	__if__(params_num)\
 	(\
-		__if_else__(__equal__(params_num, 1))(\
+		__if_else__(__equal__(params_num, 1))\
+		(\
 			__op_each_intl__no_comma(op_macro, op_param),\
 			__op_each_intl__comma(op_macro, op_param)\
 		)\
@@ -1125,6 +1128,26 @@
  * 		  末尾元素的逗号,将自动去除
  */
 #define __op_each__(op_macro,  ...) __full_scan__(__op_each_intl__(__numof__(__VA_ARGS__), op_macro, __VA_ARGS__))
+
+/**
+ * 带有末尾额外参数的__op_each__
+ */
+#define __op_each_extras_intl__(params_num, op_macro, extra_params_macro, op_param, ...)\
+	__if__(params_num)\
+	(\
+		__if_else__(__equal__(params_num, 1))\
+		(\
+			__op_each_intl__no_comma(op_macro, op_param, extra_params_macro()),\
+			__op_each_intl__comma(op_macro, op_param, extra_params_macro())\
+		)\
+		__2_pass_alias__(__alias_op_each_extras_intl__)()(__dec__(params_num), op_macro, extra_params_macro, __VA_ARGS__)\
+	)
+#define __alias_op_each_extras_intl__() __op_each_extras_intl__
+
+/**
+ * @brief 同__op_each__()，但使用的宏可以在末尾具有任意数量额外参数
+ */
+#define __op_each_extras__(op_macro, extra_params_macro, ...) __full_scan__(__op_each_extras_intl__(__numof__(__VA_ARGS__), op_macro, extra_params_macro, __VA_ARGS__))
 
 /**
  * @brief 同名变体宏的名称。

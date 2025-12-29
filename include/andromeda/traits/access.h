@@ -280,6 +280,15 @@ private:
 			static const bool result = check_ptr(0);\
 		};
 
+/**
+ * @brief 带命名空间的类型
+ */
+#define exist_memb_with_type_namespaced(...) __macro_with_params__(exist_memb_with_type_namespaced, __VA_ARGS__)
+
+#define exist_memb_with_type_namespaced2(memb_name, _namespace) _namespace::__cat__(__exist_memb_with_type_, memb_name)
+
+#define exist_memb_with_type_namespaced4(class_name, type, memb_name, _namespace) exist_memb_with_type_namespaced2(memb_name, _namespace)<class_name, type>
+
 /*
  * @brief 判断类中是否存在某个名称的函数，要求是public访问权限或者本类是目标类的friend class。
  * @params ... 名称列表
@@ -288,6 +297,12 @@ private:
 
 #define __exist_memb_with_type_template_params__() typename, typename
 
-#define enable_exist_memb_with_type(...) __template_friend_classes__(__exist_memb_with_type_template_params__, __op_each__(exist_memb_with_type, __VA_ARGS__))
+/**
+ * @brief 在要检测的目标类中使用，将检测类全部设置为目标类的friend class。
+ * @param _namespace_macro 为空参数宏的宏名，指定检测类所属的命名空间，全局命名空间则留空，例如
+ * 		  #define detect_namespace() andromeda::common
+ * 		  注：必须指定命名空间的原因是，如果检测类Detect的命名空间A与目标类的命名空间B不同，那么不带命名空间所声明的friend class实际上是B::Detect，而不是A::Detect，将导致设置友元失败
+ */
+#define enable_exist_memb_with_type(_namespace_macro, ...) __template_friend_classes__(__exist_memb_with_type_template_params__, __op_each_extras__(exist_memb_with_type_namespaced, _namespace_macro, __VA_ARGS__))
 
 #endif //ANDROMEDA_TRAITS_ACCESS

@@ -14,7 +14,7 @@
 
 //所有andromeda::app::application必须添加的friend class
 #define ConstructApplication(Derived)\
-		enable_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)\
+		enable_intl_exist_memb_with_type(preinitialize, initialize, _launch_main_loop, update, render_update, terminate)\
 		friend class andromeda::app::application<Derived>;\
 		friend class andromeda::app::application<Derived>::main_loop_thread;
 
@@ -31,12 +31,13 @@ class window_application;
 template<typename Derived>
 class application : public andromeda::thread::sequential_lock
 {
-	enable_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)
+	enable_intl_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)
 
 protected:
 	class main_loop_thread: public andromeda::thread::thread<void(), main_loop_thread>, public andromeda::thread::sequential_lock
 	{
-	friend class andromeda::thread::thread<void(), main_loop_thread>;
+	ConstructThread(main_loop_thread, void())
+
 	friend class andromeda::app::application<Derived>;
 	friend class andromeda::app::window_application<Derived>;
 
@@ -66,7 +67,7 @@ protected:
 
 	public:
 		main_loop_thread(Derived *derived_app) :
-				andromeda::thread::thread<void(), main_loop_thread>(&(derived_app->is_running), andromeda::thread::work_mode::DETACH)
+				andromeda::thread::thread<void(), main_loop_thread>(&(derived_app->is_running), andromeda::thread::thread_work_mode::DETACH)
 		{
 			app = derived_app;
 		}

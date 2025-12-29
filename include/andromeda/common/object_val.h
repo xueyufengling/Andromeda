@@ -1,6 +1,7 @@
 #ifndef ANDROMEDA_COMMON_OBJECTVAL
 #define ANDROMEDA_COMMON_OBJECTVAL
 
+#include <stdlib.h>
 #include "../traits/types.h"
 
 namespace andromeda
@@ -94,6 +95,12 @@ public:
 	{
 		store(val);
 		return *this;
+	}
+
+	template<typename T>
+	inline object_val& operator=(T&& val)
+	{
+		abort(); //如果是X值，则存在X值消亡后ptr变成悬空指针的危险，故直接终止程序
 	}
 
 	template<typename T>
