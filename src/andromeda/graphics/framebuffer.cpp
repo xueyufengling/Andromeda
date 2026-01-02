@@ -17,7 +17,7 @@ bool framebuffer::alloc(int try_timeout)
 		gl_BindFramebuffer(GL_FRAMEBUFFER, obj_id);
 		gl_GenTextures(1, &color_buffer); //生成颜色缓冲，可读可写
 		gl_BindTexture(GL_TEXTURE_2D, color_buffer);
-		gl_TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FRAMEBUFFER_BUFFER_SIZE(width), FRAMEBUFFER_BUFFER_SIZE(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); //为颜色缓冲分配内存
+		gl_TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FRAMEBUFFER_BUFFER_SIZE(width), FRAMEBUFFER_BUFFER_SIZE(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, GL_ZERO_INDEX); //为颜色缓冲分配内存
 		gl_TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //设置颜色缓冲采样格式
 		gl_TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		gl_FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_buffer, 0); //将颜色缓冲绑定到帧缓冲obj_id
@@ -37,7 +37,7 @@ bool framebuffer::alloc(int try_timeout)
 	{
 		if(try_timeout < 0) //用尽了尝试分配的次数则返回分配失败
 		{
-			LogDebug("Framebuffer initialize failed.")
+			LogDebugError("Framebuffer initialize failed.")
 			return false;
 		}
 		else
@@ -108,7 +108,7 @@ void framebuffer::render_to_screen(float* vertex_arr)
 	gl_BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(full_screen_ndc_vertices_elements), full_screen_ndc_vertices_elements, GL_STATIC_DRAW);
 	vertex_attribs.load(frame_vao);
 	gl_BindTexture(GL_TEXTURE_2D, color_buffer);
-	gl_DrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);
+	gl_DrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, GL_ZERO_INDEX);
 	gl_Enable(GL_DEPTH_TEST);
 }
 

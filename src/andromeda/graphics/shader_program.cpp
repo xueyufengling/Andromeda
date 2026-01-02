@@ -31,7 +31,7 @@ bool shader_program::check_shader(GLuint shader)
 	if(!success)
 	{
 		char info[512]{0};
-		gl_GetShaderInfoLog(shader, 512, NULL, info);
+		gl_GetShaderInfoLog(shader, 512, GL_ZERO_INDEX, info);
 		LogError("gl shader compile failed:", info, "\nshader id:", shader)
 	}
 	return (bool)success;
@@ -46,7 +46,7 @@ bool shader_program::check_program(GLuint shader_program)
 	if(!success)
 	{
 		char info[512];
-		gl_GetProgramInfoLog(shader_program, 512, NULL, info);
+		gl_GetProgramInfoLog(shader_program, 512, GL_ZERO_INDEX, info);
 		LogError("shader program link failed:", info, "\nprogram id:", shader_program)
 	}
 	return (bool)success;
@@ -56,7 +56,7 @@ bool shader_program::set_vertex_shader(const char* vertex_shader_source)
 {
 	this->vertex_shader_source = vertex_shader_source;
 	GLuint new_vertex_shader = gl_CreateShader(GL_VERTEX_SHADER);
-	gl_ShaderSource(new_vertex_shader, 1, &vertex_shader_source, NULL);
+	gl_ShaderSource(new_vertex_shader, 1, &vertex_shader_source, GL_ZERO_INDEX);
 	gl_CompileShader(new_vertex_shader);
 	return set_vertex_shader(new_vertex_shader);
 }
@@ -65,7 +65,7 @@ bool shader_program::set_fragment_shader(const char* fragment_shader_source)
 {
 	this->fragment_shader_source = fragment_shader_source;
 	GLuint new_fragment_shader = gl_CreateShader(GL_FRAGMENT_SHADER);
-	gl_ShaderSource(new_fragment_shader, 1, &fragment_shader_source, NULL);
+	gl_ShaderSource(new_fragment_shader, 1, &fragment_shader_source, GL_ZERO_INDEX);
 	gl_CompileShader(new_fragment_shader);
 	return set_fragment_shader(new_fragment_shader);
 }
@@ -158,7 +158,7 @@ void shader_program::set(const char* name, const bool value)
 
 void shader_program::set(const char* name, const vector3f vec3)
 {
-	gl_Uniform1fv(gl_GetUniformLocation(obj_id, name), 3, (const GLfloat*)&vec3);
+	gl_Uniform1fv(gl_GetUniformLocation(obj_id, name), 3, (const GLfloat* )&vec3);
 }
 
 void shader_program::set(const char* name, const float value)
@@ -183,15 +183,15 @@ void shader_program::set(const char* name, int count, const float* value_arr)
 
 void shader_program::set(const char* name, int count, const andromeda::math::matrix3x3f* value_arr, bool transpose)
 {
-	gl_UniformMatrix4fv(gl_GetUniformLocation(obj_id, name), count, transpose, (const GLfloat*)value_arr);
+	gl_UniformMatrix4fv(gl_GetUniformLocation(obj_id, name), count, transpose, (const GLfloat* )value_arr);
 }
 
 void shader_program::set(const char* name, const matrix3x3f& mat3, bool transpose)
 {
-	gl_UniformMatrix3fv(gl_GetUniformLocation(obj_id, name), 1, transpose, (const GLfloat*)&mat3);
+	gl_UniformMatrix3fv(gl_GetUniformLocation(obj_id, name), 1, transpose, (const GLfloat* )&mat3);
 }
 
 void shader_program::set(const char* name, const matrix3x3f* mat3, bool transpose)
 {
-	gl_UniformMatrix3fv(gl_GetUniformLocation(obj_id, name), 1, transpose, (const GLfloat*)mat3);
+	gl_UniformMatrix3fv(gl_GetUniformLocation(obj_id, name), 1, transpose, (const GLfloat* )mat3);
 }

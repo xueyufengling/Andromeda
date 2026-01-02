@@ -13,22 +13,22 @@
 // @formatter:off
 
 //所有andromeda::app::application必须添加的friend class
-#define ConstructApplication(Derived)\
-		enable_intl_exist_memb_with_type(preinitialize, initialize, _launch_main_loop, update, render_update, terminate)\
-		friend class andromeda::app::application<Derived>;\
-		friend class andromeda::app::application<Derived>::main_loop_thread;
+#define ConstructApplication(_Derived)\
+		enable_intl_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)\
+		friend class andromeda::app::application<_Derived>;\
+		friend class andromeda::app::application<_Derived>::main_loop_thread;
 
 namespace andromeda
 {
 namespace app
 {
-template<typename Derived>
+template<typename _Derived>
 class window_application;
 
 /**
  * 抽象的应用类，只包含更新逻辑，无图形渲染、音频等，可用于编写服务端
  */
-template<typename Derived>
+template<typename _Derived>
 class application : public andromeda::thread::sequential_lock
 {
 	enable_intl_exist_memb_with_type(preinitialize, initialize, update, render_update, terminate)
@@ -38,13 +38,13 @@ protected:
 	{
 	ConstructThread(main_loop_thread, void())
 
-	friend class andromeda::app::application<Derived>;
-	friend class andromeda::app::window_application<Derived>;
+	friend class andromeda::app::application<_Derived>;
+	friend class andromeda::app::window_application<_Derived>;
 
 	using andromeda::thread::sequential_lock::swap;
 
 	protected:
-		Derived* app;
+		_Derived* app;
 		frame_rate update_rate;
 
 		void initialize()
@@ -66,7 +66,7 @@ protected:
 		}
 
 	public:
-		main_loop_thread(Derived *derived_app) :
+		main_loop_thread(_Derived *derived_app) :
 				andromeda::thread::thread<void(), main_loop_thread>(&(derived_app->is_running), andromeda::thread::thread_work_mode::DETACH)
 		{
 			app = derived_app;
@@ -100,42 +100,45 @@ protected:
 	//主线程函数，负责事件处理和更新
 	__attribute__((always_inline)) inline void _preinitialize() //在初始化Application时调用（各系统初始化之前）
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), preinitialize)::result)
-			((Derived*)this)->preinitialize();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), preinitialize)::result)
+			((_Derived*)this)->preinitialize();
 	}
 
 	__attribute__((always_inline)) inline void _initialize() //在各系统初始化完成后调用
 	{
 		is_running = true;
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), initialize)::result)
-			((Derived*)this)->initialize();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), initialize)::result)
+			((_Derived*)this)->initialize();
 	}
 
 	__attribute__((always_inline)) inline void _terminate()
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), terminate)::result)
-			((Derived*)this)->terminate();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), terminate)::result)
+			((_Derived*)this)->terminate();
 		is_running=false;
 	}
 
 	__attribute__((always_inline)) inline void _update(float tpf)
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(float), update)::result)
-			((Derived*)this)->update(tpf);
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(float), update)::result)
+			((_Derived*)this)->update(tpf);
 	}
 
 	__attribute__((always_inline)) inline void _render_update(float render_tpf)
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(float), render_update)::result)
-			((Derived*)this)->render_update(render_tpf);
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(float), render_update)::result)
+			((_Derived*)this)->render_update(render_tpf);
 	}
 
 public:
+	/**
+	 * @brief 分配并预初始化应用。
+	 * 		  由于_preinitialize()在构造函数内调用，需要判断当前类是application还是其派生类，防止基类和派生类构造函数都调用_preinitialize()
+	 */
 	application()
 	{
-		app_main_loop_thread = new main_loop_thread((Derived*)this);
+		app_main_loop_thread = new main_loop_thread((_Derived*)this);
 		set_synchronize_fps(false);
-		_preinitialize(); //可以调用glfwWindowHint()，不可设置窗口参数、调用OpenGL函数，否则空指针异常
 	}
 
 	~application()
@@ -156,8 +159,7 @@ public:
 	{
 		_initialize();
 		app_main_loop_thread->start();
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), _launch_main_loop)::result)
-			((Derived*)this)->_launch_main_loop();
+		((_Derived*)this)->_launch_main_loop(); //启动主循环，子类必须具有该主循环函数
 		_terminate();
 	}
 

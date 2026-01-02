@@ -156,17 +156,17 @@ public:
 				return;
 			buffer_divisor_data(data_strategy::DYNAMIC_DRAW);
 			if(ebo)
-				gl_DrawElementsInstanced((GLuint)instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, 0, instance_count);
+				gl_DrawElementsInstanced((GLuint )instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, GL_ZERO_INDEX, instance_count);
 			else
-				gl_DrawArraysInstanced((GLuint)instance_geometry_strategy, 0, get_vertex_count(), instance_count);
+				gl_DrawArraysInstanced((GLuint )instance_geometry_strategy, 0, get_vertex_count(), instance_count);
 		}
 			break;
 		case draw_strategy::NORMAL:
 			{
 			if(ebo)
-				gl_DrawElements((GLuint)instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, 0);
+				gl_DrawElements((GLuint )instance_geometry_strategy, get_element_count(), GL_UNSIGNED_INT, GL_ZERO_INDEX);
 			else
-				gl_DrawArrays((GLuint)instance_geometry_strategy, 0, get_vertex_count());
+				gl_DrawArrays((GLuint )instance_geometry_strategy, 0, get_vertex_count());
 		}
 			break;
 		}

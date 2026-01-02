@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_COMMON_TERMINALSTYLE
-#define ANDROMEDA_COMMON_TERMINALSTYLE
+#ifndef ANDROMEDA_COMMON_ANSISTYLE
+#define ANDROMEDA_COMMON_ANSISTYLE
 
 #include <string>
 
@@ -13,8 +13,11 @@ namespace common
 /**
  * @brief 终端字体颜色、样式指令
  */
-enum terminal_text_style : int
+enum ansi_text_style : int
 {
+	ANSI_COLOR_256 = 5, //256色提示符
+	ANSI_COLOR_RGB = 2, //RGB真彩色提示符
+
 	RESET = 0, //恢复为默认颜色、样式
 	BOLD = 1, //加粗
 	FAINT = 2, //淡化，与加粗相反
@@ -85,38 +88,58 @@ enum terminal_text_style : int
  * @param text_styles_count 文本样式列表项目个数
  * @param free_text_styles_arr 构造完成后是否释放项目数组
  */
-extern std::string terminal_style(int* text_styles, size_t text_styles_count, bool free_text_styles_arr = false);
+extern std::string pack_ansi_text_style(int* text_styles, size_t text_styles_count, bool free_text_styles_arr = false);
 
-inline std::string terminal_style(terminal_text_style* text_styles, size_t text_styles_count, bool free_text_styles_arr = false)
+inline std::string pack_ansi_text_style(ansi_text_style* text_styles, size_t text_styles_count, bool free_text_styles_arr = false)
 {
-	return terminal_style((int*)text_styles, text_styles_count, free_text_styles_arr);
+	return pack_ansi_text_style((int*)text_styles, text_styles_count, free_text_styles_arr);
 }
 
 /**
  * @brief 样式为定长数组，text_styles为左值
  */
-template<size_t StylesNum>
-inline std::string terminal_style(int (&text_styles)[StylesNum])
+template<size_t _StylesNum>
+inline std::string pack_ansi_text_style(int (&text_styles)[_StylesNum])
 {
-	return terminal_style(text_styles, StylesNum, false);
+	return pack_ansi_text_style(text_styles, _StylesNum, false);
 }
 
 /**
  * @brief 样式为定长数组，text_styles为X值
  */
-template<size_t StylesNum>
-inline std::string terminal_style(int (&&text_styles)[StylesNum])
+template<size_t _StylesNum>
+inline std::string pack_ansi_text_style(int (&&text_styles)[_StylesNum])
 {
-	return terminal_style(text_styles, StylesNum, false);
+	return pack_ansi_text_style(text_styles, _StylesNum, false);
 }
 
-template<typename ...Styles>
-inline std::string terminal_style(Styles ...styles)
+template<typename ..._Styles>
+inline std::string pack_ansi_text_style(_Styles ...styles)
 {
-	return terminal_style(andromeda::common::pack_c_array<int>(styles...), sizeof...(styles), true); //由于pack_c_array构造了数组对象，因此必须在构造样式字符串完成以后回收内存
+	return pack_ansi_text_style(andromeda::common::pack_c_array<int>(styles...), sizeof...(styles), true); //由于pack_c_array构造了数组对象，因此必须在构造样式字符串完成以后回收内存
 }
+
+/**
+ * @brief 256色的前景色ANSI文本样式
+ */
+extern std::string foreground_color_256_ansi_text_style(int color);
+
+/**
+ * @brief 256色的背景色ANSI文本样式
+ */
+extern std::string background_color_256_ansi_text_style(int color);
+
+/**
+ * @brief 自定义RGB分量的前景色ANSI文本样式
+ */
+extern std::string foreground_color_rgb_ansi_text_style(int r, int g, int b);
+
+/**
+ * @brief 自定义RGB分量的背景色ANSI文本样式
+ */
+extern std::string background_color_rgb_ansi_text_style(int r, int g, int b);
 
 }
 }
 
-#endif //ANDROMEDA_COMMON_TERMINALSTYLE
+#endif //ANDROMEDA_COMMON_ANSISTYLE

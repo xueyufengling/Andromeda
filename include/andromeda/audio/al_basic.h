@@ -8,99 +8,47 @@ extern "C"
 }
 
 #include "../common/bindable_object.h"
-#include <andromeda/common/lib_call.h>
+#include "../common/lib_call.h"
 
-LibCallAll(alCall, ALenum, alGetError, AL_NO_ERROR)
+decl_libcall(al, ALenum, alGetError, AL_NO_ERROR)
 
-inline ALboolean al_IsExtensionPresent(const char* ext_name)
-{
-	return alCallRet(&alIsExtensionPresent, ext_name);
-}
+#define al_call(callable, ...) libcall(al, __log_source__, callable, ##__VA_ARGS__)
 
-inline ALenum al_GenBuffers(ALsizei n, ALuint* buffers)
-{
-	return alCallRet(&alGenBuffers, n, buffers);
-}
+#define al_IsExtensionPresent(ext_name) al_call(alIsExtensionPresent, ext_name)
 
-inline ALenum al_DeleteBuffers(ALsizei n, const ALuint* buffers)
-{
-	return alCallRet(&alDeleteBuffers, n, buffers);
-}
+#define al_GenBuffers(n, buffers) al_call(alGenBuffers, n, buffers)
 
-inline ALenum al_BufferData(ALuint bid, ALenum format, const ALvoid* data, ALsizei size, ALsizei freq)
-{
-	return alCallRet(&alBufferData, bid, format, data, size, freq);
-}
+#define al_DeleteBuffers(n, buffers) al_call(alDeleteBuffers, n, buffers)
 
-inline ALenum al_GenSources(ALsizei n, ALuint* sources)
-{
-	return alCallRet(&alGenSources, n, sources);
-}
+#define al_BufferData(bid, format, data, size, freq) al_call(alBufferData, bid, format, data, size, freq)
 
-inline ALenum al_DeleteSources(ALsizei n, const ALuint* sources)
-{
-	return alCallRet(&alDeleteSources, n, sources);
-}
+#define al_GenSources(n, sources) al_call(alGenSources, n, sources)
 
-inline ALenum al_Sourcei(ALuint sid, ALenum param, ALint value)
-{
-	return alCallRet(&alSourcei, sid, param, value);
-}
+#define al_DeleteSources(n, sources) al_call(alDeleteSources, n, sources)
 
-inline ALenum al_Sourcef(ALuint sid, ALenum param, ALfloat value)
-{
-	return alCallRet(&alSourcef, sid, param, value);
-}
+#define al_Sourcei(sid, param, value) al_call(alSourcei, sid, param, value)
 
-inline ALenum al_Source3f(ALuint sid, ALenum param, ALfloat value1, ALfloat value2, ALfloat value3)
-{
-	return alCallRet(&alSource3f, sid, param, value1, value2, value3);
-}
+#define al_Sourcef(sid, param, value) al_call(alSourcef, sid, param, value)
 
-inline ALenum al_SourcePlay(ALuint sid)
-{
-	return alCallRet(&alSourcePlay, sid);
-}
+#define al_Source3f(sid, param, value1, value2, value3) al_call(alSource3f, sid, param, value1, value2, value3)
 
-inline ALenum al_GetSourcei(ALuint sid, ALenum param, ALint* value)
-{
-	return alCallRet(&alGetSourcei, sid, param, value);
-}
+#define al_SourcePlay(sid) al_call(alSourcePlay, sid)
 
-inline ALCdevice* alc_OpenDevice(const ALCchar* devicename)
-{
-	return alCallRet(&alcOpenDevice, devicename);
-}
+#define al_GetSourcei(sid, param, value) al_call(alGetSourcei, sid, param, value)
 
-inline ALCboolean alc_CloseDevice(ALCdevice* device)
-{
-	return alCallRet(&alcCloseDevice, device);
-}
+#define alc_OpenDevice(devicename) al_call(alcOpenDevice, devicename)
 
-inline ALCcontext* alc_CreateContext(ALCdevice* device, const ALCint* attrlist)
-{
-	return alCallRet(&alcCreateContext, device, attrlist);
-}
+#define alc_CloseDevice(device) al_call(alcCloseDevice, device)
 
-inline ALenum alc_DestroyContext(ALCcontext* context)
-{
-	return alCallRet(&alcDestroyContext, context);
-}
+#define alc_CreateContext(device, attrlist) al_call(alcCreateContext, device, attrlist)
 
-inline ALenum alc_MakeContextCurrent(ALCcontext* context)
-{
-	return alCallRet(&alcMakeContextCurrent, context);
-}
+#define alc_DestroyContext(context) al_call(alcDestroyContext, context)
 
-inline ALCcontext* alc_GetCurrentContext(void)
-{
-	return alCallRet(&alcGetCurrentContext);
-}
+#define alc_MakeContextCurrent(context) al_call(alcMakeContextCurrent, context)
 
-inline ALCdevice* alc_GetContextsDevice(ALCcontext* context)
-{
-	return alCallRet(&alcGetContextsDevice, context);
-}
+#define alc_GetCurrentContext() al_call(alcGetCurrentContext)
+
+#define alc_GetContextsDevice(context) al_call(alcGetContextsDevice, context)
 
 namespace andromeda
 {

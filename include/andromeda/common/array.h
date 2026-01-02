@@ -32,7 +32,7 @@ public:
 	static constexpr size_t capacity_placeholder = -2;
 
 protected:
-	size_t capcity = default_init_capcity, //当前容量
+	size_t capcity = 0, //当前容量
 			extend_capcity = default_extend_capcity; //每次拓展时的新增容量
 
 	E* elements = nullptr;
@@ -335,6 +335,7 @@ public:
 	}
 };
 
+//默认初始容量，可运行时修改
 template<typename E>
 size_t array<E>::default_init_capcity = 1024;
 
@@ -342,12 +343,6 @@ template<typename E>
 size_t array<E>::default_extend_capcity = 1024;
 
 using buffer = array<unsigned char>;
-
-__attribute__((constructor)) inline void _set_buffer_default_capacity()
-{
-	buffer::default_init_capcity = 1024 * 1024;
-	buffer::default_extend_capcity = 1024 * 1024;
-}
 
 }
 }

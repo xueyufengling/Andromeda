@@ -11,13 +11,13 @@
 
 #include "../common/intl_memb_detect.h"
 
-//THREAD宏可用于任何Callable，但不可用func参数不能传入ClassObj.Func，因为decltype无法解析可能的重载函数
+//THREAD宏可用于任何_Callable，但不可用func参数不能传入_ClassObj.Func，因为decltype无法解析可能的重载函数
 #define THREAD(obj_name,func) andromeda::util::Thread<decltype(func)> obj_name(func)
 
 //子类必须添加的friend class
-#define ConstructThread(Derived, FuncType)\
+#define ConstructThread(_Derived, _FuncType)\
 	enable_intl_exist_memb_with_type(initialize, run, terminate, before_stop, after_stop, before_suspended, after_suspended, before_resume, after_resume)\
-	friend class andromeda::thread::thread<FuncType, Derived>;
+	friend class andromeda::thread::thread<_FuncType, _Derived>;
 
 namespace andromeda
 {
@@ -33,20 +33,20 @@ enum thread_state
 	STOPPED, RUNNING, SUSPENDED
 };
 
-template<typename Thread>
-static inline void exit(Thread* thread)
+template<typename _Thread>
+static inline void exit(_Thread* thread)
 {
 	thread->exit();
 }
 
-template<typename Callable, typename Derived = void> //Callable为任何可调用对象（包括成员函数），Derived用于继承时传入子类CRTP，若is_class<Derived>=false则表示不继承
+template<typename _Callable, typename _Derived = void> //_Callable为任何可调用对象（包括成员函数），_Derived用于继承时传入子类CRTP，若is_class<_Derived>=false则表示不继承
 class thread
 {
-	friend void exit<>(thread<Callable, Derived>* thread);
+	friend void exit<>(thread<_Callable, _Derived>* thread);
 
 public:
-	typedef typename degenerated_type<Callable>::result_type degenerated_callable;
-	typedef typename return_type<Callable>::result_type ret_type;
+	typedef typename degenerated_type<_Callable>::result_type degenerated_callable;
+	typedef typename return_type<_Callable>::result_type ret_type;
 
 private:
 	std::thread* _thread = nullptr;
@@ -57,16 +57,16 @@ private:
 	std::mutex _mutex;
 	std::condition_variable _condition;
 	void* _callable_obj = nullptr; //储存原始的调用对象或函数指针。
-	std::function<degenerated_callable> _callable; //用于实际执行的封装后的可调用对象，Callable如果是成员函数则退化为等效的普通函数并绑定this
+	std::function<degenerated_callable> _callable; //用于实际执行的封装后的可调用对象，_Callable如果是成员函数则退化为等效的普通函数并绑定this
 	volatile bool* loop_flag = nullptr; //循环控制变量，nullptr表示不循环执行
 	bool is_callable_set = false; //如果为false则调用子类的run()函数
 
-	template<typename ...Args>
-	void _run(Args ...args) //非virtual类成员函数，其指针与通常函数指针不同
+	template<typename ..._ArgTypes>
+	void _run(_ArgTypes ...args) //非virtual类成员函数，其指针与通常函数指针不同
 	{
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL); //允许退出线程
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); //收到CANCEL信号后立即退出线程
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), initialize)::result)
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), initialize)::result)
 			_initialize();
 		if(should_loop())
 			while(!should_stop)
@@ -83,16 +83,16 @@ private:
 			_callable(args...); //is_loop=false时只调用一次执行函数
 		should_pause = false;
 		should_stop = false;
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), terminate)::result)
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), terminate)::result)
 			_terminate();
-		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThreadCallable()
+		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThread_Callable()
 	}
 
 	void _run_derived() //使用子类run()
 	{
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL); //允许退出线程
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); //收到CANCEL信号后立即退出线程
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), initialize)::result)
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), initialize)::result)
 			_initialize();
 		if(should_loop())
 			while(!should_stop)
@@ -109,9 +109,9 @@ private:
 			_run(); //isLoop=false时只调用一次执行函数
 		should_pause = false;
 		should_stop = false;
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), terminate)::result)
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), terminate)::result)
 			_terminate();
-		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThreadCallable()
+		exit(); //正常结束后释放线程，此时可通过start()再次调用而不必重新setThread_Callable()
 	}
 
 protected:
@@ -123,56 +123,56 @@ protected:
 	//CRTP实现
 	__attribute__((always_inline)) inline void _initialize() //执行函数执行之前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), initialize)::result) //Derived是类且有该成员函数
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->initialize();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), initialize)::result) //_Derived是类且有该成员函数
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->initialize();
 	}
 
 	__attribute__((always_inline)) inline void _run() //供继承类重写使用的执行函数，重写后可以不执行_callable_obj
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), run)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->run();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), run)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->run();
 	}
 
 	__attribute__((always_inline)) inline void _terminate() //执行函数（包括isLoop=true时的情况）结束后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), terminate)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->terminate();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), terminate)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->terminate();
 	}
 
 	__attribute__((always_inline)) inline void _before_stop() //每次成功调用stop()前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_stop)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->before_stop();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), before_stop)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->before_stop();
 	}
 
 	__attribute__((always_inline)) inline void _after_stop() //每次成功调用stop()后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_stop)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->after_stop();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), after_stop)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->after_stop();
 	}
 
 	__attribute__((always_inline)) inline void _before_suspended() //每次成功调用suspended()前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_suspended)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->before_suspended();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), before_suspended)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->before_suspended();
 	}
 
 	__attribute__((always_inline)) inline void _after_suspended() //每次成功调用suspended()后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_suspended)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->after_suspended();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), after_suspended)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->after_suspended();
 	}
 
 	__attribute__((always_inline)) inline void _before_resume() //每次成功调用resume()前调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_resume)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->before_resume();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), before_resume)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->before_resume();
 	}
 
 	__attribute__((always_inline)) inline void _after_resume() //每次成功调用resume()后调用一次
 	{
-		if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_resume)::result)
-			((typename _if<is_class<Derived>::result>::resolve_type<Derived, thread<Callable, Derived>>::result_type*)this)->after_resume();
+		if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), after_resume)::result)
+			((typename _if<is_class<_Derived>::result>::resolve_type<_Derived, thread<_Callable, _Derived>>::result_type*)this)->after_resume();
 	}
 
 public:
@@ -191,19 +191,19 @@ public:
 	}
 
 	//isLoop设定是否循环执行运行函数。如果设定为false，则不可使用pause()、resume()、stop()，在执行运行函数期间只可执行exit()操作
-	template<typename MCallable = Callable>
-	thread(MCallable& op, bool* loop_flag = nullptr, thread_work_mode work_state = thread_work_mode::DETACH) :
+	template<typename _MCallable = _Callable>
+	thread(_MCallable& op, bool* loop_flag = nullptr, thread_work_mode work_state = thread_work_mode::DETACH) :
 			thread() //默认采用Detach模式
 	{
-		set_callable<MCallable>(op, loop_flag);
+		set_callable<_MCallable>(op, loop_flag);
 		set_work_mode(work_state);
 	}
 
-	template<typename MCallable = Callable>
-	thread(MCallable&& op, bool* loop_flag = nullptr, thread_work_mode work_state = thread_work_mode::DETACH) :
+	template<typename _MCallable = _Callable>
+	thread(_MCallable&& op, bool* loop_flag = nullptr, thread_work_mode work_state = thread_work_mode::DETACH) :
 			thread() //默认采用Detach模式
 	{
-		set_callable<MCallable>(op, loop_flag);
+		set_callable<_MCallable>(op, loop_flag);
 		set_work_mode(work_state);
 	}
 
@@ -230,8 +230,8 @@ public:
 		return *this;
 	}
 
-	template<typename MCallable = Callable> //MCallable可以与Callable不同（例如Callable传入普通函数类型，MCallable传入等效成员函数类型或其他等效可调用类型），但最好保持一致
-	thread& set_callable(MCallable& op, bool* loop_flag = nullptr) //储存_callable_obj原始对象，而实际执行的_callable对象在start()中才会实例化
+	template<typename _MCallable = _Callable> //_MCallable可以与_Callable不同（例如_Callable传入普通函数类型，_MCallable传入等效成员函数类型或其他等效可调用类型），但最好保持一致
+	thread& set_callable(_MCallable& op, bool* loop_flag = nullptr) //储存_callable_obj原始对象，而实际执行的_callable对象在start()中才会实例化
 	{
 		if(_thread) //如果线程已经存在，则强制结束线程并释放
 			exit();
@@ -241,8 +241,8 @@ public:
 		return *this;
 	}
 
-	template<typename MCallable = Callable>
-	thread& set_callable(MCallable&& op, volatile bool* loop_flag = nullptr)
+	template<typename _MCallable = _Callable>
+	thread& set_callable(_MCallable&& op, volatile bool* loop_flag = nullptr)
 	{
 		if(_thread) //如果线程已经存在，则强制结束线程并释放
 			exit();
@@ -263,23 +263,23 @@ public:
 		return *this;
 	}
 
-	template<typename ...Args>
-	void start(Args&& ... args) //非成员函数调用
+	template<typename ..._ArgTypes>
+	void start(_ArgTypes&& ... args) //非成员函数调用
 	{
 		if(_thread) //已经调用了start()且不是处于Stopped状态就直接返回
 			return;
 		if(!is_callable_set) //没有设置运行函数，调用子类的run()
 		{
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), run)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), run)::result)
 			{
-				_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run_derived, this));
+				_thread = new std::thread(std::bind(&thread<_Callable, _Derived>::_run_derived, this));
 				goto END;
 			}
 			else
 				return; //子类没有run()则是无效调用直接返回
 		}
 		_callable = std::function<degenerated_callable>(*(degenerated_callable*)_callable_obj);
-		_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run<Args...>, this, args...));
+		_thread = new std::thread(std::bind(&thread<_Callable, _Derived>::_run<_ArgTypes...>, this, args...));
 		END:
 		_state = thread_state::RUNNING;
 		switch(_work_state)
@@ -293,23 +293,23 @@ public:
 		}
 	}
 
-	template<typename Class, typename ...Args>
-	void start(Class* cls, Args&& ... args) //成员函数调用
+	template<typename _Class, typename ..._ArgTypes>
+	void start(_Class* cls, _ArgTypes&& ... args) //成员函数调用
 	{
 		if(_thread) //已经调用了start()且不是处于Stopped状态就直接返回
 			return;
 		if(!is_callable_set) //没有设置运行函数，调用子类的run()
 		{
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), run)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), run)::result)
 			{
-				_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run_derived, this));
+				_thread = new std::thread(std::bind(&thread<_Callable, _Derived>::_run_derived, this));
 				goto END;
 			}
 			else
 				return; //子类没有run()则是无效调用直接返回
 		}
-		_callable = bind_this<ret_type, Args...>(*(typename func_type<Class, ret_type, Args...>::result_type*)_callable_obj, cls); //为成员函数绑定this
-		_thread = new std::thread(std::bind(&thread<Callable, Derived>::_run<Args...>, this, args...));
+		_callable = bind_this<ret_type, _ArgTypes...>(*(typename func_type<_Class, ret_type, _ArgTypes...>::result_type*)_callable_obj, cls); //为成员函数绑定this
+		_thread = new std::thread(std::bind(&thread<_Callable, _Derived>::_run<_ArgTypes...>, this, args...));
 		END:
 		_state = thread_state::RUNNING;
 		switch(_work_state)
@@ -331,11 +331,11 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_suspended)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), before_suspended)::result)
 				_before_suspended();
 			should_pause = true;
 			_state = thread_state::SUSPENDED;
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_suspended)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), after_suspended)::result)
 				_after_suspended();
 			return true;
 		}
@@ -346,12 +346,12 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_resume)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), before_resume)::result)
 				_before_resume();
 			should_pause = false;
 			_condition.notify_all();
 			_state = thread_state::RUNNING;
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_resume)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), after_resume)::result)
 				_after_resume();
 			return true;
 		}
@@ -365,14 +365,14 @@ public:
 	{
 		if(_thread && should_loop())
 		{
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), before_stop)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), before_stop)::result)
 				_before_stop();
 			should_pause = false;
 			should_stop = true;
 			_condition.notify_all();
 			_thread->join();
 			exit();
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(), after_stop)::result)
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(), after_stop)::result)
 				_after_stop();
 			return true;
 		}

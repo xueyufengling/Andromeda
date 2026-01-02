@@ -4,6 +4,7 @@
 #include <andromeda/common/array.h>
 #include <andromeda/common/log.h>
 #include <functional>
+#include <vector>
 
 extern "C"
 {

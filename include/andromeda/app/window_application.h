@@ -18,26 +18,26 @@ namespace andromeda
 {
 namespace app
 {
-template<typename Derived>
-class window_application: public window, public andromeda::app::application<Derived>
+template<typename _Derived>
+class window_application: public window, public andromeda::app::application<_Derived>
 {
-	ConstructApplication(Derived)
+	ConstructApplication(_Derived)
 
 private:
-	using andromeda::app::application<Derived>::is_running;
-	using andromeda::app::application<Derived>::synchronize_fps;
-	using andromeda::app::application<Derived>::app_main_loop_thread;
+	using andromeda::app::application<_Derived>::is_running;
+	using andromeda::app::application<_Derived>::synchronize_fps;
+	using andromeda::app::application<_Derived>::app_main_loop_thread;
 	frame_rate render_frame_rate; //渲染循环计数器
 	andromeda::graphics::framebuffer framebuffer; //双缓冲
 	int render_fps_limit = andromeda::app::frame_rate::UNLIMITED;
 	int update_rate_limit = andromeda::app::frame_rate::UNLIMITED;
 
-	using andromeda::app::application<Derived>::_initialize;
-	using andromeda::app::application<Derived>::_preinitialize;
-	using andromeda::app::application<Derived>::_terminate;
-	using andromeda::app::application<Derived>::_update;
-	using andromeda::app::application<Derived>::_render_update;
-	using andromeda::app::application<Derived>::swap;
+	using andromeda::app::application<_Derived>::_initialize;
+	using andromeda::app::application<_Derived>::_preinitialize;
+	using andromeda::app::application<_Derived>::_terminate;
+	using andromeda::app::application<_Derived>::_update;
+	using andromeda::app::application<_Derived>::_render_update;
+	using andromeda::app::application<_Derived>::swap;
 
 protected:
 	render_system render_sys;
@@ -99,7 +99,7 @@ public:
 			//渲染
 			framebuffer.bind_this();
 			framebuffer.clear_all_buffers();
-			if(is_class<Derived>::result && exist_memb_with_type(Derived, void(float), render_update)::result) //如果子类没有render_update()则此调用将优化掉
+			if(is_class<_Derived>::result && exist_memb_with_type(_Derived, void(float), render_update)::result) //如果子类没有render_update()则此调用将优化掉
 				_render_update(render_frame_rate.get_tpf());
 			framebuffer.blit_to_screen();
 			glfwSwapBuffers(*this);
@@ -143,8 +143,8 @@ public:
 			render_frame_rate.set_fps_limit(andromeda::app::frame_rate::UNLIMITED);
 	}
 
-	using application<Derived>::get_update_rate;
-	using application<Derived>::get_update_rate_count; //获取当前所在帧
+	using application<_Derived>::get_update_rate;
+	using application<_Derived>::get_update_rate_count; //获取当前所在帧
 
 	using window::set_back_color;
 	using window::get_back_color;
