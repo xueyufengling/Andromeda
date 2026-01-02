@@ -1,7 +1,8 @@
 #include <andromeda/app/frame_rate.h>
 
-#include <thread>
 #include <andromeda/common/log.h>
+
+#include <thread>
 
 using namespace andromeda::app;
 using namespace andromeda::common;
@@ -42,7 +43,7 @@ void frame_rate::calc()
 		previous_time += std::chrono::nanoseconds(tpf_max_limit_nano);
 		std::chrono::nanoseconds sleep_time = std::chrono::nanoseconds(tpf_max_limit_nano - tpf_nano_sec); //sleep()以后浪费的额外时间算入下一帧花费的时间，保证每帧起始时间点都是tpf_limit的整数倍
 #if DEBUG
-		LogDebug("frame_rate limit: ", fps_limit, ", sleep for ", (sleep_time.count()/1E6), "ms");
+		LogDebugInfo("frame_rate limit: ", fps_limit, ", sleep for ", (sleep_time.count()/1E6), "ms");
 #endif
 		if((sleep_time.count() > 0))
 		{

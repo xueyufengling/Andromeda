@@ -1,6 +1,9 @@
 #ifndef ANDROMEDA_GRAPHICS_GLBASIC
 #define ANDROMEDA_GRAPHICS_GLBASIC
 
+#include "../common/bindable_object.h"
+#include "../common/lib_call.h"
+
 #if defined (_WIN32) || defined (_WIN64)
 #include <windows.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -18,9 +21,6 @@ extern "C"
  * @brief OpenGL中的指针形式零索引
  */
 #define GL_ZERO_INDEX ((GLsizei*)0)
-
-#include "../common/bindable_object.h"
-#include "../common/lib_call.h"
 
 decl_libcall(gl, GLenum, glGetError, GL_NO_ERROR)
 

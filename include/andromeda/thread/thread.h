@@ -1,6 +1,7 @@
 #ifndef ANDROMEDA_THREAD_THREAD
 #define ANDROMEDA_THREAD_THREAD
 
+#include "../common/signals.h"
 #include <functional>
 #include <thread>
 #include <atomic>

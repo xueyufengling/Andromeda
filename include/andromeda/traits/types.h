@@ -18,7 +18,9 @@ __attribute__((always_inline)) inline constexpr _T1& cast(_T2&& rv)
 	return *(_T1*)(&(const _T2&)rv);
 }
 
-//判断两个类型是否相同
+/**
+ * @brief 判断两个类型是否相同
+ */
 template<typename _T1, typename _T2>
 struct type_equal
 {
@@ -95,7 +97,7 @@ struct return_type
 };
 
 /**
- * @brief 判断_Cond是否为true，如果是则result_type类型为_TrueType，否则为_FalseType
+ * @brief 条件判断和相关功能
  */
 template<bool _Cond>
 struct _if
@@ -110,6 +112,7 @@ struct _if<true>
 
 	/**
 	 * @brief 可用于选择性实例化类模板
+	 * 		  判断_Cond是否为true，如果是则result_type类型为_TrueType，否则为_FalseType
 	 */
 	template<typename _TrueType, typename _FalseType = _TrueType>
 	struct resolve_type

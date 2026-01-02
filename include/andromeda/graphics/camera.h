@@ -1,10 +1,10 @@
 #ifndef ANDROMEDA_GRAPHICS_CAMERA
 #define ANDROMEDA_GRAPHICS_CAMERA
 
+#include "framebuffer.h"
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../math/transform.h"
-#include "framebuffer.h"
 #include "../app/window.h"
 
 namespace andromeda

@@ -1,7 +1,6 @@
-#include <andromeda/common/string_utils.h>
 #include <andromeda/graphics/vertex_attribute.h>
 
-#include<string>
+#include <andromeda/common/string_utils.h>
 
 using namespace andromeda::graphics;
 using namespace andromeda::common;

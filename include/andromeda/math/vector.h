@@ -1,303 +1,303 @@
-#ifndef ANDROMEDA_MATH_VECTOR
-#define ANDROMEDA_MATH_VECTOR
+#ifndef ANDROMEDA_MA_TH_VEC_TOR
+#define ANDROMEDA_MA_TH_VEC_TOR
 
-#include <type_traits>
+#include "../traits/types.h"
 #include <math.h>
 #include <malloc.h>
+
+#include "../common/signals.h"
 #include <sstream>
 
 namespace andromeda
 {
 namespace math
 {
-template<int Dim, typename T = float>
-class vector //列向量，初始化使用Vector vec={x,y,z,w...};
+template<size_t _Dim, typename _T = float>
+class vector //列向量，初始化使用vector vec={x,y,z,w...};
 {
 public:
-	T coord[Dim];
-	typedef T type;
-	static const int dim = Dim;
+	_T coord[_Dim];
+	typedef _T type;
+	static const size_t dim = _Dim;
 
-	inline operator T*()
+	inline operator _T*()
 	{
 		return coord;
 	}
 
-	template<typename T2>
-	inline operator vector<Dim,T2>()
+	template<typename _T2>
+	inline operator vector<_Dim,_T2>()
 	{
-		vector<Dim, T2> cast_result;
-		for(int i = 0; i < Dim; ++i)
-			cast_result[i] = (T2)coord[i];
+		vector<_Dim, _T2> cast_result;
+		for(int i = 0; i < _Dim; ++i)
+			cast_result[i] = (_T2)coord[i];
 		return cast_result;
 	}
 
-	inline T& operator[](int i)
+	inline _T& operator[](int i)
 	{
 		return coord[i];
 	}
 
-	inline operator std::string() //转化为字符串
-	{
-		return toString();
-	}
-
-	inline operator const char*() //转化为C字符串
-	{
-		return toString().c_str();
-	}
-
-	template<typename T2>
-	inline vector<Dim, decltype(std::declval<T>()+std::declval<T2>())> operator +(vector<Dim, T2>& v)
+	template<typename _T2>
+	inline vector<_Dim, decltype(decl<_T>::val()+decl<_T2>::val())> operator+(vector<_Dim, _T2>& v)
 	{
 		return add(v);
 	}
 
-	template<typename T2>
-	inline vector<Dim, decltype(std::declval<T>()-std::declval<T2>())> operator -(vector<Dim, T2>& v)
+	template<typename _T2>
+	inline vector<_Dim, decltype(decl<_T>::val()-decl<_T2>::val())> operator-(vector<_Dim, _T2>& v)
 	{
 		return sub(v);
 	}
 
-	inline vector<Dim, T> operator-()
+	inline vector<_Dim, _T> operator-()
 	{
-		vector<Dim, T> minus;
-		for(int i = 0; i < Dim; ++i)
+		vector<_Dim, _T> minus;
+		for(int i = 0; i < _Dim; ++i)
 			minus[i] = -coord[i];
 		return minus;
 	}
 
-	template<typename T2>
-	vector<Dim, decltype(std::declval<T>()*std::declval<T2>())> operator *(T2 t)
+	template<typename _T2>
+	vector<_Dim, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(_T2 t)
 	{
 		return mul(t);
 	}
 
-	template<typename T2>
-	inline auto operator *(vector<Dim, T2> v) -> decltype(std::declval<T>()*std::declval<T2>())
+	template<typename _T2>
+	inline auto operator*(vector<_Dim, _T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val())
 	{
 		return dot(v);
 	}
 
-	template<typename T2>
-	vector<Dim, decltype(std::declval<T>()/std::declval<T2>())> operator /(T2 t)
+	template<typename _T2>
+	vector<_Dim, decltype(decl<_T>::val()/decl<_T2>::val())> operator/(_T2 t)
 	{
 		return div(t);
 	}
 
-	template<typename T2>
-	auto dot(vector<Dim, T2> v) -> decltype(std::declval<T>()*std::declval<T2>()) //点乘
+	template<typename _T2>
+	auto dot(vector<_Dim, _T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val()) //点乘
 	{
-		decltype(std::declval<T>()*std::declval<T2>()) dot_result = 0;
-		for(int i = 0; i < Dim; ++i)
+		decltype(decl<_T>::val()*decl<_T2>::val()) dot_result = 0;
+		for(size_t i = 0; i < _Dim; ++i)
 			dot_result += coord[i] * v.coord[i];
 		return dot_result;
 	}
 
-	auto len() -> decltype(std::sqrt(std::declval<decltype(std::declval<T>()*std::declval<T>())>())) //矢量长度
+	auto len() -> decltype(std::sqrt(std::declval<decltype(decl<_T>::val()*decl<_T>::val())>())) //矢量长度
 	{
 		return std::sqrt(dot(*this));
 	}
 
-	vector<Dim, decltype(std::declval<T>()/std::declval<decltype(((vector<Dim,T>*)0)->len())>())> unit() //单位矢量
+	vector<_Dim, decltype(decl<_T>::val()/std::declval<decltype(((vector<_Dim,_T>*)0)->len())>())> unit() //单位矢量
 	{
 		return div(len());
 	}
 
-	template<typename T2>
-	vector<Dim, decltype(std::declval<T>()*std::declval<T2>())> mul(T2 t) //数乘
+	template<typename _T2>
+	vector<_Dim, decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
 	{
-		vector<Dim, decltype(std::declval<T>()*std::declval<T2>())> mul_result;
-		for(int i = 0; i < Dim; ++i)
+		vector<_Dim, decltype(decl<_T>::val()*decl<_T2>::val())> mul_result;
+		for(size_t i = 0; i < _Dim; ++i)
 			mul_result[i] = coord[i] * t;
 		return mul_result;
 	}
 
-	template<typename T2>
-	vector<Dim, decltype(std::declval<T>()/std::declval<T2>())> div(T2 t) //除法
+	template<typename _T2>
+	vector<_Dim, decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
 	{
-		vector<Dim, decltype(std::declval<T>()/std::declval<T2>())> div_result;
-		for(int i = 0; i < Dim; ++i)
+		vector<_Dim, decltype(decl<_T>::val()/decl<_T2>::val())> div_result;
+		for(int i = 0; i < _Dim; ++i)
 			div_result[i] = coord[i] / t;
 		return div_result;
 	}
 
-	template<typename T2>
-	vector<Dim, decltype(std::declval<T>()+std::declval<T2>())> add(vector<Dim, T2>& v)
+	template<typename _T2>
+	vector<_Dim, decltype(decl<_T>::val()+decl<_T2>::val())> add(vector<_Dim, _T2>& v)
 	{
-		vector<Dim, decltype(std::declval<T>()+std::declval<T2>())> add_result;
-		for(int i = 0; i < Dim; ++i)
+		vector<_Dim, decltype(decl<_T>::val()+decl<_T2>::val())> add_result;
+		for(int i = 0; i < _Dim; ++i)
 			add_result[i] = coord[i] + v.coord[i];
 		return add_result;
 	}
 
-	template<typename T2>
-	vector<Dim, decltype(std::declval<T>()-std::declval<T2>())> sub(vector<Dim, T2>& v)
+	template<typename _T2>
+	vector<_Dim, decltype(decl<_T>::val()-decl<_T2>::val())> sub(vector<_Dim, _T2>& v)
 	{
-		vector<Dim, decltype(std::declval<T>()-std::declval<T2>())> sub_result;
-		for(int i = 0; i < Dim; ++i)
+		vector<_Dim, decltype(decl<_T>::val()-decl<_T2>::val())> sub_result;
+		for(int i = 0; i < _Dim; ++i)
 			sub_result[i] = coord[i] - v.coord[i];
 		return sub_result;
 	}
 
-	static vector<Dim, T> zero()
+	static vector<_Dim, _T> zero()
 	{
-		vector<Dim, T> zero_vec;
-		memset(&zero_vec.coord, 0, Dim * sizeof(T));
+		vector<_Dim, _T> zero_vec;
+		memset(&zero_vec.coord, 0, _Dim * sizeof(_T));
 		return zero_vec;
 	}
 
-	std::string toString()
+	operator std::string()
 	{
 		std::ostringstream oss;
-		oss << '(' << coord[0];
-		for(int i = 1; i < Dim; ++i)
-			oss << ',' << coord[i];
+		oss << '(';
+		for(size_t i = 0; i < _Dim; ++i)
+		{
+			oss << coord[i];
+			if(i < _Dim - 1)
+				oss << ',';
+		}
 		oss << ')';
 		return oss.str();
 	}
 };
 
-template<typename T>
-class vector<3, T> //初始化使用Vector vec={x,y,z};特化版有叉乘运算
+template<typename _T>
+class vector3: public vector<3, _T>
 {
 public:
-	T coord[3];
-	typedef T type;
-	static const int dim = 3;
+	using vector<3, _T>::coord;
 
-	inline operator T*()
+	vector3(_T x = 0, _T y = 0, _T z = 0)
 	{
-		return (T*)&coord;
+		coord[0] = x;
+		coord[1] = y;
+		coord[2] = z;
 	}
 
-	template<typename T2>
-	inline operator vector<3,T2>()
+	inline operator _T*()
+	{
+		return (_T*)&coord;
+	}
+
+	template<typename _T2>
+	inline operator vector3<_T2>()
 	{
 		return
-		{	(T2)coord[0],(T2)coord[1],(T2)coord[2]};
+		{	(_T2)coord[0],(_T2)coord[1],(_T2)coord[2]};
 	}
 
-	inline T& operator[](int i)
+	template<typename _T2>
+	inline operator vector<3, _T2>()
+	{
+		return
+		{	(_T2)coord[0],(_T2)coord[1],(_T2)coord[2]};
+	}
+
+	template<typename _T2>
+	inline vector3<_T>& operator=(const vector<3, _T2>& vec)
+	{
+		coord[0] = (_T)coord[0];
+		coord[1] = (_T)coord[1];
+		coord[2] = (_T)coord[2];
+		return *this;
+	}
+
+	inline _T& operator[](int i)
 	{
 		return coord[i];
 	}
 
-	inline operator std::string() //转化为字符串
-	{
-		return toString();
-	}
-
-	inline operator const char*() //转化为C字符串
-	{
-		return toString().c_str();
-	}
-
-	template<typename T2>
-	inline vector<3, decltype(std::declval<T>()+std::declval<T2>())> operator +(vector<3, T2>& v)
+	template<typename _T2>
+	inline vector3<decltype(decl<_T>::val()+decl<_T2>::val())> operator+(vector3<_T2>& v)
 	{
 		return add(v);
 	}
 
-	template<typename T2>
-	inline vector<3, decltype(std::declval<T>()-std::declval<T2>())> operator -(vector<3, T2>& v)
+	template<typename _T2>
+	inline vector3<decltype(decl<_T>::val()-decl<_T2>::val())> operator-(vector3<_T2>& v)
 	{
 		return sub(v);
 	}
 
-	inline vector<3, T> operator-()
+	inline vector3<_T> operator-()
 	{
 		return
 		{	-coord[0],-coord[1],-coord[2]};
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()*std::declval<T2>())> operator *(T2 t)
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()*decl<_T2>::val())> operator*(_T2 t)
 	{
 		return mul(t);
 	}
 
-	template<typename T2>
-	inline auto operator *(vector<3, T2> v) -> decltype(std::declval<T>()*std::declval<T2>())
+	template<typename _T2>
+	inline auto operator*(vector3<_T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val())
 	{
 		return dot(v);
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()/std::declval<T2>())> operator /(T2 t)
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()/decl<_T2>::val())> operator/(_T2 t)
 	{
 		return div(t);
 	}
 
-	template<typename T2>
-	auto dot(vector<3, T2> v) -> decltype(std::declval<T>()*std::declval<T2>()) //点乘
+	template<typename _T2>
+	auto dot(vector3<_T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val()) //点乘
 	{
 		return coord[0] * v.coord[0] + coord[1] * v.coord[1] + coord[2] * v.coord[2];
 	}
 
-	auto len() -> decltype(std::sqrt(std::declval<decltype(std::declval<T>()*std::declval<T>())>())) //矢量长度
+	auto len() -> decltype(std::sqrt(std::declval<decltype(decl<_T>::val()*decl<_T>::val())>())) //矢量长度
 	{
 		return std::sqrt(dot(*this));
 	}
 
-	vector<3, decltype(std::declval<T>()/std::declval<decltype(((vector<3,T>*)0)->len())>())> unit() //单位矢量
+	vector3<decltype(decl<_T>::val()/std::declval<decltype(((vector3<_T>*)0)->len())>())> unit() //单位矢量
 	{
 		return div(len());
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()*std::declval<T2>())> mul(T2 t) //数乘
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
 	{
 		return
 		{	coord[0]*t,coord[1]*t,coord[2]*t};
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()/std::declval<T2>())> div(T2 t) //除法
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
 	{
 		return
 		{	coord[0]/t,coord[1]/t,coord[2]/t};
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()+std::declval<T2>())> add(vector<3, T2>& v)
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()+decl<_T2>::val())> add(vector3<_T2>& v)
 	{
 		return
 		{	coord[0]+v.coord[0],coord[1]+v.coord[1],coord[2]+v.coord[2]};
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()-std::declval<T2>())> sub(vector<3, T2>& v)
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()-decl<_T2>::val())> sub(vector3<_T2>& v)
 	{
 		return
 		{	coord[0]-v.coord[0],coord[1]-v.coord[1],coord[2]-v.coord[2]};
 	}
 
-	template<typename T2>
-	vector<3, decltype(std::declval<T>()*std::declval<T2>())> cross(vector<3, T2>& v) //叉乘
+	template<typename _T2>
+	vector3<decltype(decl<_T>::val()*decl<_T2>::val())> cross(vector3<_T2>& v) //叉乘
 	{
 		return
 		{	coord[1]*v.coord[2]-coord[2]*v.coord[1],coord[2]*v.coord[0]-coord[0]*v.coord[2],coord[0]*v.coord[1]-coord[1]*v.coord[0]};
 	}
 
-	static vector<3, T> zero()
+	static vector3<_T> zero()
 	{
 		return
 		{	0,0,0};
 	}
-
-	std::string toString()
-	{
-		std::ostringstream oss;
-		oss << '(' << coord[0] << ',' << coord[1] << ',' << coord[2] << ')';
-		return oss.str();
-	}
 };
 
-using vector2f=vector<2,float>;
-using vector3f=vector<3,float>;
-using Vector4f=vector<4,float>;
+using vector2f=vector<2, float>;
+using vector3f=vector3<float>;
+using Vector4f=vector<4, float>;
 }
 }
 
-#endif//ANDROMEDA_MATH_VECTOR
+#endif//ANDROMEDA_MA_TH_VEC_TOR

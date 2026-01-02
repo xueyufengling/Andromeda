@@ -1,8 +1,7 @@
 #ifndef ANDROMEDA_IO_FILES
 #define ANDROMEDA_IO_FILES
 
-#include <fstream>
-#include <string.h>
+#include <string>
 
 #include "paths.h"
 
@@ -42,12 +41,7 @@ extern void append_string_newline(const std::string filename, const std::string&
 
 extern std::string directory_of(const std::string file_path);
 
-inline void clear(const std::string file_name)
-{
-	std::ofstream f(file_name, std::ios::out | std::ios::binary);
-	f.write(nullptr, 0);
-	f.close();
-}
+extern void clear(const std::string file_name);
 
 enum csv_option : unsigned char
 {

@@ -1,8 +1,10 @@
 #ifndef ANDROMEDA_COMMON_STRINGUTILS
 #define ANDROMEDA_COMMON_STRINGUTILS
 
+#include "signals.h"
 #include "../io/paths.h"
 #include "../traits/macros.h"
+#include "array.h"
 
 #ifdef __FILE__
 #define __FILE_STRING__ __FILE__
@@ -23,8 +25,6 @@
 #include <string>
 #include <chrono>
 #include <ctime>
-
-#include <andromeda/common/array.h>
 
 template<typename T>
 std::string to_string(const T& value);
@@ -115,6 +115,9 @@ __attribute__((always_inline)) inline std::string to_string<char const*>(char co
 	return std::string(value);
 }
 
+/**
+ * 字符串拼接
+ */
 __attribute__((always_inline)) inline void _string_cat(std::stringstream& ss)
 {
 }

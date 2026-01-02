@@ -2,6 +2,15 @@
 #define ANDROMEDA_COMMON_SIGNALS
 
 /**
+ * 为了获取完整的POSIX信号，<signal.h>必须由本头文件第一个引入，否则部分POSIX信号将没有宏定义。
+ * 最典型的例如<thread>、<istream>、<ostream>等就会引入<signal.h>，因此此头文件必须在这些头文件之前引入。
+ */
+#ifdef _INC_SIGNAL
+#define __SIGNAL_H_ALMOST_INCLUDED__
+#error "<andromeda/common/signals.h> must be included before any other header files that including <signal.h>"
+#endif
+
+/**
  * 拓展了系统信号处理，不可再使用C/C++原本自带的信号处理，尤其是不可再更改信号的自定义处理函数
  */
 
@@ -35,6 +44,7 @@ enum system_signal : int
 	SIG_ABRT = SIGABRT, //Abnormal termination，非正常终止，例如abort()
 	SIG_ABRT2 = SIGABRT2,
 	//POSIX
+#ifndef __SIGNAL_H_ALMOST_INCLUDED__
 	SIG_HUP = SIGHUP, //Hangup，POSIX独有
 	SIG_QUIT = SIGQUIT, //Quit，POSIX独有
 	SIG_TRAP = SIGTRAP, //Trace trap，POSIX独有
@@ -44,7 +54,8 @@ enum system_signal : int
 	SIG_BUS = SIGBUS, //Bus error，POSIX独有
 	SIG_SYS = SIGSYS, //Bad argument to system call，POSIX独有
 	SIG_PIPE = SIGPIPE, //只写入pipe无程序读取，POSIX独有
-	//SIG_ALRM = SIGALRM, //Alarm clock，POSIX独有
+	SIG_ALRM = SIGALRM, //Alarm clock，POSIX独有
+#endif
 };
 
 #ifdef __USE_MINGW_ALARM_FOR_SIG__

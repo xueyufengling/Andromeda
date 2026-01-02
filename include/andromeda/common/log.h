@@ -1,7 +1,12 @@
 #ifndef ANDROMEDA_COMMON_LOG
 #define ANDROMEDA_COMMON_LOG
 
-#include <andromeda/common/object.h>
+/**
+ * @brief 日志记录类。对于需要引入此头文件的文件，需要将#include <andromeda/common/log.h>放在任何其他引用之前，防止<andromeda/common/signals.h>编译断言失败
+ */
+
+#include "signals.h"
+#include "object.h"
 #include <iostream>
 
 #include "string_utils.h"
@@ -189,7 +194,7 @@ extern universal_logger* process_logger;
  * @brief 自定义日志头的文件位置，使用时传入参数必须是__log_header__6(level, level_str, __log_source__)
  * 		  __log_source__会在传入前展开，因此参数列表会变为6个
  */
-#define __log_header__6(level, level_str, source_file_name, source_line, source_func_name, source_func_paren) andromeda::common::log_level::level, "[", std::chrono::system_clock::now(), "] [" __str__(level_str) "] ", source_file_name, source_line, source_func_name, source_func_paren, ": "
+#define __log_header__6(level, level_str, source_file_name, source_line, source_func_name, source_func_paren) level, "[", std::chrono::system_clock::now(), "] [" level_str "] ", source_file_name, source_line, source_func_name, source_func_paren, ": "
 #define __log_header__3(level, level_str, log_source) __log_header__6(level, level_str, log_source)
 #define __log_header__2(level, level_str) __log_header__6(level, level_str, __log_source__)
 
@@ -204,28 +209,28 @@ extern universal_logger* process_logger;
 		}
 
 #define LogSourceDebugInfoTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_DEBUG_INFO, DEBUG_INFO, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_DEBUG_INFO, "DEBUG_INFO", log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugWarnTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_DEBUG_WARN, DEBUG_WARN, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_DEBUG_WARN, "DEBUG_WARN", log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugErrorTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_DEBUG_ERROR, DEBUG_ERROR, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_DEBUG_ERROR, "DEBUG_ERROR", log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugFatalTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_DEBUG_FATAL, DEBUG_FATAL, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_DEBUG_FATAL, "DEBUG_FATAL", log_source, ##__VA_ARGS__)
 
 #define LogSourceInfoTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_INFO, INFO, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_INFO, "INFO", log_source, ##__VA_ARGS__)
 
 #define LogSourceWarnTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_WARN, WARN, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_WARN, "WARN", log_source, ##__VA_ARGS__)
 
 #define LogSourceErrorTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_ERROR, ERROR, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_ERROR, "ERROR", log_source, ##__VA_ARGS__)
 
 #define LogSourceFatalTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, LOG_FATAL, FATAL, log_source, ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, andromeda::common::log_level::LOG_FATAL, "FATAL", log_source, ##__VA_ARGS__)
 
 #define LogDebugInfoTo(logger_ptr, ...)\
 		LogSourceDebugInfoTo(logger_ptr, __log_source__, ##__VA_ARGS__)

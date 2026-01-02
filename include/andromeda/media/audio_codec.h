@@ -1,9 +1,9 @@
 #ifndef ANDROMEDA_MEDIA_AUDIOCODEC
 #define ANDROMEDA_MEDIA_AUDIOCODEC
 
-#include <fstream>
 #include "codec.h"
 #include "pcm_audio.h"
+
 
 namespace andromeda
 {

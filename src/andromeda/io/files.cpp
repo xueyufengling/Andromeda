@@ -1,5 +1,7 @@
 #include <andromeda/io/files.h>
 
+#include <andromeda/common/log.h>
+
 #include <fstream>
 #include <iostream>
 #include <string.h>
@@ -12,8 +14,6 @@ using namespace std::filesystem;
 #include <experimental/filesystem>
 using namespace std::experimental::filesystem;
 #endif
-
-#include <andromeda/common/log.h>
 
 unsigned char* andromeda::io::read(const std::string filename, size_t* data_length, long long int read_length, size_t reserve_length)
 {
@@ -69,6 +69,13 @@ void andromeda::io::append_string_newline(const std::string filename, const std:
 	std::ofstream file(u8path(filename).generic_u8string(), std::ios::app);
 	file << '\n' << str;
 	file.close();
+}
+
+void andromeda::io::clear(const std::string file_name)
+{
+	std::ofstream f(file_name, std::ios::out | std::ios::binary);
+	f.write(nullptr, 0);
+	f.close();
 }
 
 std::string andromeda::io::directory_of(const std::string file_path)

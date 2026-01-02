@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_COMMON_OBJECTVAL
-#define ANDROMEDA_COMMON_OBJECTVAL
+#ifndef ANDROMEDA_COMMON_OBJECT
+#define ANDROMEDA_COMMON_OBJECT
 
 #include <stdint.h>
 #include <typeinfo>
@@ -145,4 +145,4 @@ public:
 	}
 };
 
-#endif //ANDROMEDA_COMMON_OBJECTVAL
+#endif //ANDROMEDA_COMMON_OBJECT
