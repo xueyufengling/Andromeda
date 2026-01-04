@@ -11,7 +11,7 @@ struct bind_this
 {
 	static std::function<RetType(ArgsType...)> bind(typename func_type<Class, RetType, ArgsType...>::result_type func, Class* cls)
 	{
-		return [=](ArgsType&& ... args)
+		return [&](ArgsType&& ... args)
 			{
 				return (cls->*func)(std::forward<decltype(args)>(args)...);
 			};
@@ -24,7 +24,7 @@ struct bind_this<void, RetType, ArgsType...>
 {
 	std::function<RetType(ArgsType...)> bind(typename func_type<void, RetType, ArgsType...>::result_type func, void* cls = nullptr)
 	{
-		return [=](ArgsType&& ... args)
+		return [&](ArgsType&& ... args)
 			{
 				return (*func)(std::forward<decltype(args)>(args)...);
 			};

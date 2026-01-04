@@ -1,8 +1,14 @@
 #ifndef ANDROMEDA_INTERNAL_EXEC
 #define ANDROMEDA_INTERNAL_EXEC
 
+/**
+ * 此头文件依赖于dlfcn包，该包为Unix系统提供，Windows下需要在MinGW中使用下列指令安装
+ * pacman -S mingw-w64-x86_64-dlfcn
+ * 编译可执行文件时，需要添加-export-dynamic导出符号供查询，链接时需要添加-ldl，其库文件位于msys64/mingw64/lib/libdl.a
+ */
 #include "../traits/types.h"
 #include <typeinfo>
+#include <malloc.h>
 #include <unwind.h>
 
 #define __DEFAULT_STEP_DEPTH__ 256
@@ -98,6 +104,9 @@ enum unwind_action
 	UNWIND_STOP = _Unwind_Reason_Code::_URC_END_OF_STACK, //停止遍历栈帧
 };
 
+/**
+ * @brief 调用栈的栈帧信息
+ */
 typedef struct call_stack
 {
 	/**
@@ -183,13 +192,13 @@ typedef struct symbol_info
 {
 	const char* binary_path = nullptr; //符号所属二进制文件路径
 	const char* symbol_name = nullptr; //符号名称，如果是C++名称则是mangled name
-	void* base = nullptr; //符号所属二进制文件的基地址
+	void* base = nullptr; //符号所属二进制文件的.text段基地址，等同于text_segment_base(unwind_frame)
 	void* address = nullptr; //符号地址
 
 	inline void clean()
 	{
-		delete[] binary_path;
-		delete[] symbol_name;
+		free((void*)binary_path);
+		free((void*)symbol_name);
 		binary_path = nullptr;
 		symbol_name = nullptr;
 	}

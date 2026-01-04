@@ -1,8 +1,7 @@
 #include <andromeda/internal/exec.h>
 
-#include <andromeda/platform/platform_libcall.h>
 #include <andromeda/log/log.h>
-#include <malloc.h>
+#include <dlfcn.h>
 #include <string.h>
 #include <cxxabi.h>
 #include <new>
@@ -47,13 +46,11 @@ unwind_action call_stack::unwind(unwind_op op, void* arg, size_t step_depth, siz
 	return (unwind_action)_Unwind_Backtrace(&_unwind_callback, &iter);
 }
 
-#include <iostream>
 static unwind_action _unwind_ip_op(unwind_frame context, void* _call_stack_ptr, int step_depth, int frame_depth)
 {
 	call_stack* _call_stack = (call_stack*)_call_stack_ptr;
 	_call_stack->frame_count = frame_depth + 1;
 	_call_stack->instruction_pointers[frame_depth] = get_frame_ip(context);
-	std::cout << std::dec << frame_depth << " -> base = " << text_segment_base(context) << ", ip = " << (_call_stack->instruction_pointers[frame_depth]) << ", offset = " << std::hex << (text_segment_offset(context)) << std::endl;
 	return unwind_action::UNWIND_CONTINUE;
 }
 
@@ -72,71 +69,17 @@ void call_stack::clean()
 	instruction_pointers = nullptr;
 }
 
-#if defined (_WIN32) || defined (_WIN64)
-
-#include <windows.h>
-#include <dbghelp.h>
-#include <psapi.h>
-
-HANDLE symbol_processs_handle;
-size_t symbol_name_max_len = 512;
-
-__attribute__((constructor, used)) static void _win_symbol_lib_init()
-{
-	symbol_processs_handle = win_GetCurrentProcess();
-	win_SymInitialize(symbol_processs_handle, nullptr, false);
-}
-
-__attribute__((destructor, used)) static void _win_symbol_lib_term()
-{
-	win_SymCleanup(symbol_processs_handle);
-	symbol_processs_handle = NULL;
-}
-
-symbol_info symbol_info::resolve(void* symbol_addr)
-{
-	symbol_info _symbol_info;
-	size_t _win_symbol_info_size = sizeof(SYMBOL_INFO) + sizeof(TCHAR) * (symbol_name_max_len - 1); //多余的空间为结构体末端Name字段的缓冲区
-	SYMBOL_INFO* _win_symbol_info = (SYMBOL_INFO*)malloc(_win_symbol_info_size); //SYMBOL_INFO是动态大小的结构体，不能使用new分配
-	_win_symbol_info->SizeOfStruct = _win_symbol_info_size;
-	_win_symbol_info->MaxNameLen = symbol_name_max_len;
-	if(win_SymFromAddr(symbol_processs_handle, (DWORD64 )symbol_addr, nullptr, _win_symbol_info))
-	{
-		_symbol_info.symbol_name = strcpy(new char[_win_symbol_info->NameLen + 1], _win_symbol_info->Name);
-		_symbol_info.base = (void*)_win_symbol_info->ModBase;
-		_symbol_info.address = (void*)_win_symbol_info->Address;
-	}
-	free(_win_symbol_info); //查询符号信息结束后释放结构体内存
-	char* bin_path = new char[MAX_PATH];
-	if(win_GetModuleFileNameExA(symbol_processs_handle, nullptr, bin_path, MAX_PATH))
-	{
-		_symbol_info.binary_path = bin_path;
-	}
-	else
-	{
-		delete[] bin_path;
-	}
-	return _symbol_info;
-}
-
-#elif defined(__unix__) || defined(__unix) || defined(unix)
-
-#include <dlfcn.h>
-
 symbol_info symbol_info::resolve(void* symbol_addr)
 {
 	symbol_info _symbol_info;
 	Dl_info _dl_info;
 	if(dladdr(symbol_addr, &_dl_info))
 	{
-		_symbol_info.binary_path = info.dli_fname;
-		_symbol_info.symbol_name = info.dli_sname;
-		_symbol_info.base = (void*)info.dli_fbase;
-		_symbol_info.address = (void*)info.dli_saddr;
+		_symbol_info.binary_path = strcpy(new char[strlen(_dl_info.dli_fname) + 1], _dl_info.dli_fname); //线程不安全，需要拷贝
+		_symbol_info.symbol_name = _dl_info.dli_sname;
+		_symbol_info.base = (void*)_dl_info.dli_fbase;
+		_symbol_info.address = (void*)_dl_info.dli_saddr;
 	}
 	return _symbol_info;
 }
 
-#else
-#error "get_symbol_info() is not available in current system"
-#endif
