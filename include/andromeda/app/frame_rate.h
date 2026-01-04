@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_APP_FRAMERATE
 #define ANDROMEDA_APP_FRAMERATE
 
-#include <andromeda/common/timer.h>
+#include "../common/timer.h"
 #include <chrono>
 
 namespace andromeda

@@ -1,9 +1,9 @@
-#include <andromeda/common/log.h>
 #include <andromeda/graphics/framebuffer.h>
 
 #include <andromeda/graphics/shader_program.h>
 #include <andromeda/graphics/internal_shaders.h>
 #include <andromeda/graphics/vertex_attribute.h>
+#include <andromeda/log/log.h>
 
 using namespace andromeda::graphics;
 

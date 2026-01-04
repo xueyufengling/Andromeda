@@ -3,7 +3,8 @@
 
 #include "../traits/types.h"
 #include "../traits/call.h"
-#include "log.h"
+
+#include "../log/log.h"
 
 #define libcall_name(lib_name)__cat__(__libcall_, lib_name)
 

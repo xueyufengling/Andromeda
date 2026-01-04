@@ -3,7 +3,7 @@
 
 #include <atomic>
 
-#include "../common/log.h"
+#include "../log/log.h"
 #include "../thread/thread.h"
 #include "../thread/sequential_lock.h"
 #include "frame_rate.h"

@@ -1,4 +1,4 @@
-#include <andromeda/common/signals.h>
+#include <andromeda/internal/signals.h>
 
 #include <mutex>
 #include <deque>

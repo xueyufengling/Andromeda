@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_COMMON_SIGNALS
-#define ANDROMEDA_COMMON_SIGNALS
+#ifndef ANDROMEDA_INTERNAL_SIGNALS
+#define ANDROMEDA_INTERNAL_SIGNALS
 
 /**
  * 为了获取完整的POSIX信号，<signal.h>必须由本头文件第一个引入，否则部分POSIX信号将没有宏定义。
@@ -7,14 +7,14 @@
  */
 #ifdef _INC_SIGNAL
 #define __SIGNAL_H_ALMOST_INCLUDED__
-#error "<andromeda/common/signals.h> must be included before any other header files that including <signal.h>"
+#error "<andromeda/internal/signals.h> must be included before any other header files that including <signal.h>"
 #endif
 
 /**
  * 拓展了系统信号处理，不可再使用C/C++原本自带的信号处理，尤其是不可再更改信号的自定义处理函数
  */
 
-#include <andromeda/common/object.h>
+#include "object.h"
 
 //如果是非POSIX系统，则临时开启以初始化enum signal全部的信号
 #ifndef _POSIX
@@ -102,4 +102,4 @@ extern void handle_signal(system_signal sig, signal_handler handler, int priorit
  */
 extern __attribute__((constructor, used)) void init_signals_lib();
 
-#endif //ANDROMEDA_COMMON_SIGNALS
+#endif //ANDROMEDA_INTERNAL_SIGNALS

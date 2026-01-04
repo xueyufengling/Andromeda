@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_COMMON_STRINGUTILS
 #define ANDROMEDA_COMMON_STRINGUTILS
 
-#include "signals.h"
+#include "../internal/signals.h"
 #include "../io/paths.h"
 #include "../traits/macros.h"
 #include "array.h"
@@ -58,11 +58,14 @@ __attribute__((always_inline)) inline std::string to_string(const char& value)
 	return std::string(str);
 }
 
+/**
+ * @brief 将字节转换为十六进制数，不包含前置0x
+ */
 template<>
 inline std::string to_string(const unsigned char& value)
 {
 	std::stringstream ss;
-	ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(unsigned char)) << (unsigned int)value;
+	ss << std::hex << std::uppercase << std::setfill('0') << std::setw(2 * sizeof(unsigned char)) << (unsigned int)value;
 	return ss.str();
 }
 

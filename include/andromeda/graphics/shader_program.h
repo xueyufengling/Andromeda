@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_GRAPHICS_SHADERPROGRAM
 #define ANDROMEDA_GRAPHICS_SHADERPROGRAM
 
-#include <andromeda/common/string_utils.h>
+#include "../common/string_utils.h"
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "gl_basic.h"
@@ -147,17 +147,17 @@ public:
 
 		inline void set(const andromeda::math::vector3f vec3)
 		{
-			gl_Uniform1fv(var_loc, 3, (const GLfloat*)&vec3);
+			gl_Uniform1fv(var_loc, 3, (const GLfloat* )&vec3);
 		}
 
 		inline void set(const andromeda::math::matrix3x3f& mat3, bool transpose = false)
 		{
-			gl_UniformMatrix3fv(var_loc, 1, transpose, (const GLfloat*)&mat3);
+			gl_UniformMatrix3fv(var_loc, 1, transpose, (const GLfloat* )&mat3);
 		}
 
 		inline void set(const andromeda::math::matrix3x3f* mat3, bool transpose = false)
 		{
-			gl_UniformMatrix3fv(var_loc, 1, transpose, (const GLfloat*)mat3);
+			gl_UniformMatrix3fv(var_loc, 1, transpose, (const GLfloat* )mat3);
 		}
 	};
 

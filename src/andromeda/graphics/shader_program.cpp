@@ -1,5 +1,5 @@
-#include <andromeda/common/log.h>
 #include <andromeda/graphics/shader_program.h>
+#include <andromeda/log/log.h>
 
 using namespace andromeda::graphics;
 using namespace andromeda::math;

@@ -5,7 +5,7 @@
 #include <math.h>
 #include <malloc.h>
 
-#include "../common/signals.h"
+#include "../internal/signals.h"
 #include <sstream>
 
 namespace andromeda

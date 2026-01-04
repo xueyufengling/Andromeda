@@ -1,9 +1,9 @@
 #ifndef ANDROMEDA_GRAPHICS_RENDERABLE
 #define ANDROMEDA_GRAPHICS_RENDERABLE
 
-#include <andromeda/common/array.h>
 #include <map>
 #include <string>
+#include "../common/array.h"
 
 #include "gl_basic.h"
 #include "texture_2d.h"

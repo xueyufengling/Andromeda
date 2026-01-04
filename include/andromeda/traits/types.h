@@ -370,28 +370,34 @@ struct parameters_pack_at<_Index, parameters_pack<_Params...> >
  * @brief 值的种类判断
  */
 template<typename _T>
-inline constexpr type_classification type_classification_of(_T value)
+struct type_classification_of
 {
-	return type_classification::VALUE;
-}
+	static const type_classification result = type_classification::VALUE;
+};
 
 template<typename _RetType, typename ... _ArgTypes>
-inline constexpr type_classification type_classification_of(_RetType (*value)(_ArgTypes...))
+struct type_classification_of<_RetType(_ArgTypes...)>
 {
-	return type_classification::FUNCTION;
-}
+	static const type_classification result = type_classification::FUNCTION;
+};
+
+template<typename _RetType, typename ... _ArgTypes>
+struct type_classification_of<_RetType (*)(_ArgTypes...)>
+{
+	static const type_classification result = type_classification::FUNCTION;
+};
 
 template<typename _Class, typename _T>
-inline constexpr type_classification type_classification_of(_T _Class::*value)
+struct type_classification_of<_T _Class::*>
 {
-	return type_classification::MEMB_FIELD;
-}
+	static const type_classification result = type_classification::MEMB_FIELD;
+};
 
 template<typename _Class, typename _RetType, typename ... _ArgTypes>
-inline constexpr type_classification type_classification_of(_RetType (_Class::*value)(_ArgTypes...))
+struct type_classification_of<_RetType (_Class::*)(_ArgTypes...)>
 {
-	return type_classification::MEMB_FUNCTION;
-}
+	static const type_classification result = type_classification::MEMB_FUNCTION;
+};
 
 /**
  * @brief 将常量值转换成类型
@@ -399,7 +405,7 @@ inline constexpr type_classification type_classification_of(_RetType (_Class::*v
 template<typename _T, _T _Value>
 struct constexpr_value
 {
-	static const type_classification classification = type_classification_of(_Value);
+	static const type_classification classification = type_classification_of<_T>::result;
 
 	typedef _T result_type;
 	static constexpr result_type result = _Value;

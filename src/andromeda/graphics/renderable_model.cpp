@@ -1,5 +1,4 @@
 #include <andromeda/common/array.h>
-#include <andromeda/common/log.h>
 #include <andromeda/common/string_utils.h>
 #include <andromeda/graphics/renderable_model.h>
 
@@ -7,6 +6,7 @@
 #include <assimp/scene.h>
 
 #include <andromeda/io/files.h>
+#include <andromeda/log/log.h>
 
 using namespace andromeda::graphics;
 using namespace andromeda::common;

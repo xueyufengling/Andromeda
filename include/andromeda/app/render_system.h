@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_APP_RENDERSYS
 #define ANDROMEDA_APP_RENDERSYS
 
-#include <andromeda/common/array.h>
+#include "../common/array.h"
 #include <map>
 
 #include "window.h"

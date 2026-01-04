@@ -1,7 +1,7 @@
 #ifndef ANDROMEDA_GRAPHICS_VERTEXATTRIBUTE
 #define ANDROMEDA_GRAPHICS_VERTEXATTRIBUTE
 
-#include <andromeda/common/array.h>
+#include "../common/array.h"
 #include "gl_basic.h"
 
 #define VERTEX_ATTRIB_NAME_POSITION "position"
@@ -107,7 +107,7 @@ public:
 		for(size_t i = 0; i < attribs.length(); ++i)
 		{
 			vertex_attribute_info& attrib = attribs[i];
-			gl_VertexAttribPointer(attrib.index, attrib.num, attrib.type, attrib.normalized, vertex_size, (void*)(attrib.offset));
+			gl_VertexAttribPointer(attrib.index, attrib.num, attrib.type, attrib.normalized, vertex_size, (void* )(attrib.offset));
 			gl_EnableVertexAttribArray(attrib.index);
 			if(attrib.divisor)
 				gl_VertexAttribDivisor(attrib.index, attrib.divisor);

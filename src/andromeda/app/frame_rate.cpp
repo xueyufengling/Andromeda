@@ -1,6 +1,5 @@
 #include <andromeda/app/frame_rate.h>
-
-#include <andromeda/common/log.h>
+#include <andromeda/log/log.h>
 
 #include <thread>
 

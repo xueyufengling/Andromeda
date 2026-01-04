@@ -1,6 +1,5 @@
 #include <andromeda/io/files.h>
-
-#include <andromeda/common/log.h>
+#include <andromeda/log/log.h>
 
 #include <fstream>
 #include <iostream>

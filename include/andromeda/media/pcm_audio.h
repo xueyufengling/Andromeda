@@ -8,7 +8,7 @@ extern "C"
 #include <libavcodec/avcodec.h>
 }
 
-#include <andromeda/common/log.h>
+#include <andromeda/log/log.h>
 #include <andromeda/common/linked_buffer.h>
 #include "audio_codec.h"
 

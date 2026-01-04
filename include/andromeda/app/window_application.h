@@ -1,7 +1,6 @@
 #ifndef ANDROMEDA_APP_WINDOWAPPLICATION
 #define ANDROMEDA_APP_WINDOWAPPLICATION
 
-#include "../common/log.h"
 #include "window.h"
 #include "frame_rate.h"
 #include "../graphics/gl_basic.h"

@@ -2,7 +2,7 @@
 #define ANDROMEDA_MEDIA_CODEC
 
 #include <andromeda/common/array.h>
-#include <andromeda/common/log.h>
+#include <andromeda/log/log.h>
 #include <functional>
 #include <vector>
 

@@ -1,8 +1,8 @@
 #ifndef ANDROMEDA_GRAPHICS_SPRITE
 #define ANDROMEDA_GRAPHICS_SPRITE
 
-#include <andromeda/common/array.h>
-#include <andromeda/common/timer.h>
+#include "../common/array.h"
+#include "../common/timer.h"
 #include <map>
 #include "texture_2d.h"
 #include "coord_transform.h"

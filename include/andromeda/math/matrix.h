@@ -6,7 +6,7 @@
 #include <malloc.h>
 #include "vector.h"
 
-#include "../common/signals.h"
+#include "../internal/signals.h"
 #include <sstream>
 
 namespace andromeda

@@ -1,6 +1,6 @@
 #include <andromeda/app/window.h>
 
-#include <andromeda/common/log.h>
+#include <andromeda/log/log.h>
 
 using namespace andromeda::app;
 using namespace andromeda::graphics;
