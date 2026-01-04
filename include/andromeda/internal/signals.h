@@ -14,8 +14,6 @@
  * 拓展了系统信号处理，不可再使用C/C++原本自带的信号处理，尤其是不可再更改信号的自定义处理函数
  */
 
-#include "object.h"
-
 //如果是非POSIX系统，则临时开启以初始化enum signal全部的信号
 #ifndef _POSIX
 #define __POSIX_FOR_SIG__
@@ -69,10 +67,13 @@ enum system_signal : int
 #undef _POSIX
 #endif
 
+#define __HIGHEST_PRIORITY__ 0x7FFFFFFF
+#define __LOWEST_PRIORITY__ 0x80000000‌
+
 /**
  * @brief 系统发送的信号的额外参数
  */
-extern const object SYSTEM_SIG;
+extern const void* SYSTEM_SIG;
 
 /**
  * @brief 发出进程信号
@@ -80,16 +81,16 @@ extern const object SYSTEM_SIG;
  * @param extra_param 信号的额外参数，系统发出的额外参数为0.可以通过额外参数区分在哪里发出的信号
  * @return 信号是否发出成功
  */
-extern bool raise_signal(system_signal sig, object extra_param = 0);
+extern bool raise_signal(system_signal sig, void* extra_param = nullptr);
 
 /**
  * @breif 信号处理函数
  * @param system_signal 信号
  * @param int 本处理函数的优先级
- * @param object_val 信号额外参数
+ * @param void* 信号额外参数
  * @return 是否将此信号传递给下一个处理函数
  */
-typedef bool (*signal_handler)(system_signal, int, object);
+typedef bool (*signal_handler)(system_signal, int, void*);
 
 /**
  * @brief 指定信号的处理

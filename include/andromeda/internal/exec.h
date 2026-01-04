@@ -7,6 +7,8 @@
 
 #define __DEFAULT_STEP_DEPTH__ 256
 
+typedef _Unwind_Context* unwind_frame;
+
 /**
  * @brief 将C++经过name mangling的名字恢复
  * @return 成功返回name mangling之前的名字，失败返回nullptr
@@ -19,25 +21,52 @@ __attribute__((always_inline)) inline char* cxx_name_demangling(const std::type_
 }
 
 template<typename _T>
-__attribute__((always_inline)) inline char* cxx_name_demangling(const _T&& v)
+__attribute__((always_inline)) inline char* cxx_name_demangling()
 {
-	return cxx_name_demangling(typeid(v));
+	return cxx_name_demangling(typeid(decl<_T>::ref()));
 }
 
-__attribute__((always_inline)) inline void* get_frame_ip(_Unwind_Context* frame_context)
+__attribute__((always_inline)) inline void* get_frame_ip(unwind_frame frame_context)
 {
 	return (void*)_Unwind_GetIP(frame_context);
 }
 
-__attribute__((always_inline)) inline void set_frame_ip(_Unwind_Context* frame_context, void* target_ip)
+__attribute__((always_inline)) inline void set_frame_ip(unwind_frame frame_context, void* target_ip)
 {
 	_Unwind_SetIP(frame_context, (_Unwind_Ptr)target_ip);
 }
 
 /**
+ * @brief 获取目标栈帧代码所属二进制文件中.text段的基地址
+ */
+__attribute__((always_inline)) inline void* text_segment_base(unwind_frame frame_context)
+{
+	return (void*)_Unwind_GetTextRelBase(frame_context);
+}
+
+/**
+ * @brief 获取目标栈帧代码所属二进制文件中.data段的基地址
+ */
+__attribute__((always_inline)) inline void* data_segment_base(unwind_frame frame_context)
+{
+	return (void*)_Unwind_GetDataRelBase(frame_context);
+}
+
+/**
+ * @brief 获取目标栈帧代码所属二进制文件中，当前IP相对于.text段基地址的位移
+ * 		  栈底IP固定为0，如果是栈底则返回nullptr
+ * 		  注：在二进制文件中，.text段基地址通常不是0x0，因此本函数得到的结果为相对地址
+ */
+__attribute__((always_inline)) inline void* text_segment_offset(unwind_frame frame_context)
+{
+	void* ip = get_frame_ip(frame_context);
+	return ip ? (void*)((unsigned char*)ip - (unsigned char*)text_segment_base(frame_context)) : nullptr;
+}
+
+/**
  * @brief 移动指定栈帧的IP
  */
-__attribute__((always_inline)) inline void shift_frame_ip(_Unwind_Context* frame_context, size_t shift_step)
+__attribute__((always_inline)) inline void shift_frame_ip(unwind_frame frame_context, size_t shift_step)
 {
 	set_frame_ip(frame_context, (unsigned char*)(get_frame_ip(frame_context)) + shift_step);
 }
@@ -73,13 +102,13 @@ typedef struct call_stack
 {
 	/**
 	 * @brief 遍历栈帧的操作
-	 * @param _Unwind_Context* 当前遍历中的栈帧上下文，该指针仅在遍历本栈帧时有效，遍历结束后已经销毁失效
+	 * @param unwind_frame 当前遍历中的栈帧上下文，该指针仅在遍历本栈帧时有效，遍历结束后已经销毁失效
 	 * @param void* 传入unwind的arg参数
 	 * @param int 遍历总深度，即step_depth
 	 * @param int 当前所处深度，skip_depth不计入，从0开始
 	 * @return 如何遍历下一个栈帧
 	 */
-	typedef unwind_action (*unwind_op)(_Unwind_Context*, void*, int, int); //回溯的操作
+	typedef unwind_action (*unwind_op)(unwind_frame, void*, int, int); //回溯的操作
 
 	/**
 	 * 遍历过程中的迭代器
@@ -146,5 +175,37 @@ typedef struct call_stack
 		return __call<_RetType, _ArgTypes...>((*this)[depth], args...);
 	}
 } call_stack;
+
+/**
+ * 符号相关信息
+ */
+typedef struct symbol_info
+{
+	const char* binary_path = nullptr; //符号所属二进制文件路径
+	const char* symbol_name = nullptr; //符号名称，如果是C++名称则是mangled name
+	void* base = nullptr; //符号所属二进制文件的基地址
+	void* address = nullptr; //符号地址
+
+	inline void clean()
+	{
+		delete[] binary_path;
+		delete[] symbol_name;
+		binary_path = nullptr;
+		symbol_name = nullptr;
+	}
+
+	/**
+	 * @brief 获取C++符号名称
+	 */
+	inline const char* cxx_name()
+	{
+		return cxx_name_demangling(symbol_name);
+	}
+
+	/**
+	 * @brief 解析指定地址的符号信息
+	 */
+	static symbol_info resolve(void* symbol_addr);
+} symbol_info;
 
 #endif //ANDROMEDA_INTERNAL_EXEC

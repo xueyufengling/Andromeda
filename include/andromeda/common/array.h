@@ -115,8 +115,9 @@ public:
 	array(const array<E>& arr) :
 			capcity(arr.capcity), extend_capcity(arr.extend_capcity), end_pos(arr.end_pos), self_alloc(true)
 	{
-		elements = (E*)malloc(sizeof(E) * arr.capcity);
-		memcpy(elements, arr.elements, sizeof(E) * arr.capcity);
+		size_t cpy_len = sizeof(E) * arr.capcity;
+		elements = (E*)malloc(cpy_len);
+		memcpy(elements, arr.elements, cpy_len);
 	}
 
 	array(array<E>&& arr) :

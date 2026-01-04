@@ -8,11 +8,11 @@ extern "C"
 }
 
 #include "../common/bindable_object.h"
-#include "../common/lib_call.h"
+#include "../internal/clib_call.h"
 
-decl_libcall(al, ALenum, alGetError, AL_NO_ERROR)
+decl_clibcall(al, ALenum, alGetError, AL_NO_ERROR)
 
-#define al_call(callable, ...) libcall(al, __log_source__, callable, ##__VA_ARGS__)
+#define al_call(callable, ...) clibcall(al, andromeda::log::log_level::LOG_DEBUG_ERROR, __log_source__, callable, ##__VA_ARGS__)
 
 #define al_IsExtensionPresent(ext_name) al_call(alIsExtensionPresent, ext_name)
 

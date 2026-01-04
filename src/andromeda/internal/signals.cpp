@@ -10,7 +10,7 @@ struct system_flag
 };
 //编译单元内变量，其指针只有SYSTEM_SIG持有，故可用作区分系统信号
 static constexpr system_flag SYSTEM_FLAG;
-const object SYSTEM_SIG = &SYSTEM_FLAG;
+const void* SYSTEM_SIG = &SYSTEM_FLAG;
 
 struct _signal_handler_with_priority
 {
@@ -28,9 +28,9 @@ static __p_sig_fn_t default_signal_handlers[system_signal::SIG_NUM]{};
 static std::vector<_signal_handler_with_priority> signal_handlers_queue[system_signal::SIG_NUM]{};
 
 //信号额外参数队列
-static std::deque<object> signal_extra_params_deque[system_signal::SIG_NUM]{};
+static std::deque<void*> signal_extra_params_deque[system_signal::SIG_NUM]{};
 
-bool raise_signal(system_signal sig, object extra_param)
+bool raise_signal(system_signal sig, void* extra_param)
 {
 	bool success = false;
 	signal_params_mutex.lock();
@@ -52,9 +52,9 @@ void handle_signal(system_signal sig, signal_handler handler, int priority)
 
 static void _signals_handler(int sig)
 {
-	object extra_param = SYSTEM_SIG; //没有自定义参数则视作系统发出的信号
+	void* extra_param = (void*)SYSTEM_SIG; //没有自定义参数则视作系统发出的信号
 	signal_params_mutex.lock();
-	std::deque<object>& params_deque = signal_extra_params_deque[sig];
+	std::deque<void*>& params_deque = signal_extra_params_deque[sig];
 	if(!params_deque.empty())
 	{
 		extra_param = params_deque.front(); //有额外参数，取出队列最前端参数

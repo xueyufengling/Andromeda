@@ -1,13 +1,14 @@
 #ifndef ANDROMEDA_GRAPHICS_GLBASIC
 #define ANDROMEDA_GRAPHICS_GLBASIC
 
+#include "../platform/platform.h"
 #include "../common/bindable_object.h"
-#include "../common/lib_call.h"
+#include "../internal/clib_call.h"
 
-#if defined (_WIN32) || defined (_WIN64)
+#if defined(__PLATFORM_WIN__)
 #include <windows.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
-#elif defined (__linux__) || defined(__APPLE__)
+#elif defined(__PLATFORM_UNIX__)
 #endif
 
 extern "C"
@@ -22,12 +23,12 @@ extern "C"
  */
 #define GL_ZERO_INDEX ((GLsizei*)0)
 
-decl_libcall(gl, GLenum, glGetError, GL_NO_ERROR)
+decl_clibcall(gl, GLenum, glGetError, GL_NO_ERROR)
 
 /**
  * @brief 包装调用库函数的宏，日志中指示调用发生的源码实际位置
  */
-#define gl_call(callable, ...) libcall(gl, __log_source__, callable, ##__VA_ARGS__)
+#define gl_call(callable, ...) clibcall(gl, andromeda::log::log_level::LOG_DEBUG_ERROR, __log_source__, callable, ##__VA_ARGS__)
 
 #define gl_GetIntegerv(pname, data) gl_call(glGetIntegerv, pname, data)
 

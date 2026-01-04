@@ -165,9 +165,6 @@ public:
  */
 extern universal_logger* process_logger;
 
-}
-}
-
 /**
  * @brief 为指定日志记录器设置日志等级
  */
@@ -232,6 +229,39 @@ extern universal_logger* process_logger;
 #define LogSourceFatalTo(logger_ptr, log_source, ...)\
 		__log_source_to__(logger_ptr, andromeda::log::log_level::LOG_FATAL, "FATAL", log_source, ##__VA_ARGS__)
 
+#define LogSourceTo(logger_ptr, level_var, log_source, ...)\
+		{\
+			switch(level_var)\
+			{\
+			case andromeda::log::log_level::LOG_DEBUG_INFO:\
+				LogSourceDebugInfoTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_DEBUG_WARN:\
+				LogSourceDebugWarnTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_DEBUG_ERROR:\
+				LogSourceDebugErrorTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_DEBUG_FATAL:\
+				LogSourceDebugFatalTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_INFO:\
+				LogSourceInfoTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_WARN:\
+				LogSourceWarnTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_ERROR:\
+				LogSourceErrorTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			case andromeda::log::log_level::LOG_FATAL:\
+				LogSourceFatalTo(logger_ptr, log_source, ##__VA_ARGS__)\
+				break;\
+			default:\
+				break;\
+			}\
+		}
+
 #define LogDebugInfoTo(logger_ptr, ...)\
 		LogSourceDebugInfoTo(logger_ptr, __log_source__, ##__VA_ARGS__)
 
@@ -280,6 +310,9 @@ extern universal_logger* process_logger;
 #define LogSourceFatal(log_source, ...)\
 		LogSourceFatalTo(andromeda::log::process_logger, log_source, ##__VA_ARGS__)
 
+#define LogSource(level_var, log_source, ...)\
+		LogSourceTo(andromeda::log::process_logger, level_var, log_source, ##__VA_ARGS__)
+
 #define LogDebugInfo(...) LogSourceDebugInfo( __log_source__, ##__VA_ARGS__)
 
 #define LogDebugWarn(...) LogSourceDebugWarn( __log_source__, ##__VA_ARGS__)
@@ -295,5 +328,8 @@ extern universal_logger* process_logger;
 #define LogError(...) LogSourceError( __log_source__, ##__VA_ARGS__)
 
 #define LogFatal(...) LogSourceFatal( __log_source__, ##__VA_ARGS__)
+
+}
+}
 
 #endif //ANDROMEDA_LOG_LOG

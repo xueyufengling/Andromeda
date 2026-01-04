@@ -1,6 +1,7 @@
 #ifndef ANDROMEDA_APP_WINDOW
 #define ANDROMEDA_APP_WINDOW
 
+#include "../platform/platform.h"
 #include "../graphics/gl_basic.h"
 #include "../graphics/color_rgba.h"
 #include "../media/raster_image.h"
@@ -198,7 +199,7 @@ public:
 	}
 #endif
 
-#if defined (_WIN32) || defined (_WIN64)
+#if defined(__PLATFORM_WIN__)
 	inline HWND handle()
 	{
 		return glfwGetWin32Window(window_id);
