@@ -11,10 +11,14 @@
 #include <winerror.h>
 #include <errhandlingapi.h>
 
-decl_clibcall(windows, WINBOOL, GetLastError, ERROR_SUCCESS)
+//由于windows只允许在操作失败时获取错误码，因此需要根据函数返回值决定是否获取错误码
+#define __windows_error_code__(ret) ret ? ERROR_SUCCESS : GetLastError()
+
+decl_clibcall(windows, WINBOOL, __windows_error_code__, ERROR_SUCCESS)
 
 #define windows_call(level, callable, ...) clibcall(windows, level, __log_source__, callable, ##__VA_ARGS__)
 
+#undef platform_call
 #define platform_call(level, callable, ...) windows_call(level, callable, ##__VA_ARGS__)
 
 /**

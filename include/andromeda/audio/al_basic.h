@@ -10,7 +10,9 @@ extern "C"
 #include "../common/bindable_object.h"
 #include "../internal/clib_call.h"
 
-decl_clibcall(al, ALenum, alGetError, AL_NO_ERROR)
+#define __al_error_code__(ret) alGetError()
+
+decl_clibcall(al, ALenum, __al_error_code__, AL_NO_ERROR)
 
 #define al_call(callable, ...) clibcall(al, andromeda::log::log_level::LOG_DEBUG_ERROR, __log_source__, callable, ##__VA_ARGS__)
 

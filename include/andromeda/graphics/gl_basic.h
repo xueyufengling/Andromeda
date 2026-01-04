@@ -23,7 +23,9 @@ extern "C"
  */
 #define GL_ZERO_INDEX ((GLsizei*)0)
 
-decl_clibcall(gl, GLenum, glGetError, GL_NO_ERROR)
+#define __gl_error_code__(ret) glGetError()
+
+decl_clibcall(gl, GLenum, __gl_error_code__, GL_NO_ERROR)
 
 /**
  * @brief 包装调用库函数的宏，日志中指示调用发生的源码实际位置
