@@ -1,9 +1,23 @@
-# Andromeda
-提供一些游戏开发相关功能<br>
-app	glfw窗口、程序相关库<br>
-audio	PortAudio读取和基于OpenAL的实时音频播放<br>
-graphics	基于OpenGL的实时渲染库<br>
-io	文件IO库<br>
-math	数学相关库<br>
-media	基于ffmpeg的媒体处理库，支持音频和视频、图像<br>
-util	各种杂项工具<br>
+# libcxxbase
+
+    This library provides cross-platform basic operations for general purpose C++ programming, written in C++ 11. Do note that many tricks used in this library are based on GCC features, any other compiler may not have a correct behavior. libcxxbase is consists of some functionality-independent parts, building each part independently or the whole is both feasible. When building independently, the dependent libraries need to be determined, some of which are depended upon by others. If build the whole library, these parts can be archived into a universal library file.<br>
+
+## cxxtricks
+
+Header-only library. Provide template meta programming, macro meta programming and related tricks.<br>
+macros.h	macro meta programming, also available for C.<br>
+types.h	template meta programming.<br>
+access.h	member detect and access tricks.<br>
+callable.h	callable tricks.<br>
+
+## cxxllo
+
+Low-level operations for C++ at runtime.<br>
+
+## cxxcomm
+
+Common utils and functions, classes for general purpose programming.<br>
+
+## cxxsci
+
+Implementions for Science calculation and algorithms.<br>
