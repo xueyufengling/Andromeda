@@ -1,12 +1,12 @@
-#ifndef ANDROMEDA_MA_TH_MA_TRIX
-#define ANDROMEDA_MA_TH_MA_TRIX
+#ifndef _CXXSCI_MATRIX
+#define _CXXSCI_MATRIX
 
-#include "../traits/types.h"
+#include <cxxtricks/types.h>
 #include <math.h>
 #include <malloc.h>
 #include "vector.h"
 
-#include "../internal/signals.h"
+#include <cxxllo/signal_handle.h>
 #include <sstream>
 
 namespace andromeda
@@ -796,4 +796,4 @@ public:
 using matrix4x4f=matrix4x4<float>;
 }
 }
-#endif//ANDROMEDA_MA_TH_MA_TRIX
+#endif//_CXXSCI_MATRIX

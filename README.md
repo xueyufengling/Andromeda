@@ -1,6 +1,6 @@
 # libcxxbase
 
-    This library provides cross-platform basic operations for general purpose C++ programming, written in C++ 11. Do note that many tricks used in this library are based on GCC features, any other compiler may not have a correct behavior. libcxxbase is consists of some functionality-independent parts, building each part independently or the whole is both feasible. When building independently, the dependent libraries need to be determined, some of which are depended upon by others. If build the whole library, these parts can be archived into a universal library file.<br>
+    This library provides cross-platform basic operations for general purpose C++ programming, written in C++ 11. Do note that some syntaxes used in this library rely on GCC features, any other compiler may not have a correct behavior. libcxxbase is consists of some functionality-independent parts, building each part independently or the whole is both feasible. When building independently, the dependent libraries need to be determined, some of which are depended upon by others. If build the whole library, these parts can be archived into a universal library file.<br>
 
 ## cxxtricks
 
