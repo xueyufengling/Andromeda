@@ -4,7 +4,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/build.cmake)
 
 project(cxxsci)
 
-project_target(PUBLIC interface_lib)
+project_target(library_interface)
 
 # Include libcxxsci header files
-project_include_current(PUBLIC "include")
+project_include_current(INTERFACE "include")
