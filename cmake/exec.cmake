@@ -1,5 +1,5 @@
 # This is a internal exec function cmake file, provide toolchain call entries;
-# Use include(${PROJECT_SOURCE_DIR}/cmake/exec.cmake) to include this file.
+# Use include(${LIBCXXBASE_CMAKE_DIR}/exec.cmake) to include this file.
 
 # Execute command
 function(execute)

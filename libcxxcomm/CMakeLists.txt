@@ -4,7 +4,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/build.cmake)
 
 project(cxxcomm)
 
-project_target(library_static)
+project_target(static_library)
 
 project_dependencies(PUBLIC cxxtricks PUBLIC cxxllo)
 
