@@ -1,13 +1,16 @@
 # This is a internal ansi style text cmake file, mainly used in message();
-# Use include(${LIBCXXBASE_CMAKE_DIR}/ansi_style.cmake) to include this file.
+# Use include(${LIBCXXBASE_CMAKE_DIR}/echo.cmake) to include this file.
 
 include("${LIBCXXBASE_CMAKE_DIR}/exec.cmake")
+
+# Enable ANSI text style for the current terminal.
+set(CLICOLOR_FORCE 1 CACHE STRING "Enable output ANSI style")
 
 # Print colored text, text_style is separated with ' '. This function won't print in new line.
 # Available text styles are:
 # style: bold
 # color: normal, black, red, green, yellow, blue, magenta, cyan, white
-function(print text_style)
+function(echo_color text_style)
 	string(REPLACE "_" ";--" style_args ${text_style})
 	set(style_args --${style_args})
 	string(JOIN "" text ${ARGN})
@@ -16,16 +19,14 @@ function(print text_style)
 endfunction()
 
 # Print colored text in new line. '\n' is always the end of output, just like message().
-function(println text_style)
-	print(${text_style} ${ARGN} "\n")
+function(echo_color_ln text_style)
+	echo_color(${text_style} ${ARGN} "\n")
 endfunction()
 
 # Print colored message starts with "-- ", alternative for message()
-function(printmsg text_style)
-	println(${text_style} "-- " ${ARGN})
+function(echo_color_msg text_style)
+	echo_color_ln(${text_style} "-- " ${ARGN})
 endfunction()
-
-if(NOT WIN32)
 
 # ANSI style for text for message(). pass extra parames as a list of codes.
 function(ansi_style style)
@@ -120,13 +121,46 @@ ansi_style(ansi_not_overlined 55)
 set(ansi_fatal "${ansi_fg_bright_white}${ansi_bg_bright_red}")
 set(ansi_error "${ansi_fg_red}")
 set(ansi_warn "${ansi_fg_yellow}")
-set(ansi_debug "${ansi_fg_green}")
+set(ansi_detailed "${ansi_fg_bright_green}")
 set(ansi_important "${ansi_fg_magenta}")
+set(ansi_prompt "${ansi_fg_blue}")
 
-# Print colored text message.
-function(print_ansi mode)
+# Print to stdout with ANSI style enabled, no new line.
+function(echo)
 	string(JOIN "" text ${ARGN})
-	message(${mode} "${ansi_reset}${text}${ansi_reset}")
+	printf("${ansi_reset}${text}${ansi_reset}")
 endfunction()
 
-endif()
+function(echo_ln)
+	string(JOIN "" text ${ARGN})
+	echo("${text}\n")
+endfunction()
+
+function(echo_msg ansi_text_style)
+	string(JOIN "" text ${ARGN})
+	echo_ln("${ansi_text_style}-- ${text}")
+endfunction()
+
+function(echo_fatal)
+	echo_msg("${ansi_fatal}" ${ARGN})
+endfunction()
+
+function(echo_error)
+	echo_msg("${ansi_error}" ${ARGN})
+endfunction()
+
+function(echo_warn)
+	echo_msg("${ansi_warn}" ${ARGN})
+endfunction()
+
+function(echo_detailed)
+	echo_msg("${ansi_detailed}" ${ARGN})
+endfunction()
+
+function(echo_important)
+	echo_msg("${ansi_important}" ${ARGN})
+endfunction()
+
+function(echo_prompt)
+	echo_msg("${ansi_prompt}" ${ARGN})
+endfunction()

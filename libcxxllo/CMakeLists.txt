@@ -4,6 +4,10 @@ include(${PROJECT_SOURCE_DIR}/cmake/build.cmake)
 
 project(cxxllo)
 
+if(WIN32)
+project_import_package(PRIVATE dlfcn )
+endif()
+
 project_target(static_library)
 
 project_dependencies(PUBLIC cxxtricks)

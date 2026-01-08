@@ -11,6 +11,11 @@ function(cmake)
 execute(${CMAKE_COMMAND} ${ARGN})
 endfunction()
 
+# printf
+function(printf)
+execute(printf ${ARGN})
+endfunction()
+
 # c compiler
 function(cc)
 execute(${CMAKE_C_COMPILER} ${ARGN})
