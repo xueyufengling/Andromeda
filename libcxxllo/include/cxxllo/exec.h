@@ -2,8 +2,8 @@
 #define _CXXLLO_EXEC
 
 /**
- * 此头文件依赖于dlfcn包，该包为Unix系统提供，Windows下需要在MinGW中使用下列指令安装
- * pacman -S mingw-w64-x86_64-dlfcn
+ * 此头文件依赖于dlfcn包，该包为Unix系统提供，Windows下需要在MSYS2使用下列指令安装
+ * pacman -S mingw-w64-ucrt-x86_64-dlfcn
  * 编译可执行文件时，需要添加-export-dynamic导出符号供查询，链接时需要添加-ldl，其库文件位于msys64/mingw64/lib/libdl.a
  */
 #include <cxxtricks/types.h>

@@ -4,7 +4,7 @@
 include("${LIBCXXBASE_CMAKE_DIR}/exec.cmake")
 
 # Enable ANSI text style for the current terminal.
-set(CLICOLOR_FORCE 1 CACHE STRING "Enable output ANSI style")
+set(ENV{CLICOLOR_FORCE} 1)
 
 # Print colored text, text_style is separated with ' '. This function won't print in new line.
 # Available text styles are:
@@ -122,8 +122,9 @@ set(ansi_fatal "${ansi_fg_bright_white}${ansi_bg_bright_red}")
 set(ansi_error "${ansi_fg_red}")
 set(ansi_warn "${ansi_fg_yellow}")
 set(ansi_detailed "${ansi_fg_bright_green}")
-set(ansi_important "${ansi_fg_magenta}")
-set(ansi_prompt "${ansi_fg_blue}")
+set(ansi_important "${ansi_bold}${ansi_fg_magenta}")
+set(ansi_cmd "${ansi_fg_blue}")
+set(ansi_prompt "${ansi_fg_cyan}")
 
 # Print to stdout with ANSI style enabled, no new line.
 function(echo)
@@ -159,6 +160,10 @@ endfunction()
 
 function(echo_important)
 	echo_msg("${ansi_important}" ${ARGN})
+endfunction()
+
+function(echo_cmd)
+	echo_msg("${ansi_cmd}" ${ARGN})
 endfunction()
 
 function(echo_prompt)

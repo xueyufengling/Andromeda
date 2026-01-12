@@ -1,6 +1,11 @@
 #ifndef ANDROMEDA_MEDIA_RASTERIMAGE
 #define ANDROMEDA_MEDIA_RASTERIMAGE
 
+/**
+ * 此头文件依赖于stb包，该包为纯头文件库，无需find_package()
+ * pacman -S mingw-w64-ucrt-x86_64-stb
+ */
+
 #include "../graphics/color_rgba.h"
 #include <malloc.h>
 #include <functional>

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.10)
 
 include(${PROJECT_SOURCE_DIR}/cmake/build.cmake)
 
@@ -6,7 +6,7 @@ project(cxxcomm)
 
 project_target(static_library)
 
-project_dependencies(PUBLIC cxxtricks PUBLIC cxxllo)
+project_dependency_libs(PUBLIC cxxtricks PUBLIC cxxllo)
 
 # Include libcxxllo header files
 project_include_current(PUBLIC "include")
