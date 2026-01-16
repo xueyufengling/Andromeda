@@ -1,17 +1,15 @@
-#ifndef ANDROMEDA_APP_FRAMERATE
-#define ANDROMEDA_APP_FRAMERATE
+#ifndef _CXXCOMM_FRAMERATE
+#define _CXXCOMM_FRAMERATE
 
-#include "../common/timer.h"
+#include <cxxcomm/timer.h>
 #include <chrono>
 
-namespace andromeda
-{
-namespace app
+namespace cxxcomm
 {
 class frame_rate
 {
 private:
-	andromeda::common::high_resolution_time_point current_time, previous_time;
+	cxxcomm::high_resolution_time_point current_time, previous_time;
 	double delta_t = 0;
 	double tpf = 0;
 	double tpf_max_limit = 0; //开启帧率限制后每帧的最大时间，其值为1/fps_limit，在调用calc()时如果单帧的时间不足1/fps_limit秒则会sleep该线程直到该帧的秒数占用达到1/fps_limit秒
@@ -70,7 +68,7 @@ public:
 		return fps_limit;
 	}
 };
-}
+
 }
 
-#endif//ANDROMEDA_APP_FRAMERATE
+#endif//_CXXCOMM_FRAMERATE

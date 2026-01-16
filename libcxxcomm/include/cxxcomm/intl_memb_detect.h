@@ -1,7 +1,7 @@
-#ifndef ANDROMEDA_COMMON_INTLMEMBDETECT
-#define ANDROMEDA_COMMON_INTLMEMBDETECT
+#ifndef _CXXCOMM_INTLMEMBDETECT
+#define _CXXCOMM_INTLMEMBDETECT
 
-#include "../traits/access.h"
+#include <cxxtricks/types.h>
 
 //内部成员检测类均位于全局空间
 #define __intl_memb_detect_namespace__()
@@ -12,4 +12,4 @@ decl_exist_memb_with_type(preinitialize, update, render_update, initialize, run,
 
 #define enable_intl_exist_memb_with_type(...) enable_exist_memb_with_type(__intl_memb_detect_namespace__, __VA_ARGS__)
 
-#endif //ANDROMEDA_COMMON_INTLMEMBDETECT
+#endif //_CXXCOMM_INTLMEMBDETECT

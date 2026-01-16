@@ -1,12 +1,10 @@
-#ifndef ANDROMEDA_MATH_QUATERNION
-#define ANDROMEDA_MATH_QUATERNION
+#ifndef _CXXSCI_QUATERNION
+#define _CXXSCI_QUATERNION
 
-#include "vector.h"
-#include "matrix.h"
+#include <cxxsci/vector.h>
+#include <cxxsci/matrix.h>
 
-namespace andromeda
-{
-namespace math
+namespace cxxsci
 {
 template<typename T = float>
 class quaternion
@@ -75,7 +73,7 @@ public:
 		return cast<matrix4x4<T> >(m_elem);
 	}
 };
-}
+
 }
 
-#endif//ANDROMEDA_MATH_QUATERNION
+#endif//_CXXSCI_QUATERNION

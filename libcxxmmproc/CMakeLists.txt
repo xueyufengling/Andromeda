@@ -6,7 +6,7 @@ project(cxxmmproc)
 
 project_target(static_library)
 
-project_dependency_libs(PUBLIC cxxtricks PUBLIC cxxcomm)
+project_dependency_libs(PUBLIC cxxtricks PUBLIC cxxsci PUBLIC cxxcomm )
 
 # Include libcxxllo header files
 project_include_current(PUBLIC "include")

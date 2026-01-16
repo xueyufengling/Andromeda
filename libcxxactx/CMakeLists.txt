@@ -6,6 +6,8 @@ project(cxxactx)
 
 project_target(static_library)
 
+project_import_package(PRIVATE OpenAL OPENAL _INCLUDE_DIR _LIBRARY _FOUND)
+
 project_dependency_libs(PUBLIC cxxtricks PUBLIC cxxllo PUBLIC cxxcomm PUBLIC cxxmmproc)
 
 # Include libcxxllo header files

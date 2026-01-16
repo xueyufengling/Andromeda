@@ -1,12 +1,11 @@
-#ifndef ANDROMEDA_MEDIA_RASTERIMAGE
-#define ANDROMEDA_MEDIA_RASTERIMAGE
+#ifndef _CXXMMPROC_RASTERIMAGE
+#define _CXXMMPROC_RASTERIMAGE
 
 /**
  * 此头文件依赖于stb包，该包为纯头文件库，无需find_package()
  * pacman -S mingw-w64-ucrt-x86_64-stb
  */
-
-#include "../graphics/color_rgba.h"
+#include <cxxsci/color_rgba.h>
 #include <malloc.h>
 #include <functional>
 
@@ -15,18 +14,16 @@ extern "C"
 struct GLFWimage;
 }
 
-namespace andromeda
-{
-namespace media
+namespace cxxmmproc
 {
 class raster_image
 {
 protected:
 	int width = 0, height = 0;
-	andromeda::graphics::pixel* pixels = nullptr;
+	cxxsci::pixel* pixels = nullptr;
 
 public:
-	typedef std::function<void(andromeda::graphics::pixel&)> traversal_func;
+	typedef std::function<void(cxxsci::pixel&)> traversal_func;
 
 	enum edge_options : char
 	{
@@ -37,7 +34,7 @@ public:
 		IMAGE_SIZE_FIXED, IMAGE_SIZE_FIT
 	};
 
-	operator andromeda::graphics::pixel*()
+	operator cxxsci::pixel*()
 	{
 		return pixels;
 	}
@@ -62,7 +59,7 @@ public:
 		return (GLFWimage*)this;
 	}
 
-	raster_image(int img_width = 0, int img_height = 0, andromeda::graphics::pixel* data = nullptr, bool alloc_if_null = false); //alloc_if_null决定如果data指定为nullptr是否自动分配内存
+	raster_image(int img_width = 0, int img_height = 0, cxxsci::pixel* data = nullptr, bool alloc_if_null = false); //alloc_if_null决定如果data指定为nullptr是否自动分配内存
 
 	/**
 	 * @brief 从文件读取图像
@@ -76,7 +73,7 @@ public:
 
 	raster_image copy();
 
-	andromeda::graphics::pixel* get_pixels()
+	cxxsci::pixel* get_pixels()
 	{
 		return pixels;
 	}
@@ -99,25 +96,25 @@ public:
 		pixels = nullptr;
 	}
 
-	void set_pixel(int x, int y, andromeda::graphics::pixel new_pixel)
+	void set_pixel(int x, int y, cxxsci::pixel new_pixel)
 	{
-		*(andromeda::graphics::pixel*)(pixels + width * y + x) = new_pixel;
+		*(cxxsci::pixel*)(pixels + width * y + x) = new_pixel;
 	}
 
-	void set_pixel(int x, int y, andromeda::graphics::color_rgba new_pixel_color)
+	void set_pixel(int x, int y, cxxsci::color_rgba new_pixel_color)
 	{
-		*(andromeda::graphics::pixel*)(pixels + width * y + x) = new_pixel_color.to_pixel();
+		*(cxxsci::pixel*)(pixels + width * y + x) = new_pixel_color.to_pixel();
 	}
 
-	inline andromeda::graphics::pixel& get_pixel(int x, int y)
+	inline cxxsci::pixel& get_pixel(int x, int y)
 	{
 		return *(pixels + width * y + x);
 	}
 
 	//Operations
-	void fill_rect(int start_x, int start_y, int end_x, int end_y, andromeda::graphics::pixel pixel);
+	void fill_rect(int start_x, int start_y, int end_x, int end_y, cxxsci::pixel pixel);
 
-	void fill_all(andromeda::graphics::pixel pixel);
+	void fill_all(cxxsci::pixel pixel);
 
 	void mix(raster_image& img, int pos_x, int pos_y);
 
@@ -128,10 +125,10 @@ public:
 	/**
 	 * @brief 设置某个区域的图像，将覆盖区域原本的数据
 	 */
-	void set_pixels(andromeda::graphics::pixel* data, int img_width, int img_height, size_options op);
+	void set_pixels(cxxsci::pixel* data, int img_width, int img_height, size_options op);
 };
 
-andromeda::graphics::pixel* generatePixelData(int height, int width, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255);
+cxxsci::pixel* generatePixelData(int height, int width, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255);
 void fillPixelData(void* data, int height, int width, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0, unsigned char a = 255);
 int traversal_pixels(raster_image& image, raster_image::traversal_func func, int x = 0, int y = 0, int stride_x = 0, int stride_y = 0, raster_image::edge_options op = raster_image::edge_options::IMAGE_EDGE_INCLUDE);
 
@@ -153,6 +150,5 @@ void convertu255YUV444PToRGBA32(int width, int height, unsigned char* Y, unsigne
 raster_image& getRasterImageByu255YUV444P(int width, int height, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V);
 
 }
-}
 
-#endif // ANDROMEDA_MEDIA_RASTERIMAGE
+#endif // _CXXMMPROC_RASTERIMAGE

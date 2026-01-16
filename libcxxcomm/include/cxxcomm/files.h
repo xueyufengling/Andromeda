@@ -1,18 +1,11 @@
-#ifndef ANDROMEDA_IO_FILES
-#define ANDROMEDA_IO_FILES
+#ifndef _CXXCOMM_FILES
+#define _CXXCOMM_FILES
 
 #include <string>
 
-#include "paths.h"
+#include <cxxcomm/paths.h>
 
-namespace rapidcsv
-{
-class Document;
-}
-
-namespace andromeda
-{
-namespace io
+namespace cxxcomm
 {
 /**
  * @brief 以二进制读取文件内容到内存
@@ -43,13 +36,6 @@ extern std::string directory_of(const std::string file_path);
 
 extern void clear(const std::string file_name);
 
-enum csv_option : unsigned char
-{
-	NO_HEADER = 0b00000000, ROW_HEADER = 0b00000001, COLUMN_HEADER = 0b00000010, BOTH_HEADER = ROW_HEADER | COLUMN_HEADER
-};
-
-rapidcsv::Document read_csv(const std::string filename, char comma = ',', csv_option option = BOTH_HEADER);
-}
 }
 
-#endif // ANDROMEDA_IO_FILES
+#endif // _CXXCOMM_FILES

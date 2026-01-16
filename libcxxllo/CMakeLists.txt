@@ -7,7 +7,7 @@ project(cxxllo)
 project_target(static_library)
 
 if(WIN32)
-project_import_package(PRIVATE dlfcn-win32)
+project_import_package_std(PRIVATE dlfcn-win32)
 endif()
 
 project_dependency_libs(PUBLIC cxxtricks)

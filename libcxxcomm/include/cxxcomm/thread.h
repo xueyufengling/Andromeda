@@ -1,16 +1,16 @@
-#ifndef ANDROMEDA_THREAD_THREAD
-#define ANDROMEDA_THREAD_THREAD
+#ifndef _CXXCOMM_THREAD
+#define _CXXCOMM_THREAD
 
-#include "../common/signals.h"
+#include <cxxllo/signals.h>
 #include <functional>
 #include <thread>
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
 
-#include "../traits/call.h"
+#include <cxxtricks/callable.h>
 
-#include "../common/intl_memb_detect.h"
+#include <cxxcomm/intl_memb_detect.h>
 
 //THREAD宏可用于任何_Callable，但不可用func参数不能传入_ClassObj.Func，因为decltype无法解析可能的重载函数
 #define THREAD(obj_name,func) andromeda::util::Thread<decltype(func)> obj_name(func)
@@ -20,9 +20,7 @@
 	enable_intl_exist_memb_with_type(initialize, run, terminate, before_stop, after_stop, before_suspended, after_suspended, before_resume, after_resume)\
 	friend class andromeda::thread::thread<_FuncType, _Derived>;
 
-namespace andromeda
-{
-namespace thread
+namespace cxxcomm
 {
 enum thread_work_mode
 {
@@ -75,7 +73,7 @@ private:
 				_callable(args...); //isLoop=true时重复调用执行函数
 				if(should_pause)
 				{
-					std::unique_lock<std::mutex> lock(_mutex); //给互斥量上锁
+					std::unique_lock < std::mutex > lock(_mutex); //给互斥量上锁
 					while(should_pause)
 						_condition.wait(lock); //等待直到_condition通知该线程
 				}
@@ -101,7 +99,7 @@ private:
 				_run(); //isLoop=true时重复调用执行函数
 				if(should_pause)
 				{
-					std::unique_lock<std::mutex> lock(_mutex);
+					std::unique_lock < std::mutex > lock(_mutex);
 					while(should_pause)
 						_condition.wait(lock);
 				}
@@ -279,7 +277,7 @@ public:
 			else
 				return; //子类没有run()则是无效调用直接返回
 		}
-		_callable = std::function<degenerated_callable>(*(degenerated_callable*)_callable_obj);
+		_callable = std::function < degenerated_callable > (*(degenerated_callable*)_callable_obj);
 		_thread = new std::thread(std::bind(&thread<_Callable, _Derived>::_run<_ArgTypes...>, this, args...));
 		END:
 		_state = thread_state::RUNNING;
@@ -404,6 +402,6 @@ public:
 		return _thread ? _thread->native_handle() : (std::thread::native_handle_type)nullptr;
 	}
 };
+
 }
-}
-#endif//ANDROMEDA_THREAD_THREAD
+#endif//_CXXCOMM_THREAD

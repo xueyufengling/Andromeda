@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_IO_PATHS
-#define ANDROMEDA_IO_PATHS
+#ifndef _CXXCOMM_PATHS
+#define _CXXCOMM_PATHS
 
 #define WIN32_PATH_SEPARATOR '\\'
 #define UNIX_PATH_SEPARATOR '/'
@@ -10,12 +10,9 @@
 #define PATH_SEPARATOR UNIX_PATH_SEPARATOR
 #endif
 
-namespace andromeda
-{
-namespace io
+namespace cxxcomm
 {
 const char* get_filename(const char* path);
 }
-}
 
-#endif //ANDROMEDA_IO_PATHS
+#endif //_CXXCOMM_PATHS

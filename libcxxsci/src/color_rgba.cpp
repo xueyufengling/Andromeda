@@ -1,9 +1,8 @@
-#include <andromeda/common/typedefs.h>
-#include <andromeda/graphics/color_rgba.h>
+#include <cxxsci/color_rgba.h>
 
-#include <andromeda/media/raster_image.h>
+#include <cxxsci/literal_defs.h>
 
-using namespace andromeda::graphics;
+using namespace cxxsci;
 
 color_rgba color_rgba::WHITE = {1.0f, 1.0f, 1.0f, 1.0f};
 color_rgba color_rgba::BLACK = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -15,15 +14,15 @@ color_rgba color_rgba::PURPLE = {1.0f, 0.0f, 1.0f, 1.0f};
 color_rgba color_rgba::CYAN = {0.0f, 1.0f, 1.0f, 1.0f};
 color_rgba color_rgba::TRANSPARENT_BLACK = {0.0f, 0.0f, 0.0f, 0.0f};
 
-pixel pixel::WHITE = {u8(255), u8(255), u8(255), u8(255)};
-pixel pixel::BLACK = {u8(0), u8(0), u8(0), u8(255)};
-pixel pixel::RED = {u8(255), u8(0), u8(0), u8(255)};
-pixel pixel::GREEN = {u8(0), u8(255), u8(0), u8(255)};
-pixel pixel::BLUE = {u8(0), u8(0), u8(255), u8(255)};
-pixel pixel::YELLOW = {u8(255), u8(255), u8(0), u8(255)};
-pixel pixel::PURPLE = {u8(255), u8(0), u8(255), u8(255)};
-pixel pixel::CYAN = {u8(0), u8(255), u8(255), u8(255)};
-pixel pixel::TRANSPARENT_BLACK = {u8(0), u8(0), u8(0), u8(0)};
+pixel pixel::WHITE = {255u8, 255u8, 255u8, 255u8};
+pixel pixel::BLACK = {0u8, 0u8, 0u8, 255u8};
+pixel pixel::RED = {255u8, 0u8, 0u8, 255u8};
+pixel pixel::GREEN = {0u8, 255u8, 0u8, 255u8};
+pixel pixel::BLUE = {0u8, 0u8, 255u8, 255u8};
+pixel pixel::YELLOW = {255u8, 255u8, 0u8, 255u8};
+pixel pixel::PURPLE = {255u8, 0u8, 255u8, 255u8};
+pixel pixel::CYAN = {0u8, 255u8, 255u8, 255u8};
+pixel pixel::TRANSPARENT_BLACK = {0u8, 0u8, 0u8, 0u8};
 
 color_rgba::color_rgba(const pixel pixel) :
 		r(getChannelInt(pixel.r)), g(getChannelInt(pixel.g)), b(getChannelInt(pixel.b)), a(getChannelInt(pixel.a))

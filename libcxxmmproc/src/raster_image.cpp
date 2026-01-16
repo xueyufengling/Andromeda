@@ -7,8 +7,8 @@
 
 #include <string.h>
 
-using namespace andromeda::media;
-using namespace andromeda::graphics;
+using namespace cxxsci;
+using namespace cxxmmproc;
 
 raster_image::raster_image(int img_width, int img_height, pixel* data, bool alloc_if_null) :
 		height(img_height), width(img_width), pixels(data)
@@ -97,21 +97,21 @@ void raster_image::set_pixels(pixel* data, int img_width, int img_height, size_o
 	}
 }
 
-pixel* andromeda::media::generatePixelData(int width, int height, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+pixel* cxxmmproc::generatePixelData(int width, int height, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	pixel* data = (pixel*)malloc(sizeof(pixel) * width * height);
 	fillPixelData(data, width, height, r, g, b, a);
 	return data;
 }
 
-void andromeda::media::fillPixelData(void* data, int height, int width, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void cxxmmproc::fillPixelData(void* data, int height, int width, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	pixel p(r, g, b, a);
 	for(int i; i < width * height; ++i)
-		memcpy(data + 4 * i, &p, 4);
+		memcpy((unsigned char*)data + 4 * i, &p, 4);
 }
 
-int andromeda::media::traversal_pixels(raster_image& image, raster_image::traversal_func func, int x, int y, int stride_x, int stride_y, raster_image::edge_options op)
+int cxxmmproc::traversal_pixels(raster_image& image, raster_image::traversal_func func, int x, int y, int stride_x, int stride_y, raster_image::edge_options op)
 {
 	register int w = image.get_width(), h = image.get_height(), traversaled_count = 0;
 	register raster_image::edge_options exec_flag_x, exec_flag_y = op;
@@ -152,7 +152,7 @@ int andromeda::media::traversal_pixels(raster_image& image, raster_image::traver
 	return traversaled_count;
 }
 
-void andromeda::media::convertRGBA32ToYUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, int linesize_Y, signed char* U, int linesize_U, signed char* V, int linesize_V)
+void cxxmmproc::convertRGBA32ToYUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, int linesize_Y, signed char* U, int linesize_U, signed char* V, int linesize_V)
 {
 	color_rgba back_color(getChannelFloat(br), getChannelFloat(bg), getChannelFloat(bb), 1.0f);
 	color_rgba this_color;
@@ -168,25 +168,25 @@ void andromeda::media::convertRGBA32ToYUV444P(unsigned char* data, int width, in
 	}
 }
 
-void andromeda::media::convertRGBA32ToYUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, signed char* U, signed char* V)
+void cxxmmproc::convertRGBA32ToYUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, signed char* U, signed char* V)
 {
-	andromeda::media::convertRGBA32ToYUV444P(data, width, height, br, bg, bb, Y, width, U, width, V, width);
+	cxxmmproc::convertRGBA32ToYUV444P(data, width, height, br, bg, bb, Y, width, U, width, V, width);
 }
 
-char** andromeda::media::convertRGBA32ToYUV444P(unsigned char* data, int width, int height, float br, float bg, float bb)
+char** cxxmmproc::convertRGBA32ToYUV444P(unsigned char* data, int width, int height, float br, float bg, float bb)
 {
 	char** bytes_arr = (char**)malloc(3 * sizeof(char*));
 	unsigned char* Y = (unsigned char*)malloc(width * height);
 	signed char* U = (signed char*)malloc(width * height);
 	signed char* V = (signed char*)malloc(width * height);
-	andromeda::media::convertRGBA32ToYUV444P(data, width, height, br, bg, bb, Y, U, V);
+	cxxmmproc::convertRGBA32ToYUV444P(data, width, height, br, bg, bb, Y, U, V);
 	*bytes_arr = (char*)Y;
 	*(bytes_arr + 1) = (char*)U;
 	*(bytes_arr + 2) = (char*)V;
 	return bytes_arr;
 }
 
-void andromeda::media::convertRGBA32ToRGB24(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* dest, int linesize)
+void cxxmmproc::convertRGBA32ToRGB24(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* dest, int linesize)
 {
 	color_rgba back_color(getChannelFloat(br), getChannelFloat(bg), getChannelFloat(bb), 1.0f);
 	color_rgba this_color;
@@ -202,19 +202,19 @@ void andromeda::media::convertRGBA32ToRGB24(unsigned char* data, int width, int 
 	}
 }
 
-unsigned char* andromeda::media::convertRGBA32ToRGB24(unsigned char* data, int width, int height, float br, float bg, float bb)
+unsigned char* cxxmmproc::convertRGBA32ToRGB24(unsigned char* data, int width, int height, float br, float bg, float bb)
 {
 	unsigned char* bytes = (unsigned char*)malloc(3 * width * height);
-	andromeda::media::convertRGBA32ToRGB24(data, width, height, br, bg, bb, bytes);
+	cxxmmproc::convertRGBA32ToRGB24(data, width, height, br, bg, bb, bytes);
 	return bytes;
 }
 
-void andromeda::media::convertRGBA32ToRGB24(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* dest)
+void cxxmmproc::convertRGBA32ToRGB24(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* dest)
 {
-	andromeda::media::convertRGBA32ToRGB24(data, width, height, br, bg, bb, dest, width);
+	cxxmmproc::convertRGBA32ToRGB24(data, width, height, br, bg, bb, dest, width);
 }
 
-void andromeda::media::convertYUV444PToRGBA32(int width, int height, unsigned char* Y, int linesize_Y, signed char* U, int linesize_U, signed char* V, int linesize_V, unsigned char* dest)
+void cxxmmproc::convertYUV444PToRGBA32(int width, int height, unsigned char* Y, int linesize_Y, signed char* U, int linesize_U, signed char* V, int linesize_V, unsigned char* dest)
 {
 	for(int y = 0; y < height; ++y)
 	{
@@ -231,12 +231,12 @@ void andromeda::media::convertYUV444PToRGBA32(int width, int height, unsigned ch
 	}
 }
 
-void andromeda::media::convertYUV444PToRGBA32(int width, int height, unsigned char* Y, signed char* U, signed char* V, unsigned char* dest)
+void cxxmmproc::convertYUV444PToRGBA32(int width, int height, unsigned char* Y, signed char* U, signed char* V, unsigned char* dest)
 {
-	andromeda::media::convertYUV444PToRGBA32(width, height, Y, width, U, width, V, width, dest);
+	cxxmmproc::convertYUV444PToRGBA32(width, height, Y, width, U, width, V, width, dest);
 }
 
-void andromeda::media::convertRGBA32Tou255YUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V)
+void cxxmmproc::convertRGBA32Tou255YUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V)
 {
 	color_rgba back_color(getChannelFloat(br), getChannelFloat(bg), getChannelFloat(bb), 1.0f);
 	pixel this_pixel;
@@ -252,25 +252,25 @@ void andromeda::media::convertRGBA32Tou255YUV444P(unsigned char* data, int width
 	}
 }
 
-unsigned char** andromeda::media::convertRGBA32Tou255YUV444P(unsigned char* data, int width, int height, float br, float bg, float bb)
+unsigned char** cxxmmproc::convertRGBA32Tou255YUV444P(unsigned char* data, int width, int height, float br, float bg, float bb)
 {
 	unsigned char** bytes_arr = (unsigned char**)malloc(3 * sizeof(char*));
 	unsigned char* Y = (unsigned char*)malloc(width * height);
 	unsigned char* U = (unsigned char*)malloc(width * height);
 	unsigned char* V = (unsigned char*)malloc(width * height);
-	andromeda::media::convertRGBA32Tou255YUV444P(data, width, height, br, bg, bb, Y, U, V);
+	cxxmmproc::convertRGBA32Tou255YUV444P(data, width, height, br, bg, bb, Y, U, V);
 	*bytes_arr = Y;
 	*(bytes_arr + 1) = U;
 	*(bytes_arr + 2) = V;
 	return bytes_arr;
 }
 
-void andromeda::media::convertRGBA32Tou255YUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, unsigned char* U, unsigned char* V)
+void cxxmmproc::convertRGBA32Tou255YUV444P(unsigned char* data, int width, int height, float br, float bg, float bb, unsigned char* Y, unsigned char* U, unsigned char* V)
 {
-	andromeda::media::convertRGBA32Tou255YUV444P(data, width, height, br, bg, bb, Y, width, U, width, V, width);
+	cxxmmproc::convertRGBA32Tou255YUV444P(data, width, height, br, bg, bb, Y, width, U, width, V, width);
 }
 
-void andromeda::media::convertu255YUV444PToRGBA32(int width, int height, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V, unsigned char* dest)
+void cxxmmproc::convertu255YUV444PToRGBA32(int width, int height, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V, unsigned char* dest)
 {
 	for(int pos_y = 0; pos_y < height; ++pos_y)
 	{
@@ -288,12 +288,12 @@ void andromeda::media::convertu255YUV444PToRGBA32(int width, int height, unsigne
 	}
 }
 
-void andromeda::media::convertu255YUV444PToRGBA32(int width, int height, unsigned char* Y, unsigned char* U, unsigned char* V, unsigned char* dest)
+void cxxmmproc::convertu255YUV444PToRGBA32(int width, int height, unsigned char* Y, unsigned char* U, unsigned char* V, unsigned char* dest)
 {
-	andromeda::media::convertu255YUV444PToRGBA32(width, height, Y, width, U, width, V, width, dest);
+	cxxmmproc::convertu255YUV444PToRGBA32(width, height, Y, width, U, width, V, width, dest);
 }
 
-raster_image& andromeda::media::getRasterImageByu255YUV444P(int width, int height, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V)
+raster_image& cxxmmproc::getRasterImageByu255YUV444P(int width, int height, unsigned char* Y, int linesize_Y, unsigned char* U, int linesize_U, unsigned char* V, int linesize_V)
 {
 	unsigned char* data = (unsigned char*)malloc(sizeof(pixel) * width * height);
 	convertu255YUV444PToRGBA32(width, height, Y, linesize_Y, U, linesize_U, V, linesize_V, data);

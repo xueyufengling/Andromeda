@@ -95,6 +95,24 @@ function(set_equal result list1 list2)
 	endif()
 endfunction()
 
+# Get list element at specified index, if idx is out of range, ${element} value won't be changed.
+function(at list_name idx element)
+	list(LENGTH ${list_name} len)
+	if(${idx} LESS ${len})
+		list(GET ${list_name} ${idx} ${element})
+		set(${element} ${${element}} PARENT_SCOPE)
+	endif()
+endfunction()
+
+function(is_empty result)
+	list(LENGTH ARGN len)
+	if(${len} EQUAL 0)
+		set(${result} TRUE PARENT_SCOPE)
+	else()
+		set(${result} FALSE PARENT_SCOPE)
+	endif()
+endfunction()
+
 # Get all direct sub directories as a list.
 function(subdirs_of dirs_list)
 	foreach(parent_dir IN LISTS ARGN)

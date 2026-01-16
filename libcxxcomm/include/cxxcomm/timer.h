@@ -1,11 +1,10 @@
-#ifndef ANDROMEDA_COMMON_TIMER
-#define ANDROMEDA_COMMON_TIMER
+#ifndef _CXXCOMM_TIMER
+#define _CXXCOMM_TIMER
 
-#include <andromeda/common/array.h>
-#include <andromeda/common/limit_counter.h>
+#include <cxxcomm/array.h>
+#include <cxxcomm/limit_counter.h>
 #include <chrono>
 #include <functional>
-
 
 //高精度时钟的time_point转换成秒
 #define HRC_TIME_DURATION_TO_SEC(delta_time) ((double)std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time).count()/1E9)
@@ -13,9 +12,7 @@
 #define HRC_TIME_DURATION_TO_NANOSEC(delta_time) ((long long int)std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time).count())
 #define HRC_TIME_NOW (std::chrono::high_resolution_clock::now())
 
-namespace andromeda
-{
-namespace common
+namespace cxxcomm
 {
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> high_resolution_time_point; //采用的高精度时间点类型
 
@@ -61,7 +58,7 @@ public:
 		interval_idx_counter._end = -1;
 	}
 };
-}
+
 }
 
-#endif//ANDROMEDA_COMMON_TIMER
+#endif//_CXXCOMM_TIMER

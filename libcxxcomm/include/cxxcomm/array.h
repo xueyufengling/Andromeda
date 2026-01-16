@@ -1,13 +1,11 @@
-#ifndef ANDROMEDA_COMMON_ARRAY
-#define ANDROMEDA_COMMON_ARRAY
+#ifndef _CXXCOMM_ARRAY
+#define _CXXCOMM_ARRAY
 
 #include <malloc.h>
 #include <string.h>
 #include <stddef.h>
 
-namespace andromeda
-{
-namespace common
+namespace cxxcomm
 {
 /**
  * @brief 将变长参数列表打包成指定类型的数组
@@ -346,6 +344,5 @@ size_t array<E>::default_extend_capcity = 1024;
 using buffer = array<unsigned char>;
 
 }
-}
 
-#endif // ANDROMEDA_COMMON_ARRAY
+#endif // _CXXCOMM_ARRAY

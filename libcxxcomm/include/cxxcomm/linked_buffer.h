@@ -1,13 +1,11 @@
-#ifndef ANDROMEDA_COMMON_LINKEDBUFFER
-#define ANDROMEDA_COMMON_LINKEDBUFFER
+#ifndef _CXXCOMM_LINKEDBUFFER
+#define _CXXCOMM_LINKEDBUFFER
 
 #include <iostream>
 #include <malloc.h>
 #include <string.h>
 
-namespace andromeda
-{
-namespace common
+namespace cxxcomm
 {
 template<typename E>
 class linked_buffer
@@ -255,7 +253,7 @@ public:
 		buffer.first_chunk = nullptr;
 	}
 };
-}
+
 }
 
-#endif // ANDROMEDA_COMMON_LINKEDBUFFER
+#endif // _CXXCOMM_LINKEDBUFFER

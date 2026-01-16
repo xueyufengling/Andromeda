@@ -1,8 +1,13 @@
-#ifndef ANDROMEDA_MEDIA_CODEC
-#define ANDROMEDA_MEDIA_CODEC
+#ifndef _CXXMMPROC_CODEC
+#define _CXXMMPROC_CODEC
 
-#include <andromeda/common/array.h>
-#include <andromeda/log/log.h>
+/**
+ * 此头文件依赖于ffmpeg库，在msys2中使用以下指令安装
+ * pacman -S mingw-w64-ucrt-x86_64-ffmpeg
+ */
+
+#include <cxxcomm/array.h>
+#include <cxxcomm/log.h>
 #include <functional>
 #include <vector>
 
@@ -12,11 +17,8 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-namespace andromeda
+namespace cxxmmproc
 {
-namespace media
-{
-
 typedef std::function<void(void*, AVCodecContext*, AVPacket*)> packet_proc;
 typedef std::function<bool(AVCodecContext*)> codec_init;
 
@@ -290,7 +292,6 @@ public:
 };
 
 }
-}
 
 #define set_property(obj,key,val) obj->properties->key=val
 
@@ -354,4 +355,4 @@ public:
             }\
         }
 
-#endif //ANDROMEDA_MEDIA_CODEC
+#endif //_CXXMMPROC_CODEC

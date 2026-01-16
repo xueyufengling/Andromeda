@@ -1,14 +1,14 @@
-#ifndef ANDROMEDA_COMMON_STRINGUTILS
-#define ANDROMEDA_COMMON_STRINGUTILS
+#ifndef _CXXCOMM_STRINGUTILS
+#define _CXXCOMM_STRINGUTILS
 
-#include "../internal/signals.h"
-#include "../io/paths.h"
-#include "../traits/macros.h"
+#include <cxxllo/signal_handle.h>
+#include <cxxcomm/paths.h>
+#include <cxxtricks/macros.h>
 #include "array.h"
 
 #ifdef __FILE__
 #define __FILE_STRING__ __FILE__
-#define __FILENAME_STRING__ (andromeda::io::get_filename(__FILE_STRING__))
+#define __FILENAME_STRING__ (cxxcomm::get_filename(__FILE_STRING__))
 #else
 #define __FILE_STRING__ "<__FILE__ UNDEFINED>"
 #define __FILENAME_STRING__ "<__FILE__ UNDEFINED>"
@@ -54,7 +54,8 @@ __repeat_each__(StdToString,
 template<>
 __attribute__((always_inline)) inline std::string to_string(const char& value)
 {
-	char str[2] = {value, '\0'};
+	char str[2] =
+			{value, '\0'};
 	return std::string(str);
 }
 
@@ -93,7 +94,7 @@ std::string to_string(const std::chrono::time_point<Clock>& value)
 	time_t time = std::chrono::system_clock::to_time_t(value);
 	std::stringstream ss;
 	ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch()).count() % 1000;
+	auto ms = std::chrono::duration_cast < std::chrono::milliseconds > (value.time_since_epoch()).count() % 1000;
 	ss << "." << std::setfill('0') << std::setw(3) << ms;
 	return ss.str();
 }
@@ -164,11 +165,8 @@ inline int value_of(const char value)
 		return -1;
 }
 
-namespace andromeda
+namespace cxxcomm
 {
-namespace common
-{
-
 class split_strings: public array<const char*>
 {
 private:
@@ -196,7 +194,7 @@ inline char lowercase(char ch)
 {
 	return ch >= 'A' && ch <= 'Z' ? ch + 32 : ch;
 }
-}
+
 }
 
-#endif // ANDROMEDA_COMMON_STRINGUTILS
+#endif // _CXXCOMM_STRINGUTILS

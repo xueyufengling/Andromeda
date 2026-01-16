@@ -1,12 +1,12 @@
-#include <andromeda/thread/sequential_lock.h>
+#include <cxxcomm/sequential_lock.h>
 
-using namespace andromeda::thread;
+using namespace cxxcomm;
 
 void sequential_lock::swap(sequential_lock* swap_lock) //传入另一个线程的CoroutineLock对象，
 {
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock < std::mutex > lock(mutex);
 	{
-		std::unique_lock<std::mutex> lock(swap_lock->mutex);
+		std::unique_lock < std::mutex > lock(swap_lock->mutex);
 		swap_lock->is_running = true; //恢复执行传入的线程
 		swap_lock->condition.notify_all(); //通知所有线程（即另一个线程）
 	}

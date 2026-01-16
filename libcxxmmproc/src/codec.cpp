@@ -1,16 +1,15 @@
-#include <andromeda/media/codec.h>
+#include <cxxmmproc/codec.h>
 
 #include <string.h>
 
-using namespace andromeda::media;
-using namespace andromeda::common;
+using namespace cxxmmproc;
 
-codec_init andromeda::media::no_extra_codec_init = [](AVCodecContext* decoder_context) -> bool
+codec_init cxxmmproc::no_extra_codec_init = [](AVCodecContext* decoder_context) -> bool
 		{
 			return decoder_context;
 		};
 
-AVFormatContext* andromeda::media::open_input_file_context(const char* file)
+AVFormatContext* cxxmmproc::open_input_file_context(const char* file)
 {
 	int ret = 0;
 	AVFormatContext* fmt_context = nullptr;
@@ -30,7 +29,7 @@ AVFormatContext* andromeda::media::open_input_file_context(const char* file)
 	return nullptr;
 }
 
-void andromeda::media::init_fmt_context_from_codec_context(AVFormatContext* fmt_context, AVCodecContext* codec_context, size_t stream_idx)
+void cxxmmproc::init_fmt_context_from_codec_context(AVFormatContext* fmt_context, AVCodecContext* codec_context, size_t stream_idx)
 {
 	int ret = 0;
 	const AVCodec* codec = codec_context->codec;
@@ -49,7 +48,7 @@ void andromeda::media::init_fmt_context_from_codec_context(AVFormatContext* fmt_
 	}
 }
 
-AVFormatContext* andromeda::media::alloc_output_file_context(const char* file, AVCodecContext** codec_contexts, size_t context_num)
+AVFormatContext* cxxmmproc::alloc_output_file_context(const char* file, AVCodecContext** codec_contexts, size_t context_num)
 {
 	AVFormatContext* fmt_context = alloc_output_file_context(file);
 	for(size_t idx = 0; idx < context_num; ++idx)
@@ -60,13 +59,13 @@ AVFormatContext* andromeda::media::alloc_output_file_context(const char* file, A
 	return fmt_context;
 }
 
-void andromeda::media::close_file_context(AVFormatContext* fmt_context)
+void cxxmmproc::close_file_context(AVFormatContext* fmt_context)
 {
 	if(fmt_context)
 		avformat_close_input(&fmt_context);
 }
 
-bool andromeda::media::alloc_send_recv_buffer(AVPacket** packet, AVFrame** frame)
+bool cxxmmproc::alloc_send_recv_buffer(AVPacket** packet, AVFrame** frame)
 {
 	*frame = av_frame_alloc();
 	if(!*frame)
@@ -83,7 +82,7 @@ bool andromeda::media::alloc_send_recv_buffer(AVPacket** packet, AVFrame** frame
 	return true;
 }
 
-AVPacket* andromeda::media::read_packet(AVFormatContext* fmt_context)
+AVPacket* cxxmmproc::read_packet(AVFormatContext* fmt_context)
 {
 	AVPacket* decoder_packet = nullptr;
 	int ret = 0;

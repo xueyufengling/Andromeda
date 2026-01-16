@@ -9,7 +9,7 @@
 template<typename _FuncType, typename _RetType>
 struct __callable_retv_impl
 {
-	typedef _RetType result_type;
+	typedef _RetType type;
 
 	_FuncType _callable;
 
@@ -19,7 +19,7 @@ struct __callable_retv_impl
 	}
 
 	template<typename ..._ArgTypes>
-	__attribute__((always_inline)) inline result_type operator()(_ArgTypes ... args)
+	__attribute__((always_inline)) inline type operator()(_ArgTypes ... args)
 	{
 		return _callable(args...);
 	}
@@ -28,7 +28,7 @@ struct __callable_retv_impl
 template<typename _FuncType>
 struct __callable_retv_impl<_FuncType, void>
 {
-	typedef int result_type;
+	typedef int type;
 
 	_FuncType _callable;
 
@@ -38,7 +38,7 @@ struct __callable_retv_impl<_FuncType, void>
 	}
 
 	template<typename ..._ArgTypes>
-	__attribute__((always_inline)) inline result_type operator()(_ArgTypes ... args)
+	__attribute__((always_inline)) inline type operator()(_ArgTypes ... args)
 	{
 		_callable(args...);
 		return 0;
@@ -46,12 +46,12 @@ struct __callable_retv_impl<_FuncType, void>
 };
 
 template<typename _FuncType>
-struct callable_retv: public __callable_retv_impl<_FuncType, typename eval_type<_FuncType>::result_type>
+struct callable_retv: public __callable_retv_impl<_FuncType, typename eval_type<_FuncType>::type>
 {
-	using __callable_retv_impl<_FuncType, typename eval_type<_FuncType>::result_type>::result_type;
+	using __callable_retv_impl<_FuncType, typename eval_type<_FuncType>::type>::type;
 
 	__attribute__((always_inline)) inline callable_retv(_FuncType callable) :
-			__callable_retv_impl<_FuncType, typename eval_type<_FuncType>::result_type>(callable)
+			__callable_retv_impl<_FuncType, typename eval_type<_FuncType>::type>(callable)
 	{
 	}
 };

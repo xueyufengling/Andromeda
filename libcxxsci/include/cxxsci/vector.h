@@ -1,16 +1,13 @@
-#ifndef ANDROMEDA_MA_TH_VEC_TOR
-#define ANDROMEDA_MA_TH_VEC_TOR
+#ifndef _CXXSCI_VECTOR
+#define _CXXSCI_VECTOR
 
-#include "../traits/types.h"
+#include <cxxtricks/types.h>
 #include <math.h>
 #include <malloc.h>
 
-#include "../internal/signals.h"
 #include <sstream>
 
-namespace andromeda
-{
-namespace math
+namespace cxxsci
 {
 template<size_t _Dim, typename _T = float>
 class vector //列向量，初始化使用vector vec={x,y,z,w...};
@@ -297,7 +294,7 @@ public:
 using vector2f=vector<2, float>;
 using vector3f=vector3<float>;
 using Vector4f=vector<4, float>;
-}
+
 }
 
-#endif//ANDROMEDA_MA_TH_VEC_TOR
+#endif//_CXXSCI_VECTOR

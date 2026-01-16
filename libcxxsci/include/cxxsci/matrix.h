@@ -2,16 +2,12 @@
 #define _CXXSCI_MATRIX
 
 #include <cxxtricks/types.h>
+#include <cxxsci/vector.h>
 #include <math.h>
 #include <malloc.h>
-#include "vector.h"
-
-#include <cxxllo/signal_handle.h>
 #include <sstream>
 
-namespace andromeda
-{
-namespace math
+namespace cxxsci
 {
 template<size_t _Row, size_t _Column, typename _T = float>
 class matrix
@@ -794,6 +790,6 @@ public:
 };
 
 using matrix4x4f=matrix4x4<float>;
-}
+
 }
 #endif//_CXXSCI_MATRIX

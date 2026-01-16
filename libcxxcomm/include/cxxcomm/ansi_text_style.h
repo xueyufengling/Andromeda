@@ -1,13 +1,11 @@
-#ifndef ANDROMEDA_COMMON_ANSISTYLE
-#define ANDROMEDA_COMMON_ANSISTYLE
+#ifndef _CXXCOMM_ANSISTYLE
+#define _CXXCOMM_ANSISTYLE
 
 #include <string>
 
-#include "array.h"
+#include <cxxcomm/array.h>
 
-namespace andromeda
-{
-namespace common
+namespace cxxcomm
 {
 
 /**
@@ -116,7 +114,7 @@ inline std::string pack_ansi_text_style(int (&&text_styles)[_StylesNum])
 template<typename ..._Styles>
 inline std::string pack_ansi_text_style(_Styles ...styles)
 {
-	return pack_ansi_text_style(andromeda::common::pack_c_array<int>(styles...), sizeof...(styles), true); //由于pack_c_array构造了数组对象，因此必须在构造样式字符串完成以后回收内存
+	return pack_ansi_text_style(cxxcomm::pack_c_array<int>(styles...), sizeof...(styles), true); //由于pack_c_array构造了数组对象，因此必须在构造样式字符串完成以后回收内存
 }
 
 /**
@@ -140,6 +138,5 @@ extern std::string foreground_color_rgb_ansi_text_style(int r, int g, int b);
 extern std::string background_color_rgb_ansi_text_style(int r, int g, int b);
 
 }
-}
 
-#endif //ANDROMEDA_COMMON_ANSISTYLE
+#endif //_CXXCOMM_ANSISTYLE

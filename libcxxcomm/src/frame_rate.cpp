@@ -1,10 +1,9 @@
-#include <andromeda/app/frame_rate.h>
-#include <andromeda/log/log.h>
+#include <cxxcomm/frame_rate.h>
+#include <cxxcomm/log.h>
 
 #include <thread>
 
-using namespace andromeda::app;
-using namespace andromeda::common;
+using namespace cxxcomm;
 
 #define DEBUG false
 

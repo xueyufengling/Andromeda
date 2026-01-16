@@ -1,13 +1,10 @@
-#ifndef ANDROMEDA_MEDIA_AUDIOCODEC
-#define ANDROMEDA_MEDIA_AUDIOCODEC
+#ifndef _CXXMMPROC_AUDIOCODEC
+#define _CXXMMPROC_AUDIOCODEC
 
-#include "codec.h"
-#include "pcm_audio.h"
+#include <cxxmmproc/codec.h>
+#include <cxxmmproc/pcm_audio.h>
 
-
-namespace andromeda
-{
-namespace media
+namespace cxxmmproc
 {
 inline int sizeof_sample(AVSampleFormat fmt)
 {
@@ -51,6 +48,5 @@ protected:
 };
 
 }
-}
 
-#endif // ANDROMEDA_MEDIA_AUDIOCODEC
+#endif // _CXXMMPROC_AUDIOCODEC

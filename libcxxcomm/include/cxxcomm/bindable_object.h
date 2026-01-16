@@ -1,9 +1,7 @@
-#ifndef ANDROMEDA_COMMON_OBJECTCOMPONENT
-#define ANDROMEDA_COMMON_OBJECTCOMPONENT
+#ifndef _CXXCOMM_OBJECTCOMPONENT
+#define _CXXCOMM_OBJECTCOMPONENT
 
-namespace andromeda
-{
-namespace common
+namespace cxxcomm
 {
 /**
  * 使用绑定机制工作的对象，例如OpenGL、OpenAL的各种对象
@@ -72,6 +70,5 @@ public:
 };
 
 }
-}
 
-#endif //ANDROMEDA_COMMON_OBJECTCOMPONENT
+#endif //_CXXCOMM_OBJECTCOMPONENT

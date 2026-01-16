@@ -1,9 +1,7 @@
-#ifndef ANDROMEDA_COMMON_LIMITCOUNTER
-#define ANDROMEDA_COMMON_LIMITCOUNTER
+#ifndef _CXXCOMM_LIMITCOUNTER
+#define _CXXCOMM_LIMITCOUNTER
 
-namespace andromeda
-{
-namespace common
+namespace cxxcomm
 {
 //设置起始值和终止值构成循环序列，则自增、自减运算结果值都落入该序列。只适用于基础数据类型
 template<typename T>
@@ -72,7 +70,7 @@ public:
 		return old_counter;
 	}
 };
-}
+
 }
 
-#endif//ANDROMEDA_COMMON_LIMITCOUNTER
+#endif//_CXXCOMM_LIMITCOUNTER

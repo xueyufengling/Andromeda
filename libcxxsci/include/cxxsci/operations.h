@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_MATH_OPERATIONS
-#define ANDROMEDA_MATH_OPERATIONS
+#ifndef _CXXSCI_OPERATIONS
+#define _CXXSCI_OPERATIONS
 
 #define M_PI 3.14159265358979323846
 
@@ -9,4 +9,4 @@
 #define getSmallerNumber(x,y) (x<y?x:y)
 #define getAbsoluteValue(n) (n<0?-n:n)
 
-#endif //ANDROMEDA_MATH_OPERATIONS
+#endif //_CXXSCI_OPERATIONS

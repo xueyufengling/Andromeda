@@ -6,6 +6,8 @@ project(cxxgctx)
 
 project_target(static_library)
 
+project_import_package_std(PRIVATE glfw3)
+
 project_dependency_libs(PUBLIC cxxtricks PUBLIC cxxllo PUBLIC cxxcomm PUBLIC cxxmmproc)
 
 # Include libcxxllo header files

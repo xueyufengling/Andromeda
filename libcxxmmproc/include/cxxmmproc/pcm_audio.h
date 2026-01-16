@@ -1,5 +1,5 @@
-#ifndef ANDROMEDA_MEDIA_PCMAUDIO
-#define ANDROMEDA_MEDIA_PCMAUDIO
+#ifndef _CXXMMPROC_PCMAUDIO
+#define _CXXMMPROC_PCMAUDIO
 
 #include <algorithm>
 
@@ -8,15 +8,12 @@ extern "C"
 #include <libavcodec/avcodec.h>
 }
 
-#include <andromeda/log/log.h>
-#include <andromeda/common/linked_buffer.h>
-#include "audio_codec.h"
+#include <cxxcomm/log.h>
+#include <cxxcomm/linked_buffer.h>
+#include <cxxmmproc/audio_codec.h>
 
-namespace andromeda
+namespace cxxmmproc
 {
-namespace media
-{
-
 enum audio_channel
 {
 	AUDIO_CHANNEL_LEFT = 0, AUDIO_CHANNEL_RIGHT = 1
@@ -307,6 +304,5 @@ public:
 };
 
 }
-}
 
-#endif // ANDROMEDA_MEDIA_PCMAUDIO
+#endif // _CXXMMPROC_PCMAUDIO

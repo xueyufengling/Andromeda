@@ -1,4 +1,4 @@
-#include <andromeda/media/audio_codec.h>
+#include <cxxmmproc/audio_codec.h>
 
-using namespace andromeda::media;
+using namespace cxxmmproc;
 

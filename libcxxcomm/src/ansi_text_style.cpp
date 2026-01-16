@@ -1,7 +1,7 @@
-#include <andromeda/common/ansi_text_style.h>
+#include <cxxcomm/ansi_text_style.h>
 #include <sstream>
 
-std::string andromeda::common::pack_ansi_text_style(int* text_styles, size_t text_styles_count, bool free_text_styles_arr)
+std::string cxxcomm::pack_ansi_text_style(int* text_styles, size_t text_styles_count, bool free_text_styles_arr)
 {
 	std::stringstream ss;
 	ss << "\033[";
@@ -22,22 +22,22 @@ std::string andromeda::common::pack_ansi_text_style(int* text_styles, size_t tex
 	return ss.str();
 }
 
-std::string andromeda::common::foreground_color_256_ansi_text_style(int color)
+std::string cxxcomm::foreground_color_256_ansi_text_style(int color)
 {
 	return pack_ansi_text_style(ansi_text_style::SET_FOREGROUND_COLOR_RGB, ansi_text_style::ANSI_COLOR_256, color);
 }
 
-std::string andromeda::common::background_color_256_ansi_text_style(int color)
+std::string cxxcomm::background_color_256_ansi_text_style(int color)
 {
 	return pack_ansi_text_style(ansi_text_style::SET_BACKGROUND_COLOR_RGB, ansi_text_style::ANSI_COLOR_256, color);
 }
 
-std::string andromeda::common::foreground_color_rgb_ansi_text_style(int r, int g, int b)
+std::string cxxcomm::foreground_color_rgb_ansi_text_style(int r, int g, int b)
 {
 	return pack_ansi_text_style(ansi_text_style::SET_FOREGROUND_COLOR_RGB, ansi_text_style::ANSI_COLOR_RGB, r, g, b);
 }
 
-std::string andromeda::common::background_color_rgb_ansi_text_style(int r, int g, int b)
+std::string cxxcomm::background_color_rgb_ansi_text_style(int r, int g, int b)
 {
 	return pack_ansi_text_style(ansi_text_style::SET_BACKGROUND_COLOR_RGB, ansi_text_style::ANSI_COLOR_RGB, r, g, b);
 }

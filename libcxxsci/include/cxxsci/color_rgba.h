@@ -1,11 +1,9 @@
-#ifndef ANDROMEDA_GRAPHICS_COLORRGBA
-#define ANDROMEDA_GRAPHICS_COLORRGBA
+#ifndef _CXXSCI_COLORRGBA
+#define _CXXSCI_COLORRGBA
 
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-
-#include "../math/operations.h"
 
 //一些颜色相关数学宏
 
@@ -23,11 +21,9 @@
 #define getPixelChrominaceInt(i) (i<-127.5?-127.5:(i>127.5?127.5:i))
 #define getPixelChrominaceFloat(f) (f<-0.5?-0.5:(f>0.5?0.5:f))
 
-namespace andromeda
+namespace cxxsci
 {
-namespace graphics
-{
-enum color_channel
+enum class color_channel : int
 {
 	R = 0, G, B, A
 };
@@ -68,13 +64,13 @@ public:
 
 	inline color_rgba& set_rgba(color_channel color_ch, float color_value)
 	{
-		*((float*)this + color_ch) = getChannelFloat(color_value);
+		*((float*)this + (int)color_ch) = (int)getChannelFloat(color_value);
 		return *this;
 	}
 
 	inline float get_rgba(color_channel color_ch)
 	{
-		return *((float*)this + color_ch);
+		return *((float*)this + (int)color_ch);
 	}
 
 	color_rgba& set_rgba(float _r = -1, float _g = -1, float _b = -1, float _a = -1); //设置-1表示不变，0-255则改变为设置的值，超出这个范围的就取0或255
@@ -150,13 +146,13 @@ public:
 
 	inline pixel& set_rgba(color_channel color_ch, float color_value)
 	{
-		*((int*)this + color_ch) = getChannelInt(color_value);
+		*((int*)this + (int)color_ch) = getChannelInt(color_value);
 		return *this;
 	}
 
 	inline int get_rgba(color_channel color_ch)
 	{
-		return *((int*)this + color_ch);
+		return *((int*)this + (int)color_ch);
 	}
 
 	pixel& set_rgba(int _r = -1, int _g = -1, int _b = -1, int _a = -1); //设置-1表示不变，0-255则改变为设置的值，超出这个范围的就取0或255
@@ -179,7 +175,7 @@ public:
 	static pixel CYAN;
 	static pixel TRANSPARENT_BLACK;
 };
-}
+
 }
 
-#endif //ANDROMEDA_GRAPHICS_COLORRGBA
+#endif //_CXXSCI_COLORRGBA
