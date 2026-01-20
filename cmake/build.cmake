@@ -511,3 +511,30 @@ function(set_output_dir static_lib_dir shared_lib_dir exec_dir)
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${shared_lib_dir}" PARENT_SCOPE)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${exec_dir}" PARENT_SCOPE)
 endfunction()
+
+# Install
+
+function(set_install_dir install_dir static_lib_dir shared_lib_dir exec_dir include_dir)
+	set(CMAKE_INSTALL_PREFIX "${install_dir}" PARENT_SCOPE)
+	set(LIBCXXBASE_ARCHIVE_INSTALL_DIRECTORY "${static_lib_dir}" PARENT_SCOPE)
+	set(LIBCXXBASE_LIBRARY_INSTALL_DIRECTORY "${shared_lib_dir}" PARENT_SCOPE)
+	set(LIBCXXBASE_RUNTIME_INSTALL_DIRECTORY "${exec_dir}" PARENT_SCOPE)
+	set(LIBCXXBASE_INCLUDE_INSTALL_DIRECTORY "${include_dir}" PARENT_SCOPE)
+endfunction()
+
+function(install_target target_name install_include)
+	install(TARGETS ${target_name}
+		ARCHIVE DESTINATION ${LIBCXXBASE_ARCHIVE_INSTALL_DIRECTORY}
+		LIBRARY DESTINATION ${LIBCXXBASE_LIBRARY_INSTALL_DIRECTORY}
+		RUNTIME DESTINATION ${LIBCXXBASE_RUNTIME_INSTALL_DIRECTORY}
+	)
+	if(install_include)
+		get_target_property(include_files ${target_name} INCLUDE_DIRECTORIES)
+		message(STATUS "install ${include_files}")
+		#install(DIRECTORY ${include_files} DESTINATION ${LIBCXXBASE_INCLUDE_INSTALL_DIRECTORY})
+	endif()
+endfunction()
+
+function(install_project install_include)
+	install_target(${PROJECT_NAME} ${install_include})
+endfunction()

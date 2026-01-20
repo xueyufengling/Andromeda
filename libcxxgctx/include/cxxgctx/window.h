@@ -5,9 +5,14 @@
 #include <cxxsci/color_rgba.h>
 #include <cxxmmproc/raster_image.h>
 
+/**
+ * 本库依赖于GLFW，在msys2中使用以下命令安装
+ * pacman -S mingw-w64-ucrt-x86_64-glfw
+ */
+
 #include <GLFW/glfw3.h>
 
-#if defined (__PLATFORM_WIN__)
+#if defined (__PLATFORM_WIN32__)
 #include <windows.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 
@@ -23,7 +28,8 @@ static void __resize_callback(GLFWwindow* glfw_window, int new_width, int new_he
 class window
 {
 	friend void __resize_callback(GLFWwindow*, int, int);
-	public:
+
+public:
 	typedef void (*resize_callback)(window&, int orig_width, int orig_height, int new_width, int new_height);
 
 private:
@@ -215,7 +221,7 @@ public:
 	}
 #endif
 
-#if defined(__PLATFORM_WIN__)
+#if defined(__PLATFORM_WIN32__)
 	inline HWND handle()
 	{
 		return glfwGetWin32Window(window_id);
@@ -240,13 +246,13 @@ public:
 
 	inline static bool _win_set_window_alpha(HWND handle, int rest_alpha)
 	{
-		return SetLayeredWindowAttributes(handle, NULL, rest_alpha, LWA_ALPHA);
+		return SetLayeredWindowAttributes(handle, COLORREF(0), rest_alpha, LWA_ALPHA);
 	}
 #endif
 
 	inline void set_window_transparent_color(cxxsci::pixel transparent_color) //设置窗口透明色，透明处鼠标事件穿透，不透明的地方依然不会穿透
 	{
-#if defined (_WIN32) || defined (_WIN64)
+#if defined (__PLATFORM_WIN32__)
 		HWND hd = handle();
 		_win_set_window_ex_layered(hd);
 		_win_set_window_alpha(hd, transparent_color);

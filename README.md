@@ -18,6 +18,10 @@ Low-level operations for C++ at runtime.<br>
 
 Common utils and functions, classes for general purpose programming.<br>
 
+## cxxnw
+
+Network library based on boost::asio.<br>
+
 ## cxxsci
 
 Implementions for Science calculation and algorithms.<br>

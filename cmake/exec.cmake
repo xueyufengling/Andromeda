@@ -3,30 +3,35 @@
 
 # Execute command
 function(execute)
-execute_process(COMMAND ${ARGN})
+	execute_process(COMMAND ${ARGN})
 endfunction()
 
 # cmake
 function(cmake)
-execute(${CMAKE_COMMAND} ${ARGN})
+	execute(${CMAKE_COMMAND} ${ARGN})
 endfunction()
 
 # printf
 function(printf)
-execute(printf ${ARGN})
+	execute(printf ${ARGN})
 endfunction()
 
 # c compiler
 function(cc)
-execute(${CMAKE_C_COMPILER} ${ARGN})
+	execute(${CMAKE_C_COMPILER} ${ARGN})
 endfunction()
 
 # c++ compiler
 function(cxxc)
-execute(${CMAKE_CXX_COMPILER} ${ARGN})
+	execute(${CMAKE_CXX_COMPILER} ${ARGN})
 endfunction()
 
 # linker
 function(ld)
-execute(${CMAKE_LINKER} ${ARGN})
+	execute(${CMAKE_LINKER} ${ARGN})
+endfunction()
+
+# make
+function(make)
+	execute(${CMAKE_MAKE_PROGRAM} ${ARGN})
 endfunction()

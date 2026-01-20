@@ -1,10 +1,6 @@
 #ifndef _CXXGCTX_GL_GLBASIC
 #define _CXXGCTX_GL_GLBASIC
 
-/**
- * 本库依赖于GLFW，在msys2中使用以下命令安装
- * pacman -S mingw-w64-ucrt-x86_64-glfw
- */
 #include <cxxllo/platform.h>
 #include <cxxcomm/bindable_object.h>
 #include <cxxcomm/clib_call.h>

@@ -7,7 +7,7 @@
  */
 #ifdef _INC_SIGNAL
 #define __SIGNAL_H_ALMOST_INCLUDED__
-#error "<andromeda/internal/signals.h> must be included before any other header files that including <signal.h>"
+#error "this file must be included before any other header files that including std <signal.h>"
 #endif
 
 /**

@@ -4,8 +4,8 @@
 /**
  * @brief 将x连接到变长参数列表第一个参数前
  */
-#define __cat_intl__(x, ...) x##__VA_ARGS__
-#define __cat__(...) __cat_intl__(__VA_ARGS__)
+#define __cat_2_intl__(x, ...) x##__VA_ARGS__
+#define __cat_2__(...) __cat_2_intl__(__VA_ARGS__)
 
 /**
  * @brief 将前3项连接成一项
@@ -16,6 +16,9 @@
 #define __cat_4_intl__(x, y, z, ...) x##y##z##__VA_ARGS__
 #define __cat_4__(...) __cat_4_intl__(__VA_ARGS__)
 
+#define __cat_5_intl__(x, y, z, i,  ...) x##y##z##i##__VA_ARGS__
+#define __cat_5__(...) __cat_5_intl__(__VA_ARGS__)
+
 /**
  * @brief 字符串化
  */
@@ -25,8 +28,13 @@
 /**
  * @brief 对传入的宏进行扫描展开
  */
-
 #define __scan__(...) __VA_ARGS__
+
+/**
+ * @brief 当一个参数位传入一个','分隔的参数列表时，将该参数用此宏包围，如果需要将此列表作为一个整体传递给其他宏的单个参数，则在传入时需要将列表用此宏包围，即保留参数的列表性质
+ * 		  原理：如果一个宏接收多个参数，那么该宏经过展开即便有','分隔符也视作单个参数，因此可以将参数列表打包成单个参数。
+ */
+#define __pack_list__(...) __VA_ARGS__
 
 /**
  * 注：由于未知原因，__full_scan_intl__0(...)必须直接地定义为__VA_ARGS__，而下列写法虽然看上去正确但实际上对于较大（但理论上仍然可行的）展开次数会报错：
@@ -48,7 +56,7 @@
 /**
  * @brief 选择一个扫描等级，等级越高扫描次数越多，指数级增加
  */
-#define __full_scan_level__(level) __cat__(__full_scan_intl__, level)
+#define __full_scan_level__(level) __cat_2__(__full_scan_intl__, level)
 
 /**
  * @brief 足够多次地重复扫描参数，确保传入参数的完全展开
@@ -88,7 +96,7 @@
 /**
  * @brief 逻辑非
  */
-#define __not_intl__(expr) __cat__(__not_intl__, expr)
+#define __not_intl__(expr) __cat_2__(__not_intl__, expr)
 #define __not_intl__1 0
 #define __not_intl__0 1
 
@@ -128,7 +136,7 @@
 #define __xor_intl__10 1
 #define __xor_intl__11 0
 
-#define __if_else_intl__(cond) __cat__(__if_else_intl__, cond)
+#define __if_else_intl__(cond) __cat_2__(__if_else_intl__, cond)
 #define __if_else_intl__1(true_result, false_result) true_result
 #define __if_else_intl__0(true_result, false_result) false_result
 
@@ -207,12 +215,12 @@
 /**
  * @brief 判断是否定义了__equal__x(x) x 宏，未定义则留下__equal__x()()，__match_parenthesis__宏将其判定为0；如果已经定义，则只留下括号()，判定为1
  */
-#define __defined_equal__(x) __match_parenthesis__(__cat__(__equal__, x)(()))
+#define __defined_equal__(x) __match_parenthesis__(__cat_2__(__equal__, x)(()))
 
 /**
  * @brief 判断相等的内部实现，如果相等由于宏被涂蓝标记后不会继续展开，最终留下__equal__param2()，如果不相同则两个宏都可以展开，结果为空
  */
-#define __equal_intl__(param1, param2) __not_intl__(__match_parenthesis__(__cat__(__equal__, param1)(__cat__(__equal__, param2))(())))
+#define __equal_intl__(param1, param2) __not_intl__(__match_parenthesis__(__cat_2__(__equal__, param1)(__cat_2__(__equal__, param2))(())))
 
 /**
  * @brief 判断两个符号是否相同。需要对两个符号m、n分别定义
@@ -575,7 +583,7 @@
 /**
  * @brief 0-255的自增运算
  */
-#define __inc__(x) __cat__(__inc__, x)
+#define __inc__(x) __cat_2__(__inc__, x)
 #define __inc__0 1
 #define __inc__1 2
 #define __inc__2 3
@@ -836,7 +844,7 @@
 /**
  * @brief 256-1的自减运算
  */
-#define __dec__(x) __cat__(__dec__, x)
+#define __dec__(x) __cat_2__(__dec__, x)
 #define __dec__256 255
 #define __dec__255 254
 #define __dec__254 253
@@ -1157,6 +1165,26 @@
  */
 #define __numof__(...) __macro_params_num_intl__(__VA_ARGS__, __macro_params_nums_values__)
 
+#define __cat_intl__(params_num, delim, recursive_result, cat_param, ...)\
+	__if__(params_num)\
+	(\
+		__if_else__(__equal__(params_num, 1))\
+		(\
+			__cat_2__(recursive_result, cat_param),\
+			__3_pass_alias__(__alias_cat_intl__)()(__dec__(params_num), delim, __cat_3__(recursive_result, cat_param, delim), __VA_ARGS__)\
+		)\
+	)
+#define __alias_cat_intl__() __cat_intl__
+
+/**
+ * @brief 拼接任意长度的token，变长参数列表的元素以delim隔开
+ * 		  例如__cat__(_, a, b, c)将会得到a_b_c
+ * 		  原理：使用了宏递归展开，由于外层有__if__()和__if_else__()两个宏包围，因此需要3 pass才能完整展开递归的目标宏
+ */
+#define __cat__(delim, ...) __full_scan__(__cat_intl__(__numof__(__VA_ARGS__), delim, , __VA_ARGS__))
+
+//常用工具宏
+
 #define __repeat_each_intl__(params_num, macro_name, param, ...)\
 	__if__(params_num)\
 	(\
@@ -1235,11 +1263,31 @@
  */
 #define __op_each_extras__(op_macro, extra_params_macro, ...) __full_scan__(__op_each_extras_intl__(__numof__(__VA_ARGS__), op_macro, extra_params_macro, __VA_ARGS__))
 
+#define __replace_delim_intl__delim(delim, ...) __VA_ARGS__ delim
+
+#define __replace_delim_intl__(params_num, delim, op_param, ...)\
+	__if__(params_num)\
+	(\
+		__if_else__(__equal__(params_num, 1))\
+		(\
+			op_param,\
+			__replace_delim_intl__delim(delim, op_param)\
+		)\
+		__2_pass_alias__(__alias_replace_delim_intl__)()(__dec__(params_num), delim, __VA_ARGS__)\
+	)
+#define __alias_replace_delim_intl__() __replace_delim_intl__
+
+/**
+ * @brief 将变长参数列表的每个参数末尾的分隔符','替换为delim，不同参数之间以空格隔开。
+ * 		  例如__replace_delim__(, a, b, c)将得到a b c，而__replace_delim__(_, a, b, c)将得到a _ b _ c
+ */
+#define __replace_delim__(delim,  ...) __full_scan__(__replace_delim_intl__(__numof__(__VA_ARGS__), delim, __VA_ARGS__))
+
 /**
  * @brief 同名变体宏的名称。
  * 		  如果是重载宏，则为原名称+参数个数
  */
-#define __macro_variant_name__(macro_name, n) __cat__(macro_name, n)
+#define __macro_variant_name__(macro_name, n) __cat_2__(macro_name, n)
 
 /**
  * @brief 定义重载参数宏的示例，重载宏的名称需要与__macro_overloaded_name()保持一致

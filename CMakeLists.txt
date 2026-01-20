@@ -5,6 +5,7 @@ include("./cmake/build.cmake")
 
 setup_toolchain(win32 x86_64)
 set_output_dir(liba libso bin)
+set_install_dir("C:/msys64/ucrt64/lib" liba libso bin include)
 
 add_package_search_path("C:/msys64/ucrt64/share" "C:/msys64/ucrt64/lib/cmake")
 
@@ -22,6 +23,7 @@ add_subdirectory("libcxxtricks")
 add_subdirectory("libcxxllo")
 add_subdirectory("libcxxsci")
 add_subdirectory("libcxxcomm")
+#add_subdirectory("libcxxnw")
 add_subdirectory("libcxxmmproc")
 add_subdirectory("libcxxactx")
 add_subdirectory("libcxxgctx")
@@ -36,7 +38,10 @@ project_dependency_libs(
     PUBLIC cxxllo
     PUBLIC cxxsci
     PUBLIC cxxcomm
+#    PUBLIC cxxnw
     PUBLIC cxxmmproc
     PUBLIC cxxactx
     PUBLIC cxxgctx
 )
+
+install_project(TRUE)
