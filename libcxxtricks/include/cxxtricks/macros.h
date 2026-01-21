@@ -567,6 +567,8 @@
 #define __equal__nullptr(x) x
 #define __equal__static_assert(x) x
 #define __equal__thread_local(x) x
+#define __equal____asm__(x) x
+#define __equal____volatile__(x) x
 //预处理器指令
 #define __equal__define(x) x
 #define __equal__include(x) x
