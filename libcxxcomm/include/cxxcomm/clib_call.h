@@ -6,7 +6,7 @@
 
 #include <cxxcomm/log.h>
 
-#define clibcall_name(lib_name) __cat__(__clibcall_, lib_name)
+#define clibcall_name(lib_name) __cats__(2)(__clibcall_, lib_name)
 
 /**
  * @brief 调用任意使用函数查询错误码的C库函数并返回执行的结果或错误码。

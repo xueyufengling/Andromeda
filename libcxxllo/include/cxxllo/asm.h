@@ -11,7 +11,11 @@
 /**
  * 具有约束字符的输入、输出变量声明
  */
-#define __asm_constraint__(asm_var_name, constraint, value) [asm_var_name] __str__(constraint) (value)
+#define __asm_constraint__(asm_var_name, constraint, value)\
+	__if_else__(__is_empty__(asm_var_name))(\
+		__str__(constraint) (value),\
+		[asm_var_name] __str__(constraint) (value)\
+	)
 
 /**
  * @brief 只读的asm输入变量
@@ -104,6 +108,6 @@
  *			)
  *			如果out_flag为jmp，则asm_out_list为C/C++的goto跳转标签列表
  */
-#define __asm_inline__(optimize_flag, out_flag) __cat_4__(__asm_inline__, optimize_flag, _, out_flag)
+#define __asm_inline__(optimize_flag, out_flag) __cats__(4)(__asm_inline__, optimize_flag, _, out_flag)
 
 #endif //_CXXLLO_ASM

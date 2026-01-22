@@ -4,44 +4,176 @@
 /**
  * 指令级底层操作和原语
  */
+
 #include <stdint.h>
 #include <cxxllo/asm.h>
+
+#if defined(__ARCHITECTURE_X86_64__) || defined(__ARCHITECTURE_X86__)
+/**
+ * @brief 将rip或eip寄存器中的指令地址储存到C/C++变量
+ */
+#define __stip(dest)\
+		__asm_inline__(optimized, var)(\
+			__asm_list__(),\
+			__asm_list__(),\
+			__asm_list__(__asm_out__(dest, m)),\
+			"call 1f",\
+			"1: pop %" __str__([dest])\
+		)
+
+/**
+ * @brief jmp指令将C/C++变量值写入rip寄存器
+ */
+#define __jmp(dest)\
+		__asm_inline__(optimized, var)(\
+			__asm_list__(),\
+			__asm_list__(__asm_in__(, r, (void*)dest)),\
+			__asm_list__(),\
+			"jmp *%0"\
+		)
+
+/**
+ * @brief 跳转到寄存器储存的地址
+ */
+#define __jmpr(dest)\
+		__asm_inline__(optimized, var)(\
+			__asm_list__(),\
+			__asm_list__(),\
+			__asm_list__(),\
+			"jmp *%%" __str__(dest)\
+		)
 
 /**
  * @brief 加载值到指定位置
  * @param dest 目标位置
  * @param src 要加载的值，可以是立即值或C/C++变量，这些src值都会被加载进临时寄存器，随后再从临时寄存器移入目标位置
  */
-#define __ld(dest, src)\
+#define __ldb(dest, src)\
 		__asm_inline__(optimized, var)(\
 			__asm_list__(),\
-			__asm_list__(__asm_in__(_mov_src, r, src)),\
+			__asm_list__(__asm_in__(_mov_src, r, (uint8_t)src)),\
 			__asm_list__(),\
-			"mov %[_mov_src], %" __str__(dest)\
+			"movb %[_mov_src], %" __str__(dest)\
 		)
 
 /**
  * @brief 加载值到寄存器，可以是立即值或C/C++变量
  */
-#define __Rl(reg_name, src) __ld(%reg_name, src)
+#define __ldrb(reg_name, src) __ldb(%reg_name, src)
+
+#define __ldw(dest, src)\
+		__asm_inline__(optimized, var)(\
+			__asm_list__(),\
+			__asm_list__(__asm_in__(_mov_src, r, (uint16_t)src)),\
+			__asm_list__(),\
+			"movw %[_mov_src], %" __str__(dest)\
+		)
+
+#define __ldrw(reg_name, src) __ldw(%reg_name, src)
+
+#define __ldl(dest, src)\
+		__asm_inline__(optimized, var)(\
+			__asm_list__(),\
+			__asm_list__(__asm_in__(_mov_src, r, (uint32_t)src)),\
+			__asm_list__(),\
+			"movl %[_mov_src], %" __str__(dest)\
+		)
+
+#define __ldrl(reg_name, src) __ldl(%reg_name, src)
+
+#define __ldq(dest, src)\
+		__asm_inline__(optimized, var)(\
+			__asm_list__(),\
+			__asm_list__(__asm_in__(_mov_src, r, (uint64_t)src)),\
+			__asm_list__(),\
+			"movq %[_mov_src], %" __str__(dest)\
+		)
+
+#define __ldrq(reg_name, src) __ldq(%reg_name, src)
 
 /**
  * @brief 从指定位置读取值
  * @param src 要读取的位置
  * @param dest 目标位置，必须是C/C++变量
  */
-#define __st(dest, src)\
+#define __stb(dest, src)\
 		__asm_inline__(volatile, var)(\
 			__asm_list__(),\
 			__asm_list__(),\
 			__asm_list__(__asm_out__(dest, m)),\
-			"mov %" __str__(src) ", %" __str__([dest])\
+			"movb %" __str__(src) ", %" __str__([dest])\
 		)
 
 /**
  * @brief 将寄存器的值存储到指定C/C++变量
  */
-#define __Rs(reg_name, dest) __st(dest, %reg_name)
+#define __strb(dest, reg_name) __stb(dest, %reg_name)
+
+#define __stw(dest, src)\
+		__asm_inline__(volatile, var)(\
+			__asm_list__(),\
+			__asm_list__(),\
+			__asm_list__(__asm_out__(dest, m)),\
+			"movw %" __str__(src) ", %" __str__([dest])\
+		)
+
+#define __strw(dest, reg_name) __stw(dest, %reg_name)
+
+#define __stl(dest, src)\
+		__asm_inline__(volatile, var)(\
+			__asm_list__(),\
+			__asm_list__(),\
+			__asm_list__(__asm_out__(dest, m)),\
+			"movl %" __str__(src) ", %" __str__([dest])\
+		)
+
+#define __strl(dest, reg_name) __stl(dest, %reg_name)
+
+#define __stq(dest, src)\
+		__asm_inline__(volatile, var)(\
+			__asm_list__(),\
+			__asm_list__(),\
+			__asm_list__(__asm_out__(dest, m)),\
+			"movq %" __str__(src) ", %" __str__([dest])\
+		)
+
+#define __strq(dest, reg_name) __stq(dest, %reg_name)
+
+#endif
+
+__attribute__((always_inline)) inline void* __stack_bottom()
+{
+	void* bottom;
+#if defined(__ARCHITECTURE_X86_64__)
+	__strq(bottom, rbp);
+#elif defined(__ARCHITECTURE_X86__)
+	__strl(bottom, ebp);
+#endif
+	return bottom;
+}
+
+__attribute__((always_inline)) inline void* __stack_top()
+{
+	void* top;
+#if defined(__ARCHITECTURE_X86_64__)
+	__strq(top, rsp);
+#elif defined(__ARCHITECTURE_X86__)
+	__strl(top, esp);
+#endif
+	return top;
+}
+
+/**
+ * @brief 获取当前执行的指令地址，可与<cxxllo/exec.h>的function_pointer_from_ip()配合使用获取当前执行的函数指针。
+ */
+__attribute__((always_inline)) inline void* __instruction_pointer()
+{
+	void* ip;
+#if defined(__ARCHITECTURE_X86_64__) || defined(__ARCHITECTURE_X86__)
+	__stip(ip);
+#endif
+	return ip;
+}
 
 /**
  * @brief 编译器屏障，强制编译器在优化阶段指令重排时在此语句之前完成内存写入，且此语句之后的内存读取不得提前。

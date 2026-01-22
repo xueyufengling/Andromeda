@@ -9,9 +9,9 @@
 #include <cxxcomm/object.h>
 #include <iostream>
 
-#include <cxxtricks/macros.h>
 #include <cxxcomm/string_utils.h>
 #include <cxxcomm/array.h>
+
 #include <cxxcomm/files.h>
 
 namespace cxxcomm
@@ -197,35 +197,35 @@ extern universal_logger* process_logger;
  * @brief 将指定的源码位置打印到指定等级的日志，使用时传入参数必须是__log_source_to__(logger_ptr, level, level_str, __log_source__, ...)
  * 		  __log_source__会在传入前展开
  */
-#define __log_source_to__(logger_ptr, log_source, ...)\
+#define __log_source_to__(logger_ptr, level, level_str, source_file_name, source_line, source_func_name, source_func_paren, ...)\
 		{\
 			if(logger_ptr)\
-				logger_ptr->log(__log_header__(log_source), ##__VA_ARGS__);\
+				logger_ptr->log(__log_header__(level, level_str, source_file_name, source_line, source_func_name, source_func_paren), ##__VA_ARGS__);\
 		}
 
 #define LogSourceDebugInfoTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_INFO, "DEBUG_INFO", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_INFO, "DEBUG_INFO", log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugWarnTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_WARN, "DEBUG_WARN", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_WARN, "DEBUG_WARN", log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugErrorTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_ERROR, "DEBUG_ERROR", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_ERROR, "DEBUG_ERROR", log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugFatalTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_FATAL, "DEBUG_FATAL", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_DEBUG_FATAL, "DEBUG_FATAL", log_source, ##__VA_ARGS__)
 
 #define LogSourceInfoTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_INFO, "INFO", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_INFO, "INFO", log_source, ##__VA_ARGS__)
 
 #define LogSourceWarnTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_WARN, "WARN", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_WARN, "WARN", log_source, ##__VA_ARGS__)
 
 #define LogSourceErrorTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_ERROR, "ERROR", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_ERROR, "ERROR", log_source, ##__VA_ARGS__)
 
 #define LogSourceFatalTo(logger_ptr, log_source, ...)\
-		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_FATAL, "FATAL", __pack_list__(log_source), ##__VA_ARGS__)
+		__log_source_to__(logger_ptr, cxxcomm::log_level::LOG_FATAL, "FATAL", log_source, ##__VA_ARGS__)
 
 #define LogSourceTo(logger_ptr, level_var, log_source, ...)\
 		{\
@@ -285,31 +285,31 @@ extern universal_logger* process_logger;
 		LogSourceFatalTo(logger_ptr, __log_source__, ##__VA_ARGS__)
 
 #define LogSourceDebugInfo(log_source, ...)\
-		LogSourceDebugInfoTo(cxxcomm::process_logger, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceDebugInfoTo(cxxcomm::process_logger, log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugWarn(log_source, ...)\
-		LogSourceDebugWarnTo(cxxcomm::process_logger, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceDebugWarnTo(cxxcomm::process_logger, log_source, ##__VA_ARGS__)
 
 #define LogSourceDebugError(log_source, ...)\
-		LogSourceDebugErrorTo(cxxcomm::process_logger, __pack_list__(log_source),	##__VA_ARGS__)
+		LogSourceDebugErrorTo(cxxcomm::process_logger, log_source,	##__VA_ARGS__)
 
 #define LogSourceDebugFatal(log_source, ...)\
-		LogSourceDebugFatalTo(cxxcomm::process_logger, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceDebugFatalTo(cxxcomm::process_logger, log_source, ##__VA_ARGS__)
 
 #define LogSourceInfo(log_source, ...)\
-		LogSourceInfoTo(cxxcomm::process_logger, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceInfoTo(cxxcomm::process_logger, log_source, ##__VA_ARGS__)
 
 #define LogSourceWarn(log_source, ...)\
-		LogSourceWarnTo(cxxcomm::process_logger, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceWarnTo(cxxcomm::process_logger, log_source, ##__VA_ARGS__)
 
 #define LogSourceError(log_source, ...)\
-		LogSourceErrorTo(cxxcomm::process_logger, __pack_list__(log_source),	##__VA_ARGS__)
+		LogSourceErrorTo(cxxcomm::process_logger, log_source,	##__VA_ARGS__)
 
 #define LogSourceFatal(log_source, ...)\
-		LogSourceFatalTo(cxxcomm::process_logger, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceFatalTo(cxxcomm::process_logger, log_source, ##__VA_ARGS__)
 
 #define LogSource(level_var, log_source, ...)\
-		LogSourceTo(cxxcomm::process_logger, level_var, __pack_list__(log_source), ##__VA_ARGS__)
+		LogSourceTo(cxxcomm::process_logger, level_var, log_source, ##__VA_ARGS__)
 
 #define LogDebugInfo(...) LogSourceDebugInfo( __log_source__, ##__VA_ARGS__)
 

@@ -189,7 +189,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
 /**
  * @brief 对于指定类名和成员名的accessor标识符
  */
-#define access_identifier(class_name, memb_name) __cat_4__(__access_identifier_, class_name, _, memb_name)
+#define access_identifier(class_name, memb_name) __cats__(4)(__access_identifier_, class_name, _, memb_name)
 
 /**
  * @brief 对于指定类名和成员名的accessor类名
@@ -215,7 +215,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
  */
 #define exist_memb(...) __macro_with_params__(exist_memb, __VA_ARGS__)
 
-#define exist_memb1(memb_name) __cat__(__exist_memb_, memb_name)
+#define exist_memb1(memb_name) __cats__(2)(__exist_memb_, memb_name)
 
 #define exist_memb2(class_name, memb_name) exist_memb1(memb_name)<class_name>
 
@@ -261,7 +261,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
  */
 #define exist_memb_with_type(...) __macro_with_params__(exist_memb_with_type, __VA_ARGS__)
 
-#define exist_memb_with_type1(memb_name) __cat__(__exist_memb_with_type_, memb_name)
+#define exist_memb_with_type1(memb_name) __cats__(2)(__exist_memb_with_type_, memb_name)
 
 #define exist_memb_with_type3(class_name, type, memb_name) exist_memb_with_type1(memb_name)<class_name, type>
 
@@ -294,7 +294,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
  */
 #define exist_memb_with_type_namespaced(...) __macro_with_params__(exist_memb_with_type_namespaced, __VA_ARGS__)
 
-#define exist_memb_with_type_namespaced2(memb_name, _namespace) _namespace::__cat__(__exist_memb_with_type_, memb_name)
+#define exist_memb_with_type_namespaced2(memb_name, _namespace) _namespace::__cats__(2)(__exist_memb_with_type_, memb_name)
 
 #define exist_memb_with_type_namespaced4(class_name, type, memb_name, _namespace) exist_memb_with_type_namespaced2(memb_name, _namespace)<class_name, type>
 
