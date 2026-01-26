@@ -183,7 +183,7 @@ extern universal_logger* process_logger;
 /**
  * @brief 日志头参数列表
  */
-#define __log_header__(...) __macro_with_params__(__log_header__, __VA_ARGS__)
+#define __log_header__(...) __va_macro__(__log_header__, __VA_ARGS__)
 
 /**
  * @brief 自定义日志头的文件位置，使用时传入参数必须是__log_header__6(level, level_str, __log_source__)

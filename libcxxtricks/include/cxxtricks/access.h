@@ -213,7 +213,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
 /**
  * @brief 是否存在指定名称的成员
  */
-#define exist_memb(...) __macro_with_params__(exist_memb, __VA_ARGS__)
+#define exist_memb(...) __va_macro__(exist_memb, __VA_ARGS__)
 
 #define exist_memb1(memb_name) __cats__(2)(__exist_memb_, memb_name)
 
@@ -259,7 +259,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
 /**
  * @brief 是否存在指定名称和类型的成员
  */
-#define exist_memb_with_type(...) __macro_with_params__(exist_memb_with_type, __VA_ARGS__)
+#define exist_memb_with_type(...) __va_macro__(exist_memb_with_type, __VA_ARGS__)
 
 #define exist_memb_with_type1(memb_name) __cats__(2)(__exist_memb_with_type_, memb_name)
 
@@ -292,7 +292,7 @@ const __access_target <_AccessIdentifier, _Value> __access_target<_AccessIdentif
 /**
  * @brief 带命名空间的类型
  */
-#define exist_memb_with_type_namespaced(...) __macro_with_params__(exist_memb_with_type_namespaced, __VA_ARGS__)
+#define exist_memb_with_type_namespaced(...) __va_macro__(exist_memb_with_type_namespaced, __VA_ARGS__)
 
 #define exist_memb_with_type_namespaced2(memb_name, _namespace) _namespace::__cats__(2)(__exist_memb_with_type_, memb_name)
 
