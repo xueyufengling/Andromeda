@@ -1,7 +1,7 @@
 #ifndef _CXXCOMM_CLIBCALL
 #define _CXXCOMM_CLIBCALL
 
-#include <cxxtricks/types.h>
+#include <tplmp/tplmp.h>
 #include <cxxtricks/callable.h>
 
 #include <cxxcomm/log.h>
@@ -20,7 +20,7 @@
 #define decl_clibcall(lib_name, errcode_type, errcode_val_macro, errcode_noerr)\
 template<typename _Callable, typename ..._ArgTypes>\
 __attribute__((always_inline)) inline auto clibcall_name(lib_name)(cxxcomm::log_level msg_level, const char* source_file_name, const char* source_line, const char* source_func_name, const char* source_func_paren, const char* callable_name, _Callable callable, _ArgTypes ... args) ->\
-	typename _if<type_equal<decltype(callable(args...)), void>::value>::resolve<errcode_type, decltype(callable(args...))>::type\
+	typename tplmp::_if<tplmp::type_equal<decltype(callable(args...)), void>::value>::resolve<errcode_type, decltype(callable(args...))>::type\
 {\
 	callable_retv<_Callable> call(callable);\
 	decltype(call(args...)) ret;\
@@ -30,7 +30,7 @@ __attribute__((always_inline)) inline auto clibcall_name(lib_name)(cxxcomm::log_
 	{\
 		LogSource(msg_level, source_file_name, source_line, source_func_name, source_func_paren, __str__(lib_name) " call ", callable_name, "() failed. error code: ", err_code);\
 	}\
-	return _if<type_equal<decltype(callable(args...)), void>::value>::_return(err_code, ret);\
+	return tplmp::_if<tplmp::type_equal<decltype(callable(args...)), void>::value>::_return(err_code, ret);\
 }
 
 /**

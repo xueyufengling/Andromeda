@@ -6,7 +6,7 @@
  */
 
 #include <cxxllo/architecture.h>
-#include <cxxtricks/macros.h>
+#include <ppmp/ppmp.h>
 
 /**
  * 具有约束字符的输入、输出变量声明

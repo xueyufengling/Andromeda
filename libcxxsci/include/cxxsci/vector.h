@@ -1,7 +1,7 @@
 #ifndef _CXXSCI_VECTOR
 #define _CXXSCI_VECTOR
 
-#include <cxxtricks/types.h>
+#include <tplmp/tplmp.h>
 #include <math.h>
 #include <malloc.h>
 
@@ -37,13 +37,13 @@ public:
 	}
 
 	template<typename _T2>
-	inline vector<_Dim, decltype(decl<_T>::val()+decl<_T2>::val())> operator+(vector<_Dim, _T2>& v)
+	inline vector<_Dim, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(vector<_Dim, _T2>& v)
 	{
 		return add(v);
 	}
 
 	template<typename _T2>
-	inline vector<_Dim, decltype(decl<_T>::val()-decl<_T2>::val())> operator-(vector<_Dim, _T2>& v)
+	inline vector<_Dim, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(vector<_Dim, _T2>& v)
 	{
 		return sub(v);
 	}
@@ -57,73 +57,73 @@ public:
 	}
 
 	template<typename _T2>
-	vector<_Dim, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(_T2 t)
+	vector<_Dim, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(_T2 t)
 	{
 		return mul(t);
 	}
 
 	template<typename _T2>
-	inline auto operator*(vector<_Dim, _T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val())
+	inline auto operator*(vector<_Dim, _T2> v) -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())
 	{
 		return dot(v);
 	}
 
 	template<typename _T2>
-	vector<_Dim, decltype(decl<_T>::val()/decl<_T2>::val())> operator/(_T2 t)
+	vector<_Dim, decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> operator/(_T2 t)
 	{
 		return div(t);
 	}
 
 	template<typename _T2>
-	auto dot(vector<_Dim, _T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val()) //点乘
+	auto dot(vector<_Dim, _T2> v) -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) //点乘
 	{
-		decltype(decl<_T>::val()*decl<_T2>::val()) dot_result = 0;
+		decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) dot_result = 0;
 		for(size_t i = 0; i < _Dim; ++i)
 			dot_result += coord[i] * v.coord[i];
 		return dot_result;
 	}
 
-	auto len() -> decltype(std::sqrt(std::declval<decltype(decl<_T>::val()*decl<_T>::val())>())) //矢量长度
+	auto len() -> decltype(std::sqrt(std::declval<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T>::val())>())) //矢量长度
 	{
 		return std::sqrt(dot(*this));
 	}
 
-	vector<_Dim, decltype(decl<_T>::val()/std::declval<decltype(((vector<_Dim,_T>*)0)->len())>())> unit() //单位矢量
+	vector<_Dim, decltype(tplmp::decl<_T>::val()/std::declval<decltype(((vector<_Dim,_T>*)0)->len())>())> unit() //单位矢量
 	{
 		return div(len());
 	}
 
 	template<typename _T2>
-	vector<_Dim, decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
+	vector<_Dim, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(_T2 t) //数乘
 	{
-		vector<_Dim, decltype(decl<_T>::val()*decl<_T2>::val())> mul_result;
+		vector<_Dim, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul_result;
 		for(size_t i = 0; i < _Dim; ++i)
 			mul_result[i] = coord[i] * t;
 		return mul_result;
 	}
 
 	template<typename _T2>
-	vector<_Dim, decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
+	vector<_Dim, decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div(_T2 t) //除法
 	{
-		vector<_Dim, decltype(decl<_T>::val()/decl<_T2>::val())> div_result;
+		vector<_Dim, decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div_result;
 		for(int i = 0; i < _Dim; ++i)
 			div_result[i] = coord[i] / t;
 		return div_result;
 	}
 
 	template<typename _T2>
-	vector<_Dim, decltype(decl<_T>::val()+decl<_T2>::val())> add(vector<_Dim, _T2>& v)
+	vector<_Dim, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add(vector<_Dim, _T2>& v)
 	{
-		vector<_Dim, decltype(decl<_T>::val()+decl<_T2>::val())> add_result;
+		vector<_Dim, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add_result;
 		for(int i = 0; i < _Dim; ++i)
 			add_result[i] = coord[i] + v.coord[i];
 		return add_result;
 	}
 
 	template<typename _T2>
-	vector<_Dim, decltype(decl<_T>::val()-decl<_T2>::val())> sub(vector<_Dim, _T2>& v)
+	vector<_Dim, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub(vector<_Dim, _T2>& v)
 	{
-		vector<_Dim, decltype(decl<_T>::val()-decl<_T2>::val())> sub_result;
+		vector<_Dim, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub_result;
 		for(int i = 0; i < _Dim; ++i)
 			sub_result[i] = coord[i] - v.coord[i];
 		return sub_result;
@@ -198,13 +198,13 @@ public:
 	}
 
 	template<typename _T2>
-	inline vector3<decltype(decl<_T>::val()+decl<_T2>::val())> operator+(vector3<_T2>& v)
+	inline vector3<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(vector3<_T2>& v)
 	{
 		return add(v);
 	}
 
 	template<typename _T2>
-	inline vector3<decltype(decl<_T>::val()-decl<_T2>::val())> operator-(vector3<_T2>& v)
+	inline vector3<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(vector3<_T2>& v)
 	{
 		return sub(v);
 	}
@@ -216,69 +216,69 @@ public:
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()*decl<_T2>::val())> operator*(_T2 t)
+	vector3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(_T2 t)
 	{
 		return mul(t);
 	}
 
 	template<typename _T2>
-	inline auto operator*(vector3<_T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val())
+	inline auto operator*(vector3<_T2> v) -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())
 	{
 		return dot(v);
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()/decl<_T2>::val())> operator/(_T2 t)
+	vector3<decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> operator/(_T2 t)
 	{
 		return div(t);
 	}
 
 	template<typename _T2>
-	auto dot(vector3<_T2> v) -> decltype(decl<_T>::val()*decl<_T2>::val()) //点乘
+	auto dot(vector3<_T2> v) -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) //点乘
 	{
 		return coord[0] * v.coord[0] + coord[1] * v.coord[1] + coord[2] * v.coord[2];
 	}
 
-	auto len() -> decltype(std::sqrt(std::declval<decltype(decl<_T>::val()*decl<_T>::val())>())) //矢量长度
+	auto len() -> decltype(std::sqrt(std::declval<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T>::val())>())) //矢量长度
 	{
 		return std::sqrt(dot(*this));
 	}
 
-	vector3<decltype(decl<_T>::val()/std::declval<decltype(((vector3<_T>*)0)->len())>())> unit() //单位矢量
+	vector3<decltype(tplmp::decl<_T>::val()/std::declval<decltype(((vector3<_T>*)0)->len())>())> unit() //单位矢量
 	{
 		return div(len());
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
+	vector3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(_T2 t) //数乘
 	{
 		return
 		{	coord[0]*t,coord[1]*t,coord[2]*t};
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
+	vector3<decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div(_T2 t) //除法
 	{
 		return
 		{	coord[0]/t,coord[1]/t,coord[2]/t};
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()+decl<_T2>::val())> add(vector3<_T2>& v)
+	vector3<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add(vector3<_T2>& v)
 	{
 		return
 		{	coord[0]+v.coord[0],coord[1]+v.coord[1],coord[2]+v.coord[2]};
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()-decl<_T2>::val())> sub(vector3<_T2>& v)
+	vector3<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub(vector3<_T2>& v)
 	{
 		return
 		{	coord[0]-v.coord[0],coord[1]-v.coord[1],coord[2]-v.coord[2]};
 	}
 
 	template<typename _T2>
-	vector3<decltype(decl<_T>::val()*decl<_T2>::val())> cross(vector3<_T2>& v) //叉乘
+	vector3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> cross(vector3<_T2>& v) //叉乘
 	{
 		return
 		{	coord[1]*v.coord[2]-coord[2]*v.coord[1],coord[2]*v.coord[0]-coord[0]*v.coord[2],coord[0]*v.coord[1]-coord[1]*v.coord[0]};

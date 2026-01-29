@@ -6,7 +6,7 @@
  * pacman -S mingw-w64-ucrt-x86_64-dlfcn
  * 编译可执行文件时，需要添加-export-dynamic导出符号供查询，链接时需要添加-ldl，其库文件位于msys64/mingw64/lib/libdl.a
  */
-#include <cxxtricks/types.h>
+#include <tplmp/tplmp.h>
 #include <typeinfo>
 #include <malloc.h>
 #include <unwind.h>
@@ -29,7 +29,7 @@ __attribute__((always_inline)) inline char* cxx_name_demangling(const std::type_
 template<typename _T>
 __attribute__((always_inline)) inline char* cxx_name_demangling()
 {
-	return cxx_name_demangling(typeid(decl<_T>::ref()));
+	return cxx_name_demangling(typeid(tplmp::decl<_T>::ref()));
 }
 
 __attribute__((always_inline)) inline void* get_frame_ip(unwind_frame frame_context)
@@ -88,7 +88,7 @@ __attribute__((always_inline)) inline void* _function_pointer_from_ip(void* ip)
 template<typename _FuncType>
 __attribute__((always_inline)) inline _FuncType* function_pointer_from_ip(void* ip)
 {
-	static_assert(type_classification_of<_FuncType>::result == type_classification::FUNCTION, "_FuncType must be a function type");
+	static_assert(tplmp::type_classification_of<_FuncType>::result == tplmp::type_classification::FUNCTION, "_FuncType must be a function type");
 	return (_FuncType*)_function_pointer_from_ip(ip);
 }
 

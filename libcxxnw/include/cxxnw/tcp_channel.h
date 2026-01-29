@@ -6,6 +6,7 @@
  * pacman -S mingw-w64-ucrt-x86_64-boost
  */
 #include <cxxcomm/string_utils.h>
+#include <cxxcomm/array.h>
 #include <functional>
 #include <malloc.h>
 
@@ -14,9 +15,7 @@
 template<>
 __attribute__((always_inline)) inline std::string to_string(const boost::asio::ip::address& value)
 {
-	std::stringstream ss;
-	ss << value.ip() << ':' << value.port();
-	return ss.str();
+	return value.to_string();
 }
 
 //默认接收缓冲区大小
@@ -29,53 +28,40 @@ namespace cxxnw
  */
 class tcp_channel
 {
-private:
-	boost::asio::ip::tcp::endpoint end_point;
-	boost::asio::ip::tcp::resolver host_resolver; //解析IP和端口
-	bool io_ctx_self_alloc = false;
+protected:
+	bool io_ctx_self_alloc;
 	boost::asio::io_context* io_context;
 	boost::asio::ip::tcp::socket* comm_socket = nullptr; //通信使用的socket对象，解析IP和端口完成后分配
 	//接收缓冲区
-	boost::asio::streambuf recv_buffer;	//该缓冲区是否是本类自行分配，如果是则析构时释放缓冲区
-	size_t buffer_len; //缓冲区大小
+	cxxcomm::buffer recv_buffer; //该缓冲区是否是本类自行分配，如果是则析构时释放缓冲区
+	uint32_t recv_body_len = 0; //接收到的报文体长度
 
 public:
 	typedef std::function<void(boost::system::error_code, boost::asio::ip::tcp::endpoint)> connect_callback;
 	typedef std::function<void(boost::system::error_code, boost::asio::ip::tcp::resolver::results_type)> resolve_callback;
-	typedef std::function<void(boost::system::error_code, uint32_t body_length,)> receive_callback;
-
-	inline tcp_channel(unsigned char* recv_buffer, size_t buffer_len, boost::asio::io_context* io_ctx = new boost::asio::io_context()) :
-			io_context(io_ctx), host_resolver(*io_ctx), self_alloc(false), recv_buffer(recv_buffer), buffer_len(buffer_len)
-	{
-
-	}
-
-	inline tcp_channel(size_t buffer_len = __TCP_CHANNEL_DEFAULT__BUFFER_SIZE__, boost::asio::io_context* io_ctx = new boost::asio::io_context()) :
-			io_context(io_ctx), host_resolver(*io_ctx), self_alloc(true), recv_buffer((unsigned char*)malloc(buffer_len)), buffer_len(buffer_len)
-	{
-
-	}
-
-	inline bool set_option()
-	{
-		comm_socket->set_option(boost::asio::ip::tcp::no_delay(true));
-	}
-
 	/**
-	 * @brief 同步解析IP
+	 * @brief 读取、写入的回调
+	 * @param uint32_t 实际读入/写入的字节数
+	 * @param unsigned char* 读取/写入的缓存区
 	 */
-	boost::asio::ip::tcp::resolver::results_type resolve(const char* ip, const char* service_name);
+	typedef std::function<void(boost::system::error_code, uint32_t, unsigned char*)> transfer_callback;
 
-	/**
-	 * @brief 异步解析IP
-	 */
-	void resolve(const char* ip, const char* service_name, resolve_callback cb);
-
-	void connect(const char* ip, const char* service_name, connect_callback cb = connect_callback());
-
-	inline void connect(const char* ip, int port, connect_callback cb = connect_callback())
+	inline tcp_channel(size_t buffer_len, boost::asio::io_context* io_ctx) :
+			io_context(io_ctx), host_resolver(*io_ctx), recv_buffer(buffer_len), io_ctx_self_alloc(false)
 	{
-		connect(ip, to_string(port).c_str(), cb);
+
+	}
+
+	inline tcp_channel(size_t buffer_len = __TCP_CHANNEL_DEFAULT__BUFFER_SIZE__) :
+			tcp_channel(buffer_len, new boost::asio::io_context()), io_ctx_self_alloc(true)
+	{
+
+	}
+
+	template<typename _SettableSocketOption>
+	inline void set_option(const _SettableSocketOption& option)
+	{
+		comm_socket->set_option(option);
 	}
 
 	inline bool is_connected()
@@ -85,17 +71,15 @@ public:
 
 	void disconnect();
 
-	/**
-	 * @brief 当已连接时，获取IP和端口
-	 */
-	inline boost::asio::ip::address get_address()
+	void read(transfer_callback cb);
+
+	void write(unsigned char* bytes, uint32_t length, transfer_callback cb = transfer_callback());
+
+	template<typename _T>
+	void write(std::vector<_T> vec, transfer_callback cb = transfer_callback())
 	{
-		return end_point.address();
+		write(vec.data(), (uint32_t)(sizeof(_T) * vec.size()), cb);
 	}
-
-	void read(receive_callback cb);
-
-	tcp_channel& write(std::vector<unsigned char> bytes);
 };
 }
 

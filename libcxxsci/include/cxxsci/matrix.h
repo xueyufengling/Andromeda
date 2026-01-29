@@ -1,7 +1,7 @@
 #ifndef _CXXSCI_MATRIX
 #define _CXXSCI_MATRIX
 
-#include <cxxtricks/types.h>
+#include <tplmp/tplmp.h>
 #include <cxxsci/vector.h>
 #include <math.h>
 #include <malloc.h>
@@ -44,64 +44,64 @@ public:
 	}
 
 	template<typename _T2>
-	inline matrix<_Row, _Column, decltype(decl<_T>::val()+decl<_T2>::val())> operator+(matrix<_Row, _Column, _T2>& m)
+	inline matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(matrix<_Row, _Column, _T2>& m)
 	{
 		return add(m);
 	}
 
 	template<typename _T2>
-	inline matrix<_Row, _Column, decltype(decl<_T>::val()-decl<_T2>::val())> operator-(matrix<_Row, _Column, _T2>& m)
+	inline matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(matrix<_Row, _Column, _T2>& m)
 	{
 		return sub(m);
 	}
 
 	template<typename _T2>
-	inline matrix<_Row, _Column, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(_T2 t)
+	inline matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(_T2 t)
 	{
 		return mul(t);
 	}
 
 	template<size_t _Row2, typename _T2>
-	inline matrix<_Row, _Row2, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(matrix<_Column, _Row2, _T2>& m)
+	inline matrix<_Row, _Row2, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(matrix<_Column, _Row2, _T2>& m)
 	{
 		return mul(m);
 	}
 
 	template<typename _T2>
-	inline vector<_Row, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<_Column, _T2>& v)
+	inline vector<_Row, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<_Column, _T2>& v)
 	{
 		return mul(v);
 	}
 
 	template<typename _T2>
-	inline matrix<_Row, _Column, decltype(decl<_T>::val()/decl<_T2>::val())> operator/(_T2 t)
+	inline matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> operator/(_T2 t)
 	{
 		return div(t);
 	}
 
 	//右值处理
 	template<typename _T2>
-	inline matrix<_Row, _Column, decltype(decl<_T>::val()+decl<_T2>::val())> operator+(matrix<_Row, _Column, _T2>&& m)
+	inline matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(matrix<_Row, _Column, _T2>&& m)
 	{
-		return add(cast<matrix<_Row, _Column, _T2> >(m));
+		return add(tplmp::cast < matrix<_Row, _Column, _T2> > (m));
 	}
 
 	template<typename _T2>
-	inline matrix<_Row, _Column, decltype(decl<_T>::val()-decl<_T2>::val())> operator-(matrix<_Row, _Column, _T2>&& m)
+	inline matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(matrix<_Row, _Column, _T2>&& m)
 	{
-		return sub(cast<matrix<_Row, _Column, _T2> >(m));
+		return sub(tplmp::cast < matrix<_Row, _Column, _T2> > (m));
 	}
 
 	template<size_t _Row2, typename _T2>
-	inline matrix<_Row, _Row2, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(matrix<_Column, _Row2, _T2>&& m)
+	inline matrix<_Row, _Row2, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(matrix<_Column, _Row2, _T2>&& m)
 	{
-		return mul(cast<matrix<_Row, _Column, _T2> >(m));
+		return mul(tplmp::cast < matrix<_Row, _Column, _T2> > (m));
 	}
 
 	template<typename _T2>
-	inline vector<_Row, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<_Column, _T2>&& v)
+	inline vector<_Row, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<_Column, _T2>&& v)
 	{
-		return mul(cast<vector<_Column, _T2> >(v));
+		return mul(tplmp::cast < vector<_Column, _T2> > (v));
 	}
 
 	//提取列向量
@@ -129,9 +129,9 @@ public:
 	}
 
 	template<typename _T2>
-	matrix<_Row, _Column, decltype(decl<_T>::val()*decl<_T2>::val())> dot(matrix<_Row, _Column, _T2>& m) //按位相乘
+	matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> dot(matrix<_Row, _Column, _T2>& m) //按位相乘
 	{
-		matrix<_Row, _Column, decltype(decl<_T>::val()*decl<_T2>::val())> dot_result;
+		matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> dot_result;
 		for(size_t i = 0; i < _Row; ++i)
 			for(size_t j = 0; j < _Column; ++j)
 				dot_result[i][j] = elem[i][j] * m.elem[i][j];
@@ -139,18 +139,18 @@ public:
 	}
 
 	template<typename _T2>
-	matrix<_Row, _Column, decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
+	matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(_T2 t) //数乘
 	{
-		matrix<_Row, _Column, decltype(decl<_T>::val()*decl<_T2>::val())> mul_result;
+		matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul_result;
 		for(size_t i = 0; i < _Row; ++i)
 			mul_result[i] = elem[i] * t;
 		return mul_result;
 	}
 
 	template<size_t _Row2, typename _T2>
-	matrix<_Row, _Row2, decltype(decl<_T>::val()*decl<_T2>::val())> mul(matrix<_Column, _Row2, _T2>& m)
+	matrix<_Row, _Row2, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(matrix<_Column, _Row2, _T2>& m)
 	{
-		matrix<_Row, _Row2, decltype(decl<_T>::val()*decl<_T2>::val())> mul_result;
+		matrix<_Row, _Row2, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul_result;
 		for(size_t i = 0; i < _Row; ++i)
 		{
 			vector<_Column, _T> row_vec = row(i);
@@ -161,9 +161,9 @@ public:
 	}
 
 	template<typename _T2>
-	vector<_Row, decltype(decl<_T>::val()*decl<_T2>::val())> mul(vector<_Column, _T2>& v)
+	vector<_Row, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(vector<_Column, _T2>& v)
 	{
-		vector<_Row, decltype(decl<_T>::val()*decl<_T2>::val())> mul_result;
+		vector<_Row, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul_result;
 		for(size_t i = 0; i < _Row; ++i)
 		{
 			vector<_Column, _T> row_vec = row(i);
@@ -173,27 +173,27 @@ public:
 	}
 
 	template<typename _T2>
-	matrix<_Row, _Column, decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
+	matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div(_T2 t) //除法
 	{
-		matrix<_Row, _Column, decltype(decl<_T>::val()/decl<_T2>::val())> div_result;
+		matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div_result;
 		for(size_t i = 0; i < _Row; ++i)
 			div_result[i] = elem[i] / t;
 		return div_result;
 	}
 
 	template<typename _T2>
-	matrix<_Row, _Column, decltype(decl<_T>::val()+decl<_T2>::val())> add(matrix<_Row, _Column, _T2>& m)
+	matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add(matrix<_Row, _Column, _T2>& m)
 	{
-		matrix<_Row, _Column, decltype(decl<_T>::val()+decl<_T2>::val())> add_result;
+		matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add_result;
 		for(size_t i = 0; i < _Row; ++i)
 			add_result[i] = elem[i] + m.elem[i];
 		return add_result;
 	}
 
 	template<typename _T2>
-	matrix<_Row, _Column, decltype(decl<_T>::val()-decl<_T2>::val())> sub(matrix<_Row, _Column, _T2>& m)
+	matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub(matrix<_Row, _Column, _T2>& m)
 	{
-		matrix<_Row, _Column, decltype(decl<_T>::val()-decl<_T2>::val())> sub_result;
+		matrix<_Row, _Column, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub_result;
 		for(size_t i = 0; i < _Row; ++i)
 			sub_result[i] = elem[i] - m.elem[i];
 		return sub_result;
@@ -235,52 +235,52 @@ public:
 	using matrix<_Rank, _Rank, _T>::operator/;
 
 	template<typename _T2>
-	inline square_matrix<_Rank, decltype(decl<_T>::val()+decl<_T2>::val())> operator+(square_matrix<_Rank, _T2>& m)
+	inline square_matrix<_Rank, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(square_matrix<_Rank, _T2>& m)
 	{
 		return add(m);
 	}
 
 	template<typename _T2>
-	inline square_matrix<_Rank, decltype(decl<_T>::val()-decl<_T2>::val())> operator-(square_matrix<_Rank, _T2>& m)
+	inline square_matrix<_Rank, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(square_matrix<_Rank, _T2>& m)
 	{
 		return sub(m);
 	}
 
 	template<typename _T2>
-	inline square_matrix<_Rank, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(square_matrix<_Rank, _T2>& m)
+	inline square_matrix<_Rank, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(square_matrix<_Rank, _T2>& m)
 	{
 		return mul(m);
 	}
 
 	template<typename _T2>
-	inline vector<_Rank, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<_Rank, _T2>& v)
+	inline vector<_Rank, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<_Rank, _T2>& v)
 	{
 		return mul(v);
 	}
 
 	//右值处理
 	template<typename _T2>
-	inline square_matrix<_Rank, decltype(decl<_T>::val()+decl<_T2>::val())> operator+(square_matrix<_Rank, _T2>&& m)
+	inline square_matrix<_Rank, decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(square_matrix<_Rank, _T2>&& m)
 	{
-		return add(cast<square_matrix<_Rank, _T2> >(m));
+		return add(tplmp::cast<square_matrix<_Rank, _T2> >(m));
 	}
 
 	template<typename _T2>
-	inline square_matrix<_Rank, decltype(decl<_T>::val()-decl<_T2>::val())> operator-(square_matrix<_Rank, _T2>&& m)
+	inline square_matrix<_Rank, decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(square_matrix<_Rank, _T2>&& m)
 	{
-		return sub(cast<square_matrix<_Rank, _T2> >(m));
+		return sub(tplmp::cast<square_matrix<_Rank, _T2> >(m));
 	}
 
 	template<typename _T2>
-	inline square_matrix<_Rank, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(square_matrix<_Rank, _T2>&& m)
+	inline square_matrix<_Rank, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(square_matrix<_Rank, _T2>&& m)
 	{
-		return mul(cast<square_matrix<_Rank, _T2> >(m));
+		return mul(tplmp::cast<square_matrix<_Rank, _T2> >(m));
 	}
 
 	template<typename _T2>
-	inline vector<_Rank, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<_Rank, _T2>&& v)
+	inline vector<_Rank, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<_Rank, _T2>&& v)
 	{
-		return mul(cast<vector<_Rank, _T2> >(v));
+		return mul(tplmp::cast<vector<_Rank, _T2> >(v));
 	}
 
 	//特化类独有
@@ -289,11 +289,11 @@ public:
 		return _Rank;
 	}
 
-	auto det() -> decltype(decl<_T>::val()*decl<_T>::val()); //行列式懒得写了高阶的用不上
+	auto det() -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T>::val()); //行列式懒得写了高阶的用不上
 
-	auto trace() -> decltype(decl<_T>::val()+decl<_T>::val()) //迹
+	auto trace() -> decltype(tplmp::decl<_T>::val()+tplmp::decl<_T>::val()) //迹
 	{
-		decltype(decl<_T>::val()+decl<_T>::val()) tr = 0;
+		decltype(tplmp::decl<_T>::val()+tplmp::decl<_T>::val()) tr = 0;
 		for(size_t i = 0; i < _Rank; ++i)
 			tr += elem[i][i];
 		return tr;
@@ -301,7 +301,7 @@ public:
 
 	static square_matrix<_Rank, _T> identity()
 	{
-		square_matrix<_Rank, _T> id = cast<square_matrix<_Rank, _T> >(matrix<_Rank, _Rank, _T>::zero());
+		square_matrix<_Rank, _T> id = tplmp::cast<square_matrix<_Rank, _T> >(matrix<_Rank, _Rank, _T>::zero());
 		for(size_t i = 0; i < _Rank; ++i)
 			id[i][i] = 1;
 		return id;
@@ -323,52 +323,52 @@ public:
 	using matrix<3, 3, _T>::operator/;
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()+decl<_T2>::val())> operator+(matrix3x3<_T2>& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(matrix3x3<_T2>& m)
 	{
 		return add(m);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()-decl<_T2>::val())> operator-(matrix3x3<_T2>& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(matrix3x3<_T2>& m)
 	{
 		return sub(m);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()*decl<_T2>::val())> operator*(matrix3x3<_T2>& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(matrix3x3<_T2>& m)
 	{
 		return mul(m);
 	}
 
 	template<typename _T2>
-	inline vector<3, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<3, _T2>& v)
+	inline vector<3, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<3, _T2>& v)
 	{
 		return mul(v);
 	}
 
 	//右值处理
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()+decl<_T2>::val())> operator+(matrix3x3<_T2>&& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(matrix3x3<_T2>&& m)
 	{
-		return add(cast<matrix3x3<_T2> >(m));
+		return add(tplmp::cast<matrix3x3<_T2> >(m));
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()-decl<_T2>::val())> operator-(matrix3x3<_T2>&& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(matrix3x3<_T2>&& m)
 	{
-		return sub(cast<matrix3x3<_T2> >(m));
+		return sub(tplmp::cast<matrix3x3<_T2> >(m));
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()*decl<_T2>::val())> operator*(matrix3x3<_T2>&& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(matrix3x3<_T2>&& m)
 	{
-		return mul(cast<matrix3x3<_T2> >(m));
+		return mul(tplmp::cast<matrix3x3<_T2> >(m));
 	}
 
 	template<typename _T2>
-	inline vector<3, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<3, _T2>&& v)
+	inline vector<3, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<3, _T2>&& v)
 	{
-		return mul(cast<vector<3, _T2> >(v));
+		return mul(tplmp::cast<vector<3, _T2> >(v));
 	}
 
 	template<typename _T2>
@@ -380,7 +380,7 @@ public:
 						(_T2)elem[1][0], (_T2)elem[1][1], (_T2)elem[1][2],
 						(_T2)elem[2][0], (_T2)elem[2][1], (_T2)elem[2][2]
 				};
-		return cast<matrix<3, 3, _T2> >(m_elem);
+		return tplmp::cast<matrix<3, 3, _T2> >(m_elem);
 	}
 
 	inline vector<3, _T> column(int column)
@@ -389,7 +389,7 @@ public:
 				{
 						elem[0][column], elem[1][column], elem[2][column]
 				};
-		return cast<vector<3, _T> >(v_elem);
+		return tplmp::cast<vector<3, _T> >(v_elem);
 	}
 
 	inline vector<3, _T> extractRow(int row)
@@ -405,98 +405,98 @@ public:
 						elem[0][1], elem[1][1], elem[2][1],
 						elem[0][2], elem[1][2], elem[2][2]
 				};
-		return cast<matrix3x3<_T> >(m_elem);
+		return tplmp::cast<matrix3x3<_T> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()*decl<_T2>::val())> dot(matrix<3, 3, _T2>& m) //按位相乘
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> dot(matrix<3, 3, _T2>& m) //按位相乘
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * m.elem[0][0], elem[0][1] * m.elem[0][1], elem[0][2] * m.elem[0][2],
 						elem[1][0] * m.elem[1][0], elem[1][1] * m.elem[1][1], elem[1][2] * m.elem[1][2],
 						elem[2][0] * m.elem[2][0], elem[2][1] * m.elem[2][1], elem[2][2] * m.elem[2][2]
 				};
-		return cast<matrix3x3<_R> >(m_elem);
+		return tplmp::cast<matrix3x3<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(_T2 t) //数乘
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * t, elem[0][1] * t, elem[0][2] * t,
 						elem[1][0] * t, elem[1][1] * t, elem[1][2] * t,
 						elem[2][0] * t, elem[2][1] * t, elem[2][2] * t
 				};
-		return cast<matrix3x3<_R> >(m_elem);
+		return tplmp::cast<matrix3x3<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()*decl<_T2>::val())> mul(matrix<3, 3, _T2>& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(matrix<3, 3, _T2>& m)
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * m.elem[0][0] + elem[0][1] * m.elem[1][0] + elem[0][2] * m.elem[2][0], elem[0][0] * m.elem[0][1] + elem[0][1] * m.elem[1][1] + elem[0][2] * m.elem[2][1], elem[0][0] * m.elem[0][2] + elem[0][1] * m.elem[1][2] + elem[0][2] * m.elem[2][2],
 						elem[1][0] * m.elem[0][0] + elem[1][1] * m.elem[1][0] + elem[1][2] * m.elem[2][0], elem[1][0] * m.elem[0][1] + elem[1][1] * m.elem[1][1] + elem[1][2] * m.elem[2][1], elem[1][0] * m.elem[0][2] + elem[1][1] * m.elem[1][2] + elem[1][2] * m.elem[2][2],
 						elem[2][0] * m.elem[0][0] + elem[2][1] * m.elem[1][0] + elem[2][2] * m.elem[2][0], elem[2][0] * m.elem[0][1] + elem[2][1] * m.elem[1][1] + elem[2][2] * m.elem[2][1], elem[2][0] * m.elem[0][2] + elem[2][1] * m.elem[1][2] + elem[2][2] * m.elem[2][2]
 				};
-		return cast<matrix3x3<_R> >(m_elem);
+		return tplmp::cast<matrix3x3<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline vector<3, decltype(decl<_T>::val()*decl<_T2>::val())> mul(vector<3, _T2>& v)
+	inline vector<3, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(vector<3, _T2>& v)
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * v[0] + elem[0][1] * v[1] + elem[0][2] * v[2],
 						elem[1][0] * v[0] + elem[1][1] * v[1] + elem[1][2] * v[2],
 						elem[2][0] * v[0] + elem[2][1] * v[1] + elem[2][2] * v[2]
 				};
-		return cast<vector<3, _R> >(m_elem);
+		return tplmp::cast<vector<3, _R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div(_T2 t) //除法
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] / t, elem[0][1] / t, elem[0][2] / t,
 						elem[1][0] / t, elem[1][1] / t, elem[1][2] / t,
 						elem[2][0] / t, elem[2][1] / t, elem[2][2] / t
 				};
-		return cast<matrix3x3<_R> >(m_elem);
+		return tplmp::cast<matrix3x3<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()+decl<_T2>::val())> add(matrix<3, 3, _T2>& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add(matrix<3, 3, _T2>& m)
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] + m.elem[0][0], elem[0][1] + m.elem[0][1], elem[0][2] + m.elem[0][2],
 						elem[1][0] + m.elem[1][0], elem[1][1] + m.elem[1][1], elem[1][2] + m.elem[1][2],
 						elem[2][0] + m.elem[2][0], elem[2][1] + m.elem[2][1], elem[2][2] + m.elem[2][2]
 				};
-		return cast<matrix3x3<_R> >(m_elem);
+		return tplmp::cast<matrix3x3<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix3x3<decltype(decl<_T>::val()-decl<_T2>::val())> sub(matrix<3, 3, _T2>& m)
+	inline matrix3x3<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub(matrix<3, 3, _T2>& m)
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] - m.elem[0][0], elem[0][1] - m.elem[0][1], elem[0][2] - m.elem[0][2],
 						elem[1][0] - m.elem[1][0], elem[1][1] - m.elem[1][1], elem[1][2] - m.elem[1][2],
 						elem[2][0] - m.elem[2][0], elem[2][1] - m.elem[2][1], elem[2][2] - m.elem[2][2]
 				};
-		return cast<matrix3x3<_R> >(m_elem);
+		return tplmp::cast<matrix3x3<_R> >(m_elem);
 	}
 
 	inline static matrix3x3<_T> zero()
@@ -507,15 +507,15 @@ public:
 						0, 0, 0,
 						0, 0, 0
 				};
-		return cast<matrix3x3<_T> >(m_elem);
+		return tplmp::cast<matrix3x3<_T> >(m_elem);
 	}
 
-	inline auto det() -> decltype(decl<_T>::val()*decl<_T>::val())
+	inline auto det() -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T>::val())
 	{
 		return elem[0][0] * (elem[1][1] * elem[2][2] - elem[1][2] * elem[2][1]) + elem[0][1] * (elem[1][2] * elem[2][0] - elem[1][0] * elem[2][2]) + elem[0][2] * (elem[1][0] * elem[2][1] - elem[1][1] * elem[2][0]);
 	}
 
-	inline auto trace() -> decltype(decl<_T>::val()+decl<_T>::val()) //迹
+	inline auto trace() -> decltype(tplmp::decl<_T>::val()+tplmp::decl<_T>::val()) //迹
 	{
 		return elem[0][0] + elem[1][1] + elem[2][2];
 	}
@@ -528,7 +528,7 @@ public:
 						0, 1, 0,
 						0, 0, 1
 				};
-		return cast<matrix3x3<_T> >(m_elem);
+		return tplmp::cast<matrix3x3<_T> >(m_elem);
 	}
 };
 
@@ -549,64 +549,64 @@ public:
 	using matrix<4, 4, _T>::operator/;
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()+decl<_T2>::val())> operator+(matrix4x4<_T2>& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(matrix4x4<_T2>& m)
 	{
 		return add(m);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()-decl<_T2>::val())> operator-(matrix4x4<_T2>& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(matrix4x4<_T2>& m)
 	{
 		return sub(m);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()*decl<_T2>::val())> operator*(matrix4x4<_T2>& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(matrix4x4<_T2>& m)
 	{
 		return mul(m);
 	}
 
 	template<typename _T2>
-	inline vector<4, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<4, _T2>& v)
+	inline vector<4, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<4, _T2>& v)
 	{
 		return mul(v);
 	}
 
 	template<typename _T2>
-	inline vector<3, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<3, _T2>& v)
+	inline vector<3, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<3, _T2>& v)
 	{
 		return mul(v);
 	}
 
 	//右值处理
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()+decl<_T2>::val())> operator+(matrix4x4<_T2>&& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> operator+(matrix4x4<_T2>&& m)
 	{
-		return add(cast<matrix4x4<_T2> >(m));
+		return add(tplmp::cast<matrix4x4<_T2> >(m));
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()-decl<_T2>::val())> operator-(matrix4x4<_T2>&& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> operator-(matrix4x4<_T2>&& m)
 	{
-		return sub(cast<matrix4x4<_T2> >(m));
+		return sub(tplmp::cast<matrix4x4<_T2> >(m));
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()*decl<_T2>::val())> operator*(matrix4x4<_T2>&& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(matrix4x4<_T2>&& m)
 	{
-		return mul(cast<matrix4x4<_T2> >(m));
+		return mul(tplmp::cast<matrix4x4<_T2> >(m));
 	}
 
 	template<typename _T2>
-	inline vector<4, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<4, _T2>&& v)
+	inline vector<4, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<4, _T2>&& v)
 	{
-		return mul(cast<vector<4, _T2> >(v));
+		return mul(tplmp::cast<vector<4, _T2> >(v));
 	}
 
 	template<typename _T2>
-	inline vector<3, decltype(decl<_T>::val()*decl<_T2>::val())> operator*(vector<3, _T2>&& v)
+	inline vector<3, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> operator*(vector<3, _T2>&& v)
 	{
-		return mul(cast<vector<3, _T2> >(v));
+		return mul(tplmp::cast<vector<3, _T2> >(v));
 	}
 
 	template<typename _T2>
@@ -619,7 +619,7 @@ public:
 						(_T2)elem[2][0], (_T2)elem[2][1], (_T2)elem[2][2], (_T2)elem[2][3],
 						(_T2)elem[3][0], (_T2)elem[3][1], (_T2)elem[3][2], (_T2)elem[3][3],
 				};
-		return cast<matrix<4, 4, _T2> >(m_elem);
+		return tplmp::cast<matrix<4, 4, _T2> >(m_elem);
 	}
 
 	inline vector<4, _T> column(int column)
@@ -628,7 +628,7 @@ public:
 				{
 						elem[0][column], elem[1][column], elem[2][column], elem[3][column]
 				};
-		return cast<vector<4, _T> >(m_elem);
+		return tplmp::cast<vector<4, _T> >(m_elem);
 	}
 
 	inline matrix4x4<_T> transpose() //转置
@@ -640,13 +640,13 @@ public:
 						elem[0][2], elem[1][2], elem[2][2], elem[3][2],
 						elem[0][3], elem[1][3], elem[2][3], elem[3][3]
 				};
-		return cast<matrix4x4<_T> >(m_elem);
+		return tplmp::cast<matrix4x4<_T> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()*decl<_T2>::val())> dot(matrix<4, 4, _T2>& m) //按位相乘
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> dot(matrix<4, 4, _T2>& m) //按位相乘
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * m.elem[0][0], elem[0][1] * m.elem[0][1], elem[0][2] * m.elem[0][2], elem[0][3] * m.elem[0][3],
@@ -654,13 +654,13 @@ public:
 						elem[2][0] * m.elem[2][0], elem[2][1] * m.elem[2][1], elem[2][2] * m.elem[2][2], elem[2][3] * m.elem[2][3],
 						elem[3][0] * m.elem[3][0], elem[3][1] * m.elem[3][1], elem[3][2] * m.elem[3][2], elem[3][3] * m.elem[3][3]
 				};
-		return cast<matrix4x4<_R> >(m_elem);
+		return tplmp::cast<matrix4x4<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()*decl<_T2>::val())> mul(_T2 t) //数乘
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(_T2 t) //数乘
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * t, elem[0][1] * t, elem[0][2] * t, elem[0][3] * t,
@@ -668,13 +668,13 @@ public:
 						elem[2][0] * t, elem[2][1] * t, elem[2][2] * t, elem[2][3] * t,
 						elem[3][0] * t, elem[3][1] * t, elem[3][2] * t, elem[3][3] * t
 				};
-		return cast<matrix4x4<_R> >(m_elem);
+		return tplmp::cast<matrix4x4<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()*decl<_T2>::val())> mul(matrix<4, 4, _T2>& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(matrix<4, 4, _T2>& m)
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] * m.elem[0][0] + elem[0][1] * m.elem[1][0] + elem[0][2] * m.elem[2][0] + elem[0][3] * m.elem[3][0], elem[0][0] * m.elem[0][1] + elem[0][1] * m.elem[1][1] + elem[0][2] * m.elem[2][1] + elem[0][3] * m.elem[3][1], elem[0][0] * m.elem[0][2] + elem[0][1] * m.elem[1][2] + elem[0][2] * m.elem[2][2] + elem[0][3] * m.elem[3][2], elem[0][0] * m.elem[0][3] + elem[0][1] * m.elem[1][3] + elem[0][2] * m.elem[2][3] + elem[0][3] * m.elem[3][3],
@@ -682,13 +682,13 @@ public:
 						elem[2][0] * m.elem[0][0] + elem[2][1] * m.elem[1][0] + elem[2][2] * m.elem[2][0] + elem[2][3] * m.elem[3][0], elem[2][0] * m.elem[0][1] + elem[2][1] * m.elem[1][1] + elem[2][2] * m.elem[2][1] + elem[2][3] * m.elem[3][1], elem[2][0] * m.elem[0][2] + elem[2][1] * m.elem[1][2] + elem[2][2] * m.elem[2][2] + elem[2][3] * m.elem[3][2], elem[2][0] * m.elem[0][3] + elem[2][1] * m.elem[1][3] + elem[2][2] * m.elem[2][3] + elem[2][3] * m.elem[3][3],
 						elem[3][0] * m.elem[0][0] + elem[3][1] * m.elem[1][0] + elem[3][2] * m.elem[2][0] + elem[3][3] * m.elem[3][0], elem[3][0] * m.elem[0][1] + elem[3][1] * m.elem[1][1] + elem[3][2] * m.elem[2][1] + elem[3][3] * m.elem[3][1], elem[3][0] * m.elem[0][2] + elem[3][1] * m.elem[1][2] + elem[3][2] * m.elem[2][2] + elem[3][3] * m.elem[3][2], elem[3][0] * m.elem[0][3] + elem[3][1] * m.elem[1][3] + elem[3][2] * m.elem[2][3] + elem[3][3] * m.elem[3][3],
 				};
-		return cast<matrix4x4<_T> >(m_elem);
+		return tplmp::cast<matrix4x4<_T> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline vector<4, decltype(decl<_T>::val()*decl<_T2>::val())> mul(vector<4, _T2>& v)
+	inline vector<4, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(vector<4, _T2>& v)
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R v_elem[] =
 				{
 						elem[0][0] * v[0] + elem[0][1] * v[1] + elem[0][2] * v[2] + elem[0][3] * v[3],
@@ -696,26 +696,26 @@ public:
 						elem[2][0] * v[0] + elem[2][1] * v[1] + elem[2][2] * v[2] + elem[2][3] * v[3],
 						elem[3][0] * v[0] + elem[3][1] * v[1] + elem[3][2] * v[2] + elem[3][3] * v[3]
 				};
-		return cast<vector<4, _R> >(v_elem);
+		return tplmp::cast<vector<4, _R> >(v_elem);
 	}
 
 	template<typename _T2>
-	inline vector<3, decltype(decl<_T>::val()*decl<_T2>::val())> mul(vector<3, _T2>& v) //差的维度补值为1
+	inline vector<3, decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val())> mul(vector<3, _T2>& v) //差的维度补值为1
 	{
-		typedef decltype(decl<_T>::val()*decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()*tplmp::decl<_T2>::val()) _R;
 		_R v_elem[] =
 				{
 						elem[0][0] * v[0] + elem[0][1] * v[1] + elem[0][2] * v[2] + elem[0][3],
 						elem[1][0] * v[0] + elem[1][1] * v[1] + elem[1][2] * v[2] + elem[1][3],
 						elem[2][0] * v[0] + elem[2][1] * v[1] + elem[2][2] * v[2] + elem[2][3],
 				};
-		return cast<vector<3, _R> >(v_elem);
+		return tplmp::cast<vector<3, _R> >(v_elem);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()/decl<_T2>::val())> div(_T2 t) //除法
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val())> div(_T2 t) //除法
 	{
-		typedef decltype(decl<_T>::val()/decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()/tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] / t, elem[0][1] / t, elem[0][2] / t, elem[0][3] / t,
@@ -723,13 +723,13 @@ public:
 						elem[2][0] / t, elem[2][1] / t, elem[2][2] / t, elem[2][3] / t,
 						elem[3][0] / t, elem[3][1] / t, elem[3][2] / t, elem[3][3] / t
 				};
-		return cast<matrix4x4<_R> >(m_elem);
+		return tplmp::cast<matrix4x4<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()+decl<_T2>::val())> add(matrix<4, 4, _T2>& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val())> add(matrix<4, 4, _T2>& m)
 	{
-		typedef decltype(decl<_T>::val()+decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()+tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] + m.elem[0][0], elem[0][1] + m.elem[0][1], elem[0][2] + m.elem[0][2], elem[0][3] + m.elem[0][3],
@@ -737,13 +737,13 @@ public:
 						elem[2][0] + m.elem[2][0], elem[2][1] + m.elem[2][1], elem[2][2] + m.elem[2][2], elem[2][3] + m.elem[2][3],
 						elem[3][0] + m.elem[3][0], elem[3][1] + m.elem[3][1], elem[3][2] + m.elem[3][2], elem[3][3] + m.elem[3][3]
 				};
-		return cast<matrix4x4<_R> >(m_elem);
+		return tplmp::cast<matrix4x4<_R> >(m_elem);
 	}
 
 	template<typename _T2>
-	inline matrix4x4<decltype(decl<_T>::val()-decl<_T2>::val())> sub(matrix<4, 4, _T2>& m)
+	inline matrix4x4<decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val())> sub(matrix<4, 4, _T2>& m)
 	{
-		typedef decltype(decl<_T>::val()-decl<_T2>::val()) _R;
+		typedef decltype(tplmp::decl<_T>::val()-tplmp::decl<_T2>::val()) _R;
 		_R m_elem[] =
 				{
 						elem[0][0] - m.elem[0][0], elem[0][1] - m.elem[0][1], elem[0][2] - m.elem[0][2], elem[0][3] - m.elem[0][3],
@@ -751,7 +751,7 @@ public:
 						elem[2][0] - m.elem[2][0], elem[2][1] - m.elem[2][1], elem[2][2] - m.elem[2][2], elem[2][3] - m.elem[2][3],
 						elem[3][0] - m.elem[3][0], elem[3][1] - m.elem[3][1], elem[3][2] - m.elem[3][2], elem[3][3] - m.elem[3][3]
 				};
-		return cast<matrix4x4<_R> >(m_elem);
+		return tplmp::cast<matrix4x4<_R> >(m_elem);
 	}
 
 	inline static matrix4x4<_T> zero()
@@ -763,15 +763,15 @@ public:
 						0, 0, 0, 0,
 						0, 0, 0, 0
 				};
-		return cast<matrix4x4<_T> >(m_elem);
+		return tplmp::cast<matrix4x4<_T> >(m_elem);
 	}
 
-	inline auto det() -> decltype(decl<_T>::val()*decl<_T>::val())
+	inline auto det() -> decltype(tplmp::decl<_T>::val()*tplmp::decl<_T>::val())
 	{
 		return elem[0][0] * (elem[1][1] * elem[2][2] * elem[3][3] - elem[3][1] * elem[2][2] * elem[1][3]) + elem[0][1] * (elem[1][2] * elem[2][3] * elem[3][0] - elem[1][0] * elem[2][3] * elem[3][2]) + elem[0][2] * (elem[1][3] * elem[2][0] * elem[3][1] - elem[1][1] * elem[2][0] * elem[3][3]) + elem[0][3] * (elem[1][0] * elem[2][1] * elem[3][2] - elem[1][2] * elem[2][1] * elem[3][0]);
 	}
 
-	inline auto trace() -> decltype(decl<_T>::val()+decl<_T>::val()) //迹
+	inline auto trace() -> decltype(tplmp::decl<_T>::val()+tplmp::decl<_T>::val()) //迹
 	{
 		return elem[0][0] + elem[1][1] + elem[2][2] + elem[3][3];
 	}
@@ -785,7 +785,7 @@ public:
 						0, 0, 1, 0,
 						0, 0, 0, 1
 				};
-		return cast<matrix4x4<_T> >(m_elem);
+		return tplmp::cast<matrix4x4<_T> >(m_elem);
 	}
 };
 

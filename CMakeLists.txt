@@ -24,6 +24,7 @@ add_subdirectory("libcxxllo")
 add_subdirectory("libcxxsci")
 add_subdirectory("libcxxcomm")
 #add_subdirectory("libcxxnw")
+#add_subdirectory("libcxxjvmi")
 add_subdirectory("libcxxmmproc")
 add_subdirectory("libcxxactx")
 add_subdirectory("libcxxgctx")
@@ -39,6 +40,7 @@ project_dependency_libs(
     PUBLIC cxxsci
     PUBLIC cxxcomm
 #    PUBLIC cxxnw
+#    PUBLIC cxxjvmi
     PUBLIC cxxmmproc
     PUBLIC cxxactx
     PUBLIC cxxgctx

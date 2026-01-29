@@ -1,14 +1,29 @@
 # This is a internal utility and tricks cmake file, mainly used in implementions of other functionalities;
 # Use include(${LIBCXXBASE_CMAKE_DIR}/internal.cmake) to include this file.
 
+function(expr_add result p1 p2)
+	math(EXPR ${result} "${p1} + ${p2}")
+endfunction()
+
 # Expand the target as text in the context.
 # CMake doesn't support mutil-pass macro expand, so the only way is output expanded content into a file, and then include() it.
 macro(expand expandable)
 	if (NOT COMMAND ${expandable}) # true if this command(callable) is defined
 		message(WARNING "'${expandable}' not found, expand failed")
 	else()
-		set(expand_content_cache "${CMAKE_CACHEFILE_DIR}/CMakeFiles/expandChaches/${expandable}.cmake") # write expand content into cache files
-		string(JOIN " " ${expandable}_params ${ARGN}) # ${ARGN} is separated with ';' when writing to file, so join them into a string with separator ' '
+		set(expand_counter __expand_counter_${expandable}__)
+		if(${expand_counter})
+			expr_add(new_counter ${${expand_counter}} 1)
+		else()
+			set(new_counter 0)
+		endif()
+		set(${expand_counter} ${new_counter} CACHE STRING "expand counter for ${expandable}" FORCE)
+		set(expand_content_cache "${CMAKE_CACHEFILE_DIR}/CMakeFiles/expandChaches/${expandable}$${${expand_counter}}.cmake") # write expand content into cache files
+		set(quot_args)
+		foreach(arg ${ARGN})
+			list(APPEND quot_args "\"${arg}\"") # QUOT ARGS TO AVOID SINGLE ARG WITH SPACE ' ' BE TREATED AS A SEQUENCE OF TOKENS 
+		endforeach()
+		string(JOIN " " ${expandable}_params ${quot_args}) # ${quot_args} is separated with ';' when writing to file, so join them into a string with separator ' '
 		file(WRITE ${expand_content_cache} "${expandable}(${${expandable}_params})")
 		unset(${expandable}_params)
 		include(${expand_content_cache})
@@ -18,8 +33,8 @@ endmacro()
 
 # Check if all ${ARGN} extra args are in list.
 function(in_list result target_list)
-	foreach(arg IN LISTS ARGN)
-		list(FIND ${target_list} ${arg} i)
+	foreach(arg ${ARGN})
+		list(FIND ${target_list} "${arg}" i)
 		if(${i} EQUAL -1)
 			set(${result} FALSE PARENT_SCOPE)
 			return()
@@ -48,12 +63,12 @@ set(__modifiers_dependency__ SYSTEM AFTER BEFORE ${__modifiers_visibility__})
 # where ARGN is like: PRIVATE x.cpp PUBLIC y.cpp INTERFACE z.cpp
 function(__modifiers_foreach__ modifiers_reserved_list op)
 	set(modifiers)
-	foreach(arg IN LISTS ARGN)
-		in_list(is_modifier ${modifiers_reserved_list} ${arg})
+	foreach(arg ${ARGN})
+		in_list(is_modifier ${modifiers_reserved_list} "${arg}")
 		if(is_modifier)
-			list(APPEND modifiers ${arg})
+			list(APPEND modifiers "${arg}")
 		else() # this token is not a modifier, then it is an arg
-			expand(${op} ${arg} ${modifiers})
+			expand(${op} "${arg}" ${modifiers})
 			set(modifiers) # clear modifiers for the next arg
 		endif()
 	endforeach()
@@ -62,10 +77,10 @@ endfunction()
 # Filter a list and append them to filtered_args. cond is a macro that receives 2 params.
 # The first arg indicates this arg should be reserved or not, available values are TRUE and FALSE.
 function(filter cond filtered_args)
-	foreach(arg IN LISTS ARGN)
-		expand(${cond} reserved ${arg})
+	foreach(arg ${ARGN})
+		expand(${cond} reserved "${arg}")
 		if(${reserved})
-			list(APPEND ${filtered_args} ${arg})
+			list(APPEND ${filtered_args} "${arg}")
 		endif()
 	endforeach()
 	set(${filtered_args} ${${filtered_args}} PARENT_SCOPE)
@@ -115,7 +130,7 @@ endfunction()
 
 # Get all direct sub directories as a list.
 function(subdirs_of dirs_list)
-	foreach(parent_dir IN LISTS ARGN)
+	foreach(parent_dir ${ARGN})
 		file(GLOB current_dirs_list LIST_DIRECTORIES TRUE "${parent_dir}/*")
 		list(APPEND ${dirs_list} ${current_dirs_list})
 	endforeach()

@@ -4,103 +4,58 @@
 
 using namespace cxxnw;
 
-boost::asio::ip::tcp::resolver::results_type tcp_channel::resolve(const char* ip, const char* service_name)
-{
-	return host_resolver.resolve(ip, service_name);
-}
-
-void tcp_channel::resolve(const char* ip, const char* service_name, resolve_callback cb)
-{
-	host_resolver.async_resolve(ip, service_name, [this, ip, service_name, cb](boost::system::error_code resolve_ec, boost::asio::ip::tcp::resolver::results_type results) -> void
-			{
-				if (resolve_ec)
-				{
-					LogError("resolve ip failed: ", resolve_ec.what().c_str())
-				}
-				if(cb)
-				{
-					cb(resolve_ec, results);
-				}
-			});
-}
-
-void tcp_channel::connect(const char* ip, const char* service_name, connect_callback cb)
-{
-	resolve(ip, service_name, [this, ip, service_name, cb](boost::system::error_code resolve_ec, boost::asio::ip::tcp::resolver::results_type results) -> void
-			{
-				this->comm_socket = new boost::asio::ip::tcp::socket(*io_context);
-				boost::asio::async_connect(*this->comm_socket, results, [this, ip, service_name](boost::system::error_code connect_ec, boost::asio::ip::tcp::endpoint ep) -> void
-						{
-							if (connect_ec)
-							{
-								LogError("connect failed: ", connect_ec.what().c_str());
-							}
-							else
-							{
-								LogDebugInfo("connected to server ", ip, ':', service_name);
-							}
-							if(cb)
-							{
-								cb(connect_ec, ep);
-							}
-						});
-			});
-	io_context->run(); //阻塞等待全部异步操作执行完毕
-}
-
 void tcp_channel::disconnect()
 {
 	delete comm_socket;
 	comm_socket = nullptr;
 }
 
-void tcp_channel::read(receive_callback cb)
+void tcp_channel::read(transfer_callback cb)
 {
-	boost::asio::async_read(*this->comm_socket, boost::asio::buffer(this->recv_buffer, sizeof(uint32_t)), [this, cb](boost::system::error_code ec_header, std::size_t) -> void
+	boost::asio::async_read(*this->comm_socket, boost::asio::buffer(&this->recv_body_len, sizeof(uint32_t)), [this, cb](boost::system::error_code ec_header, size_t) -> void
 			{
 				if(ec_header)
 				{
 					LogError("read header length failed: ", ec_header.what().c_str());
+					if(cb)
+					{
+						cb(ec_header, 0, (unsigned char*)this->recv_buffer);
+					}
 				}
 				else
 				{
-					uint32_t body_length = ntohl(*((uint32_t*)recv_buffer));
-					body.resize(body_length, 0);
-					boost::asio::async_read(*this->comm_socket, boost::asio::buffer(body), body_length,
+					recv_body_len = ntohl(this->recv_body_len);
+					recv_buffer.reserve(recv_body_len);
+					boost::asio::async_read(*this->comm_socket, boost::asio::buffer((char*)recv_buffer, recv_body_len), boost::asio::transfer_exactly(recv_body_len),
 							[this, cb](boost::system::error_code ec_body, size_t) -> void
 							{
 								if(ec_body)
 								{
 									LogError("read body failed: ",ec_body.what().c_str());
 								}
-								else
+								if(cb)
 								{
-									if(cb)
-									{
-										cb(body_length, body);
-									}
+									cb(ec_body, this->recv_body_len, (unsigned char*)this->recv_buffer);
 								}
 							});
 				}
 			});
+	io_context->run();
 }
 
-tcp_channel& tcp_channel::write(std::vector<unsigned char> bytes)
+void tcp_channel::write(unsigned char* bytes, uint32_t length, transfer_callback cb)
 {
-	std::vector < boost::asio::const_buffer > buffers;
-	uint32_t resp_length = htonl((uint32_t)(bytes.size()));
-	buffers.push_back(boost::asio::buffer(&resp_length, sizeof(resp_length)));
-	buffers.push_back(boost::asio::buffer(bytes));
-	boost::asio::async_write(*comm_socket, buffers, [this](boost::system::error_code write_ec, std::size_t) -> void
+	uint32_t write_length = htonl(length);
+	boost::asio::async_write(*comm_socket, boost::asio::buffer((char*)bytes, write_length), [bytes, write_length, cb](boost::system::error_code write_ec, size_t) -> void
 			{
 				if(write_ec)
 				{
 					LogError("write tcp channel ", get_address(), " failed: ",write_ec.what().c_str());
 				}
-				else
+				if(cb)
 				{
-					start(socket);
+					cb(write_ec, write_length, bytes);
 				}
 			});
-	return *this;
+	io_context->run();
 }

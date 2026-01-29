@@ -14,7 +14,7 @@ namespace cxxsci
 template<int _Rank = 4, typename _T = float>
 inline square_matrix<_Rank, _T> scale(_T scale_factor)
 {
-	return cast<square_matrix<_Rank, _T> >(square_matrix<_Rank, _T>::identity() * scale_factor);
+	return tplmp::cast<square_matrix<_Rank, _T> >(square_matrix<_Rank, _T>::identity() * scale_factor);
 }
 
 //平移矩阵，矩阵维度比矢量大1
@@ -37,7 +37,7 @@ inline matrix4x4<_T> shift(vector<3, _T> shift_v)
 					0, 0, 1, shift_v[2],
 					0, 0, 0, 1
 			};
-	return cast<matrix4x4<_T> >(m_elem);
+	return tplmp::cast<matrix4x4<_T> >(m_elem);
 }
 
 template<typename _T = float>
@@ -50,7 +50,7 @@ inline matrix4x4<_T> Rx(_T rad)
 					0, sin(rad), cos(rad), 0,
 					0, 0, 0, 1
 			};
-	return cast<matrix4x4<_T> >(m_elem);
+	return tplmp::cast<matrix4x4<_T> >(m_elem);
 }
 
 template<typename _T = float>
@@ -63,7 +63,7 @@ inline matrix4x4<_T> Ry(_T rad)
 					-sin(rad), 0, cos(rad), 0,
 					0, 0, 0, 1
 			};
-	return cast<matrix4x4<_T> >(m_elem);
+	return tplmp::cast<matrix4x4<_T> >(m_elem);
 }
 
 template<typename _T = float>
@@ -76,7 +76,7 @@ inline matrix4x4<_T> Rz(_T rad)
 					0, 0, 1, 0,
 					0, 0, 0, 1
 			};
-	return cast<matrix4x4<_T> >(m_elem);
+	return tplmp::cast<matrix4x4<_T> >(m_elem);
 }
 
 //外在旋转
@@ -110,7 +110,7 @@ inline matrix4x4<_T> frustum(_T z_near, _T z_far, _T fov, _T left, _T right, _T 
 			0, 0, -(z_far + z_near) / (z_far - z_near), -2 * z_near * z_far / (z_far - z_near),
 			0, 0, -1, 0
 	};
-	return cast<matrix4x4<_T> >(m_elem);
+	return tplmp::cast<matrix4x4<_T> >(m_elem);
 }
 
 //OpenGL的投影矩阵。NDC为左手坐标系，世界坐标系为右手坐标系，znear和zfar取正
@@ -123,7 +123,7 @@ inline matrix4x4<_T> frustum(_T znear, _T zfar, _T fov, _T aspect_ratio)
 			0, 0, -(zfar + znear) / (zfar - znear), -2 * znear * zfar / (zfar - znear),
 			0, 0, -1, 0
 	};
-	return cast<matrix4x4<_T> >(m_elem);
+	return tplmp::cast<matrix4x4<_T> >(m_elem);
 }
 
 }

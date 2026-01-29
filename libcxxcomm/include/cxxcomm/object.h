@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <typeinfo>
-#include <cxxtricks/types.h>
+#include <tplmp/tplmp.h>
 
 /**
  * @brief 包装基本类型值和对象
@@ -25,7 +25,7 @@ public:
 	template<typename T>
 	__attribute__((always_inline)) inline static constexpr bool is_directly_stored(void)
 	{
-		return is_ptr<T>::value && is_primitive<T>::value;
+		return tplmp::is_ptr<T>::value && tplmp::is_primitive<T>::value;
 	}
 
 	template<typename T>

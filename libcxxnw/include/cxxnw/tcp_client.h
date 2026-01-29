@@ -1,47 +1,46 @@
 #ifndef _CXXNW_TCPCLIENT
 #define _CXXNW_TCPCLIENT
 
-#include <cxxcomm/string_utils.h>
-
-#include <boost/asio.hpp>
-
-#include <cxxnw/tcp_session.h>
+#include <cxxnw/tcp_channel.h>
 
 namespace cxxnw
 {
-class tcp_client
+class tcp_client: public tcp_channel
 {
 private:
-	boost::asio::io_context* io_context;
-	boost::asio::ip::tcp::resolver resolver;
-	tcp_session session;
+	boost::asio::ip::tcp::endpoint end_point;
+	boost::asio::ip::tcp::resolver host_resolver; //解析IP和端口
 
 public:
-	tcp_session::callback connect_callback;
-
-	tcp_client(boost::asio::io_context* io_ctx = new boost::asio::io_context()) :
-			io_context(io_ctx), resolver(*io_ctx)
+	tcp_client(size_t buffer_len = __TCP_CHANNEL_DEFAULT__BUFFER_SIZE__, boost::asio::io_context* io_ctx = new boost::asio::io_context()) :
+			channel(buffer_len, io_ctx)
 	{
 
 	}
 
-	void connect(const char* ip, const char* service_name);
+	/**
+	 * @brief 同步解析IP
+	 */
+	boost::asio::ip::tcp::resolver::results_type resolve(const char* ip, const char* service_name);
 
-	inline void connect(const char* ip, int port)
+	/**
+	 * @brief 异步解析IP
+	 */
+	void resolve(const char* ip, const char* service_name, resolve_callback cb);
+
+	void connect(const char* ip, const char* service_name, connect_callback cb = connect_callback());
+
+	inline void connect(const char* ip, int port, connect_callback cb = connect_callback())
 	{
-		connect(ip, to_string(port).c_str());
+		connect(ip, to_string(port).c_str(), cb);
 	}
 
-	inline tcp_client& post(std::vector<unsigned char> msg)
+	/**
+	 * @brief 当已连接时，获取IP和端口
+	 */
+	inline boost::asio::ip::address get_address()
 	{
-		session.post(msg);
-		return *this;
-	}
-
-	inline tcp_client& setRecvCallback(tcp_session::callback recv_cb)
-	{
-		session.recv_callback = recv_cb;
-		return *this;
+		return end_point.address();
 	}
 };
 }

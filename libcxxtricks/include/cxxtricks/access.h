@@ -1,8 +1,8 @@
 #ifndef _CXXTRICKS_ACCESS
 #define _CXXTRICKS_ACCESS
 
-#include <cxxtricks/macros.h>
-#include <cxxtricks/types.h>
+#include <ppmp/ppmp.h>
+#include <tplmp/tplmp.h>
 
 /**
  * @brief 访问标识符，仅用作占位符用以区分不同成员，任何一个成员都需要具有其独特的标识符，即定义一个类继承自该类
@@ -10,14 +10,14 @@
 template<typename _Class, typename _Memb>
 struct __access_identifier
 {
-	static_assert(is_class<_Class>::value, "_Class must be a class type"); //静态断言，只有类成员可以有__access_identifier
+	static_assert(tplmp::is_class<_Class>::value, "_Class must be a class type"); //静态断言，只有类成员可以有__access_identifier
 
 	typedef _Class decl_class; //成员所属类
 	typedef _Memb decl_type; //成员声明的类型
-	typedef typename pmemb_type<_Class, _Memb>::type pmemb_type; //成员指针类型
-	typedef typename eval_type<_Memb>::type eval_type; //成员求值类型，对字段而言是声明类型，对函数而言是返回类型
+	typedef typename tplmp::pmemb_type<_Class, _Memb>::type pmemb_type; //成员指针类型
+	typedef typename tplmp::eval_type<_Memb>::type eval_type; //成员求值类型，对字段而言是声明类型，对函数而言是返回类型
 
-	static const type_classification classification = type_classification_of<_Memb _Class::*>::value; //成员分类，判断是成员字段还是成员函数
+	static const tplmp::type_classification classification = tplmp::type_classification_of<_Memb _Class::*>::value; //成员分类，判断是成员字段还是成员函数
 
 	__access_identifier() = delete; //不能直接使用__access_identifier作为标识符，必须写一个派生类继承自本类
 };
@@ -28,10 +28,10 @@ struct __accessor_impl_base
 {
 	typedef typename _AccessIdentifier::pmemb_type pmemb_type;
 
-	static pmemb_type pmemb;
+	static tplmp::pmemb_type pmemb;
 
 	typedef typename _AccessIdentifier::decl_class decl_class;
-	typedef typename eval_type<typename _AccessIdentifier::pmemb_type>::type eval_type;
+	typedef typename tplmp::eval_type<typename _AccessIdentifier::pmemb_type>::type eval_type;
 
 	decl_class* pobj;
 
@@ -57,13 +57,13 @@ typename __accessor_impl_base<_AccessIdentifier>::pmemb_type __accessor_impl_bas
  * 		  原理：在显式实例化模板给其指针类型模板参数直接赋值时，可以绕过访问修饰符直接取到成员指针，需要将这个取到的成员指针在本模板以外之处储存起来在使用。
  * 		  注意在显式实例化完成以后，因其模板参数包含了对private成员取指针，故被显示实例化的模板将无法声明或使用，否则会受到访问修饰符限制并报错。
  */
-template<typename _AccessIdentifier, type_classification _Classification>
+template<typename _AccessIdentifier, tplmp::type_classification _Classification>
 struct __accessor_impl
 {
 };
 
 template<typename _AccessIdentifier>
-struct __accessor_impl<_AccessIdentifier, type_classification::MEMB_FIELD> : public __accessor_impl_base<_AccessIdentifier>
+struct __accessor_impl<_AccessIdentifier, tplmp::type_classification::MEMB_FIELD> : public __accessor_impl_base<_AccessIdentifier>
 {
 	using typename __accessor_impl_base<_AccessIdentifier>::decl_class;
 	using typename __accessor_impl_base<_AccessIdentifier>::eval_type;
@@ -80,33 +80,33 @@ struct __accessor_impl<_AccessIdentifier, type_classification::MEMB_FIELD> : pub
 	{
 	}
 
-	__attribute__((always_inline)) inline operator eval_type&()
+	__attribute__((always_inline)) inline operator tplmp::eval_type&()
 	{
 		return pobj->*pmemb;
 	}
 
-	__attribute__((always_inline)) inline __accessor_impl <_AccessIdentifier, type_classification::MEMB_FIELD>& operator=(const eval_type& value)
+	__attribute__((always_inline)) inline __accessor_impl <_AccessIdentifier, tplmp::type_classification::MEMB_FIELD>& operator=(const tplmp::eval_type& value)
 	{
 		pobj->*pmemb = value;
 		return *this;
 	}
 
-	__attribute__((always_inline)) inline static eval_type& load(decl_class* pobj)
+	__attribute__((always_inline)) inline static tplmp::eval_type& load(decl_class* pobj)
 	{
 		return pobj->*pmemb;
 	}
 
-	__attribute__((always_inline)) inline static eval_type& load(decl_class& obj)
+	__attribute__((always_inline)) inline static tplmp::eval_type& load(decl_class& obj)
 	{
 		return obj.*pmemb;
 	}
 
-	__attribute__((always_inline)) inline static void store(decl_class* pobj, eval_type&& value)
+	__attribute__((always_inline)) inline static void store(decl_class* pobj, tplmp::eval_type&& value)
 	{
 		pobj->*pmemb = value;
 	}
 
-	__attribute__((always_inline)) inline static void store(decl_class& obj, eval_type&& value)
+	__attribute__((always_inline)) inline static void store(decl_class& obj, tplmp::eval_type&& value)
 	{
 		obj.*pmemb = value;
 	}
@@ -114,7 +114,7 @@ struct __accessor_impl<_AccessIdentifier, type_classification::MEMB_FIELD> : pub
 
 //成员函数访问的实现
 template<typename _AccessIdentifier>
-struct __accessor_impl<_AccessIdentifier, type_classification::MEMB_FUNCTION> : public __accessor_impl_base<_AccessIdentifier>
+struct __accessor_impl<_AccessIdentifier, tplmp::type_classification::MEMB_FUNCTION> : public __accessor_impl_base<_AccessIdentifier>
 {
 	using typename __accessor_impl_base<_AccessIdentifier>::decl_class;
 	using typename __accessor_impl_base<_AccessIdentifier>::eval_type;
@@ -155,7 +155,7 @@ struct __accessor: public __accessor_impl<_AccessIdentifier, _AccessIdentifier::
 {
 	typedef _AccessIdentifier identifier;
 
-	static constexpr type_classification classification = identifier::classification;
+	static constexpr tplmp::type_classification classification = identifier::classification;
 
 	using typename __accessor_impl<identifier, classification>::decl_class;
 

@@ -1,14 +1,13 @@
 #ifndef _CXXNW_TCPSERVER
 #define _CXXNW_TCPSERVER
 
-#include <boost/asio.hpp>
+#include <cxxnw/tcp_channel.h>
 
 namespace cxxnw
 {
-class tcp_server
+class tcp_server: public tcp_channel
 {
 private:
-	boost::asio::io_context* io_context;
 	boost::asio::ip::tcp::acceptor acceptor;
 
 public:

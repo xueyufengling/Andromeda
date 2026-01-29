@@ -3,13 +3,14 @@
 
 # ---- Include ----
 # WARNING: SOME PACKAGE'S INCLUDE DIR IS SYSTEM INCLUDE DIR, IN THIS CASE INCLUDE IT AGAIN WILL BROKE SYSTEM INCLUDE SEARCH ORDER, AND #include_next CANNOT FIND FILE!
+# MUST use "" to quot path, if not, paths with space ' ' will be expand to a sequence of tokens but not one entire.
 
 include("${LIBCXXBASE_CMAKE_DIR}/internal.cmake")
 include("${LIBCXXBASE_CMAKE_DIR}/echo.cmake")
 
 macro(__include_dirs_foreach__ included_dir)
 	string(JOIN " " modifiers_descp ${ARGN})
-	target_include_directories(${target_name} ${ARGN} ${included_dir})
+	target_include_directories(${target_name} ${ARGN} "${included_dir}")
 	message(STATUS "target '${target_name}' include ${modifiers_descp}: \"${included_dir}\"")
 endmacro()
 
@@ -29,7 +30,7 @@ endfunction()
 
 # Include header files from current(sub project) source dir.
 function(include_current target_name)
-	include_dirs_in(${target_name} ${CMAKE_CURRENT_SOURCE_DIR} ${ARGN})
+	include_dirs_in(${target_name} "${CMAKE_CURRENT_SOURCE_DIR}" ${ARGN})
 endfunction()
 
 # include_current() for the current project target.
@@ -38,12 +39,12 @@ function(project_include_current)
 endfunction()
 
 # Include and public header files from global(main project) source dir.
-function(include_global target_name visibility included_dirs)
-	include_dirs_in(${target_name}  ${PROJECT_SOURCE_DIR} ${ARGN})
+function(include_global target_name)
+	include_dirs(${target_name} ${ARGN})
 endfunction()
 
 # include_current() for the current project target.
-function(project_include_global visibility included_dirs)
+function(project_include_global)
 	include_global(${PROJECT_NAME} ${ARGN})
 endfunction()
 
@@ -55,7 +56,7 @@ function(is_system_include result)
 endfunction()
 
 function(has_system_include result)
-	foreach(arg IN LISTS ARGN)
+	foreach(arg ${ARGN})
 		is_system_include(${result} arg)
 		if(${result})
 			set(${result} TRUE PARENT_SCOPE)
@@ -69,8 +70,8 @@ endfunction()
 # target_link_libraries() will automatically include its include directories with -isystem, if these directories are system include, then system include search order might be broken,
 # which will casue a classical #include_next <stdlib.h> file not found error.
 # see https://stackoverflow.com/questions/64344063/cmake-stdlib-include-issue/79866054#79866054
-function(system_include target_name)
-	target_include_directories(${target_name} SYSTEM PRIVATE "${__system_include_dirs__}")
+function(system_include target_name, visibility)
+	target_include_directories(${target_name} SYSTEM ${visibility} "${__system_include_dirs__}")
 endfunction()
 
 # ---- Target ----
@@ -299,12 +300,12 @@ endfunction()
 function(target_no_sources target_name)
 	set(dummy_source "${CMAKE_BINARY_DIR}/CMakeFiles/${target_name}.dir/__${target_name}_dummy_source__.cpp")
 	file(WRITE ${dummy_source} "")
-	target_sources(${target_name} PRIVATE ${dummy_source})
+	target_sources(${target_name} PRIVATE "${dummy_source}")
 endfunction()
 
 macro(__add_sources_foreach__ src)
 	file(GLOB SOURCES ${src})
-	target_sources(${target_name} ${ARGN} ${SOURCES})
+	target_sources(${target_name} ${ARGN} "${SOURCES}")
 	message(STATUS "target '${target_name}' sources ${ARGN}: \"${src}\"")
 	string(JOIN "\n   " src_files ${SOURCES})
 	echo_detailed("source files list:\n   " ${src_files})
@@ -322,7 +323,7 @@ endfunction()
 
 macro(__add_sources_in_foreach__ src)
 	file(GLOB SOURCES "${parent_dir}/${src}")
-	target_sources(${target_name} ${ARGN} ${SOURCES})
+	target_sources(${target_name} ${ARGN} "${SOURCES}")
 	message(STATUS "target '${target_name}' sources ${ARGN}: \"${parent_dir}/${src}\"")
 	string(JOIN "\n   " src_files ${SOURCES})
 	echo_detailed("source files list:\n   " ${src_files})
@@ -339,7 +340,7 @@ function(add_sources_in target_name parent_dir)
 endfunction()
 
 function(add_sources_current target_name)
-	add_sources_in(${target_name} ${CMAKE_CURRENT_SOURCE_DIR} ${ARGN})
+	add_sources_in(${target_name} "${CMAKE_CURRENT_SOURCE_DIR}" ${ARGN})
 endfunction()
 
 function(project_sources_current)
@@ -347,7 +348,7 @@ function(project_sources_current)
 endfunction()
 
 function(add_sources_global target_name visibility src)
-	add_sources_in(${target_name}  ${PROJECT_SOURCE_DIR} ${ARGN})
+	add_sources_in(${target_name} "${PROJECT_SOURCE_DIR}" ${ARGN})
 endfunction()
 
 function(project_sources_global)
@@ -357,7 +358,7 @@ endfunction()
 # ---- Dependencies ----
 
 macro(__add_dependency_libs_foreach__ lib)
-	target_link_libraries(${target_name} ${ARGN} ${lib})
+	target_link_libraries(${target_name} ${ARGN} "${lib}")
 	message(STATUS "target '${target_name}' dependency ${ARGN}: ${lib}")
 endmacro()
 
@@ -392,15 +393,21 @@ function(import_package target_name visibility package_name package_prefix inclu
 	set(lib_name ${package_prefix}${lib_suffix})
 	if(${found_name})
 		set(include_dirs ${${include_name}})
-		foreach(inc IN LISTS include_dirs)
-			is_system_include(system_include ${inc})
-			if(system_include)
+		foreach(inc ${include_dirs})
+			is_system_include(is_system_include_result ${inc})
+			if(is_system_include_result)
 				echo_prompt("package '${package_name}' has system include, ignored: \"${inc}\"")
 			else()
-				include_dirs(${target_name} SYSTEM ${visibility} ${inc})
+				echo_prompt("found '${package_name}' include: \"${inc}\"")
+				include_dirs(${target_name} SYSTEM ${visibility} "${inc}")
 			endif()
 		endforeach()
-		system_include(${target_name})
+		if(${visibility} STREQUAL INTERFACE)
+			set(system_include_visibility INTERFACE) # if the package is INTERFACE, then system include should be INTERFACE too
+		else()
+			set(system_include_visibility PRIVATE)
+		endif()
+		system_include(${target_name} ${system_include_visibility})
 		add_dependency_libs(${target_name} ${visibility} ${${lib_name}})
 		echo_prompt("target '${target_name}' imported package '${package_name}'")
 	else()
@@ -452,7 +459,7 @@ endfunction()
 # Remove compiler flags
 function(remove_compiler_flags lang_name)
 	string(TOUPPER ${lang_name} lang_name_upper)
-	foreach(flag IN LISTS ARGN)
+	foreach(flag ${ARGN})
 		string(REPLACE ${flag} "" CMAKE_${lang_name_upper}_FLAGS "${CMAKE_${lang_name_upper}_FLAGS}")
 	endforeach()
 	set(CMAKE_${lang_name_upper}_FLAGS "${CMAKE_${lang_name_upper}_FLAGS}" PARENT_SCOPE)
@@ -485,11 +492,11 @@ endfunction()
 # Apply compiler flag for each arg and prepend to the begining.
 function(apply_prepend_compiler_flags lang_name flag)
 	string(TOUPPER ${lang_name} lang_name_upper)
-	foreach(arg IN LISTS ARGN)
+	foreach(arg ${ARGN})
 		message(STATUS "apply compiler flag for ${lang_name}: ${flag} ${arg}")
 	endforeach()
 	list(REVERSE ARGN) # reverse list to correct flags order
-	foreach(arg IN LISTS ARGN)
+	foreach(arg ${ARGN})
 		prepend_compiler_flags(${lang_name} "${flag} ${arg}")
 	endforeach()
 	set(CMAKE_${lang_name_upper}_FLAGS "${CMAKE_${lang_name_upper}_FLAGS}" PARENT_SCOPE)

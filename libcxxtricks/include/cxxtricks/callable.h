@@ -1,7 +1,7 @@
 #ifndef _CXXTRICKS_CALLABLE
 #define _CXXTRICKS_CALLABLE
 
-#include <cxxtricks/types.h>
+#include <tplmp/tplmp.h>
 
 /**
  * @brief 将任意函数包装为带返回值的函数，防止在模板中出现void返回值作为右值。如果函数为void返回类型，则包装为返回int，且其返回值为0
@@ -46,12 +46,12 @@ struct __callable_retv_impl<_FuncType, void>
 };
 
 template<typename _FuncType>
-struct callable_retv: public __callable_retv_impl<_FuncType, typename eval_type<_FuncType>::type>
+struct callable_retv: public __callable_retv_impl<_FuncType, typename tplmp::eval_type<_FuncType>::type>
 {
-	using __callable_retv_impl<_FuncType, typename eval_type<_FuncType>::type>::type;
+	using __callable_retv_impl<_FuncType, typename tplmp::eval_type<_FuncType>::type>::type;
 
 	__attribute__((always_inline)) inline callable_retv(_FuncType callable) :
-			__callable_retv_impl<_FuncType, typename eval_type<_FuncType>::type>(callable)
+			__callable_retv_impl<_FuncType, typename tplmp::eval_type<_FuncType>::type>(callable)
 	{
 	}
 };
